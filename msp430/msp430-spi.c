@@ -190,9 +190,8 @@ void spi_write_command_and_bulk_data(u8 command, u8 *buffer, size_t size)
 	command &= ~0x80;
 	spi_write_read_byte(command);
 
-	size/=4;
     while (size--) {
-    	spi_write_byte(*buffer++, 1);
+    	spi_write_read_byte(*buffer++);
     }
 	gpio_set_value_hi(SPI_CS);
 }
@@ -212,9 +211,8 @@ void spi_write_command_byte_repeat(u8 command, u8 data, size_t size)
 	command &= ~0x80;
 	spi_write_read_byte(command);
 
-	size/=4;
 	while (size--) {
-    	spi_write_byte(data, 1);
+    	spi_write_read_byte(data);
     }
 	gpio_set_value_hi(SPI_CS);
 }
