@@ -12,13 +12,14 @@
 // loads image form SD-card and updates it on the display using REFRESH waveform
 int show_image(const char *image)
 {
+	  //u8 image_data[240*160/4];
 	  u8 image_data[128*180/4];
 
 	  if (sdcard_load_image(image, image_data))
 		return -1;
 
-	  solomon_send_image_data(image_data);
-	  solomon_update_display();
+	  UC8156_send_image_data(image_data);
+	  UC8156_update_display();
 
 	return 0;
 }

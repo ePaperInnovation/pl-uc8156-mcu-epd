@@ -9,22 +9,17 @@
 #define SOLOMON_H_
 
 #include "types.h"
-extern u8 Waveform_Delta[90];
-extern u8 Waveform_Refresh[90];
-
 
 void UC8156_reset();
 void UC8156_wait_for_BUSY_inactive();
-void solomon_init_registers();
-void solomon_send_waveform(u8 *waveform);
-void solomon_send_vcom(int VCOM_mv_value);
-void solomon_send_repeated_image_data(u8);
-void solomon_send_image_data(u8 *image_data);
-void solomon_update_display();
-void solomon_reset_ram_address();
-// for debug
-void solomon_switch_HV_on();
-void solomon_switch_HV_off();
+void UC8156_init_registers();
+void UC8156_power_on();
+void UC8156_power_off();
 
+void UC8156_send_waveform(u8 *waveform);
+void UC8156_set_Vcom(int VCOM_mv_value);
+void UC8156_send_repeated_image_data(u8);
+void UC8156_send_image_data(u8 *image_data);
+void UC8156_update_display();
 
 #endif /* SOLOMON_H_ */

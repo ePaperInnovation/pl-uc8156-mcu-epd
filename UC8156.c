@@ -1,8 +1,7 @@
 /*
  * solomon.c
  *
- *  Created on: 15.01.2014
- *      Author: andreas.meier
+ * Author: andreas.meier
  */
 
 #include <msp430.h>
@@ -26,15 +25,20 @@ void UC8156_wait_for_BUSY_inactive()
  	while (gpio_get_value(PIN_BUSY)==0); // BUSY loop
 }
 
-// UC8156 power-on sequence
-void UC8156_power_on()
+// UC8156 power-on
+void UC8156_init_registers()
 {
-	UC8156_wait_for_BUSY_inactive();
 	spi_write_command_4params(0x0C, 0x00, 0xEF, 0x00, 0x9F); //panel resolution setting
 	spi_write_command_2params(0x05, 0x01, 0x01); //VCOM and data interval setting
 	spi_write_command_2params(0x06, 0x03, 0x11); //TCON timing setting
 	spi_write_command_3params(0x1F, 0x11, 0x11, 0x10); //TCON timing setting
+}
+
+// UC8156 power-on
+void UC8156_power_on()
+{
 	spi_write_command_1param (0x03, 0xD1); //Power control setting --> switch on CLKEN+PWRON bits
+	UC8156_wait_for_BUSY_inactive();
 }
 
 // UC8156 power-off sequence
@@ -66,13 +70,13 @@ void UC8156_send_waveform(u8 *waveform)
 //send an image to UC8156 image data memory
 void UC8156_send_image_data(u8 *image_data)
 {
-	spi_write_command_and_bulk_data(0x10, image_data, 240*160);
+	spi_write_command_and_bulk_data(0x10, image_data, 240*160/4);
 }
 
 //send an repeated byte to the image buffer --> used to create a solid image like all white
 void UC8156_send_repeated_image_data(u8 image_data)
 {
-	spi_write_command_byte_repeat(0x10, image_data, 240*160);
+	spi_write_command_byte_repeat(0x10, image_data, 240*160/4);
 }
 
 //update display and wait for BUSY-pin low
@@ -81,18 +85,3 @@ void UC8156_update_display()
 	spi_write_command_1param(0x14, 0x01);
 	UC8156_wait_for_BUSY_inactive();
 }
-
-// switch Solomon HV (high voltage) generation on (usefull for debugging purposes)
-void solomon_switch_HV_on()
-{
-	spi_write_command_1param(0x22, 0xC0);
-	spi_write_command(0x20);
-}
-
-// switch Solomon HV (high voltage) generation off (usefull for debugging purposes)
-void solomon_switch_HV_off()
-{
-	spi_write_command_1param(0x22, 0x03);
-	spi_write_command(0x20);
-}
-
