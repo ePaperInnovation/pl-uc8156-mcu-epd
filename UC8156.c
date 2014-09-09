@@ -37,7 +37,9 @@ void UC8156_init_registers()
 // UC8156 power-on
 void UC8156_power_on()
 {
-	spi_write_command_1param (0x03, 0xD1); //Power control setting --> switch on CLKEN+PWRON bits
+	u8 reg_value = spi_read_command_1param (0x03); //read power control setting register
+	reg_value |= 0x11; //switch on CLKEN+PWRON bits
+	spi_write_command_1param (0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
 	UC8156_wait_for_BUSY_inactive();
 }
 
@@ -70,13 +72,13 @@ void UC8156_send_waveform(u8 *waveform)
 //send an image to UC8156 image data memory
 void UC8156_send_image_data(u8 *image_data)
 {
-	spi_write_command_and_bulk_data(0x10, image_data, 240*160/4);
+	spi_write_command_and_bulk_data(0x10, image_data, (u16)240*160/4);
 }
 
 //send an repeated byte to the image buffer --> used to create a solid image like all white
 void UC8156_send_repeated_image_data(u8 image_data)
 {
-	spi_write_command_byte_repeat(0x10, image_data, 240*160/4);
+	spi_write_command_byte_repeat(0x10, image_data, (u16)240*160/4);
 }
 
 //update display and wait for BUSY-pin low
