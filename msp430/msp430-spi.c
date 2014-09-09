@@ -88,6 +88,25 @@ u8 spi_write_read_byte(u8 byte)
     return UCxnRXBUF;                                      // Dummy read to empty RX buffer
 }
 
+/*
+volatile u8 spi_write_read_byte(u8 byte) --> from Epson code, but not working
+{
+	unsigned int gie = __get_SR_register() & GIE;	// Store current GIE state
+
+    __disable_interrupt();							// Make this operation atomic
+
+    UCxnIFG &= ~UCRXIFG;							// Ensure RXIFG is clear
+
+        while (!(UCxnIFG & UCTXIFG));				// Wait for TX buff empty
+        UCxnTXBUF = 0xff;							// Write dummy byte to generate spi clock
+        while (!(UCxnIFG & UCRXIFG));				// Wait for RX buffer (full)
+        volatile u8 temp = UCxnRXBUF;						// store the byte
+
+    __bis_SR_register(gie);                         // Restore original GIE state
+
+    return temp;
+}
+*/
 
 void spi_write_command_1param(u8 command, u8 param1)
 {
@@ -136,8 +155,7 @@ u8 spi_read_command_1param(u8 command)
 	gpio_set_value_lo(SPI_CS);
 	command |= 0x80;
 	spi_write_read_byte(command);
-	spi_write_read_byte(0x00); //dummy data
-	u8 temp = spi_write_read_byte(0x00); //dummy data
+	u8 temp = spi_write_read_byte(0x00);
 	gpio_set_value_hi(SPI_CS);
 	return temp;
 }
@@ -148,9 +166,8 @@ u8* spi_read_command_2params(u8 command)
 	gpio_set_value_lo(SPI_CS);
 	command |= 0x80;
 	spi_write_read_byte(command);
-	spi_write_read_byte(0x00); //dummy data
-	return_value[0] = spi_write_read_byte(0x00); //dummy data
-	return_value[1] = spi_write_read_byte(0x00); //dummy data
+	return_value[0] = spi_write_read_byte(0x00);
+	return_value[1] = spi_write_read_byte(0x00);
 	gpio_set_value_hi(SPI_CS);
 	return return_value;
 }
@@ -161,10 +178,9 @@ u8* spi_read_command_3params(u8 command)
 	gpio_set_value_lo(SPI_CS);
 	command |= 0x80;
 	spi_write_read_byte(command);
-	spi_write_read_byte(0x00); //dummy data
-	return_value[0] = spi_write_read_byte(0x00); //dummy data
-	return_value[1] = spi_write_read_byte(0x00); //dummy data
-	return_value[2] = spi_write_read_byte(0x00); //dummy data
+	return_value[0] = spi_write_read_byte(0x00);
+	return_value[1] = spi_write_read_byte(0x00);
+	return_value[2] = spi_write_read_byte(0x00);
 	gpio_set_value_hi(SPI_CS);
 	return return_value;
 }
@@ -175,11 +191,10 @@ u8* spi_read_command_4params(u8 command)
 	gpio_set_value_lo(SPI_CS);
 	command |= 0x80;
 	spi_write_read_byte(command);
-	spi_write_read_byte(0x00); //dummy data
-	return_value[0] = spi_write_read_byte(0x00); //dummy data
-	return_value[1] = spi_write_read_byte(0x00); //dummy data
-	return_value[2] = spi_write_read_byte(0x00); //dummy data
-	return_value[3] = spi_write_read_byte(0x00); //dummy data
+	return_value[0] = spi_write_read_byte(0x00);
+	return_value[1] = spi_write_read_byte(0x00);
+	return_value[2] = spi_write_read_byte(0x00);
+	return_value[3] = spi_write_read_byte(0x00);
 	gpio_set_value_hi(SPI_CS);
 	return return_value;
 }
