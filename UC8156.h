@@ -16,6 +16,9 @@ void UC8156_init_registers();
 void UC8156_power_on();
 void UC8156_power_off();
 
+u8 UC8156_read_RevID();
+
+
 void UC8156_send_waveform(u8 *waveform);
 void UC8156_set_Vcom(int VCOM_mv_value);
 void UC8156_send_repeated_image_data(u8);
