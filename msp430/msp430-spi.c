@@ -172,6 +172,16 @@ u8* spi_read_command_2params(u8 command)
 	return return_value;
 }
 
+void spi_read_command_2params1(u8 command, u8 *return_value)
+{
+	gpio_set_value_lo(SPI_CS);
+	command |= 0x80;
+	spi_write_read_byte(command);
+	*return_value = spi_write_read_byte(0x00);
+	*(return_value+1) = spi_write_read_byte(0x00);
+	gpio_set_value_hi(SPI_CS);
+}
+
 u8* spi_read_command_3params(u8 command)
 {
 	static u8 return_value[3];
@@ -197,6 +207,17 @@ u8* spi_read_command_4params(u8 command)
 	return_value[3] = spi_write_read_byte(0x00);
 	gpio_set_value_hi(SPI_CS);
 	return return_value;
+}
+
+u8 spi_read_command_1param_1dummy(u8 command)
+{
+	gpio_set_value_lo(SPI_CS);
+	command |= 0x80;
+	spi_write_read_byte(command);
+	spi_write_read_byte(command); //dummy
+	u8 temp = spi_write_read_byte(0x00);
+	gpio_set_value_hi(SPI_CS);
+	return temp;
 }
 
 void spi_write_command_and_bulk_data(u8 command, u8 *buffer, size_t size)

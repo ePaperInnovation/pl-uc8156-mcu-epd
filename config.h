@@ -8,7 +8,10 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define PATH "Type25"
+#define GATE_LINES 160
+#define SOURCE_LINES 240
+#define PIXEL_COUNT (u16)GATE_LINES*SOURCE_LINES
 
+#define PATH "240x160"
 
 #endif /* CONFIG_H_ */

@@ -10,12 +10,13 @@
 #include "UC8156.h"
 #include "msp430/msp430-spi.h"
 #include "msp430/msp430-gpio.h"
+#include "config.h"
 
 // UC8156 hardware reset
 void UC8156_reset()
 {
 	gpio_set_value_lo(PIN_RESET);
-	mdelay(1); // 1 is ~20ms
+	mdelay(5);
 	gpio_set_value_hi(PIN_RESET);
 }
 
@@ -25,7 +26,16 @@ void UC8156_wait_for_BUSY_inactive()
  	while (gpio_get_value(PIN_BUSY)==0); // BUSY loop
 }
 
-// UC8156 power-on
+// waits for BUSY getting inactive = 1 (BUSY pin is low-active)
+unsigned long UC8156_wait_for_BUSY_inactive_debug()
+{
+	unsigned long counter=0;
+ 	while (gpio_get_value(PIN_BUSY)==0) // BUSY loop
+		counter++; // BUSY loop
+	return counter;
+}
+
+// UC8156 change registers which need values different from power-up values
 void UC8156_init_registers()
 {
 	spi_write_command_4params(0x0C, 0x00, 0xEF, 0x00, 0x9F); //panel resolution setting
@@ -34,17 +44,18 @@ void UC8156_init_registers()
 	spi_write_command_3params(0x1F, 0x11, 0x11, 0x10); //TCON timing setting
 }
 
-// UC8156 power-on
-void UC8156_power_on()
+// UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)
+void UC8156_HVs_on()
 {
 	u8 reg_value = spi_read_command_1param (0x03); //read power control setting register
 	reg_value |= 0x11; //switch on CLKEN+PWRON bits
 	spi_write_command_1param (0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
 	UC8156_wait_for_BUSY_inactive();
+ 	while (spi_read_command_1param(0x15)!=4); // BUSY loop
 }
 
 // UC8156 power-off sequence
-void UC8156_power_off()
+void UC8156_HVs_off()
 {
 	spi_write_command_1param (0x03, 0xD0); //Power control setting --> switch on CLKEN+PWRON bits
 	UC8156_wait_for_BUSY_inactive();
@@ -72,18 +83,25 @@ void UC8156_send_waveform(u8 *waveform)
 //send an image to UC8156 image data memory
 void UC8156_send_image_data(u8 *image_data)
 {
-	spi_write_command_and_bulk_data(0x10, image_data, (u16)240*160/4);
+	spi_write_command_and_bulk_data(0x10, image_data, PIXEL_COUNT/4);
 }
 
 //send an repeated byte to the image buffer --> used to create a solid image like all white
 void UC8156_send_repeated_image_data(u8 image_data)
 {
-	spi_write_command_byte_repeat(0x10, image_data, (u16)240*160/4);
+	spi_write_command_byte_repeat(0x10, image_data, PIXEL_COUNT/4);
+}
+
+//update display using full update mode and wait for BUSY-pin low
+void UC8156_update_display_full()
+{
+	spi_write_command_1param(0x14, 0x01);
+	UC8156_wait_for_BUSY_inactive();
 }
 
 //update display and wait for BUSY-pin low
-void UC8156_update_display()
+void UC8156_update_display(u8 mode)
 {
-	spi_write_command_1param(0x14, 0x01);
+	spi_write_command_1param(0x14, mode);
 	UC8156_wait_for_BUSY_inactive();
 }
