@@ -12,7 +12,7 @@
 
 // loads image form SD-card and updates it on the display using REFRESH waveform
 //int show_image(const char *image)
-int show_image(const char *image, int mode, u16 delay_ms)
+int show_image(const char *image, int mode)
 {
 	  u8 image_data[PIXEL_COUNT/4];
 
@@ -24,8 +24,6 @@ int show_image(const char *image, int mode, u16 delay_ms)
 	  UC8156_HVs_on();
 	  UC8156_update_display(mode);
       UC8156_HVs_off();
-
-      mdelay(delay_ms);
 
 	return 0;
 }
@@ -56,8 +54,8 @@ int slideshow_run(const char *path, int mode, u16 delay_ms)
 
 		sprintf(full_path, "%s/%s", path, fno.fname);
 
-		//result = callback(full_path);
-		result = show_image(full_path, mode, delay_ms);
+		result = show_image(full_path, mode);
+        mdelay(delay_ms);
 
 	} while (result >= 0);
 

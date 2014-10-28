@@ -158,8 +158,8 @@ int main(void)
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 	spi_write_command_1param(0x01, 0x12); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
-	//spi_write_command_1param(0x0f, 0x02); //RAMSEL=1 (sets previous image buffer for initial write --> obviously the previous is used for first update), DEM=010
-	spi_write_command_1param(0x0f, 0x12); //RAMSEL=1 (sets previous image buffer for initial write --> obviously the previous is used for first update), DEM=010
+	spi_write_command_1param(0x0f, 0x02); //DEM=010
+	//spi_write_command_1param(0x0f, 0x12); //RAMSEL=1 (sets previous image buffer for initial write --> obviously the previous is used for first update), DEM=010
 	spi_write_command_2params(0x18, 0x40, 0x02); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
 	//spi_write_command_4params(0x18, 0x40, 0x01,0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
 	spi_write_command_2params(0x02, 0x25, 0xFF); // set Vgate to +17V/-25V
@@ -202,15 +202,16 @@ int main(void)
 
 	UC8156_set_Vcom(1800);
 
-	UC8156_send_waveform(waveform_default);
+	//UC8156_send_waveform(waveform_default);
+	UC8156_send_waveform(waveform_new);
 	clear_display(); // initialize display with 2 white updates
 
 	//drift_test();
 
-	//UC8156_send_waveform(waveform_debug);
+	//UC8156_send_waveform(waveform_test);
 	//show_image("1st4pxl.PGM");
-	show_image("4GL.PGM");
-	show_image("240x160/13_240~1.PGM");
+	show_image("4GL.PGM", FULL_UPDATE);
+	show_image("240x160/13_240~1.PGM", FULL_UPDATE);
 	while (1)
 		slideshow_run(PATH, FULL_UPDATE, 1000);
 		//slideshow_run(PATH, show_image);
@@ -240,11 +241,19 @@ void clear_display()
 {
 	UC8156_HVs_on();
 
-	//spi_write_command_1param(0x0f, 0x00); //
+/*old
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	//spi_write_command_1param(0x0f, 0x10); //
 	UC8156_update_display(FULL_UPDATE);
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
+	UC8156_update_display(FULL_UPDATE);
+*/
+//new
+	spi_write_command_1param(0x0f, 0x12); //
+	UC8156_send_repeated_image_data(0xff); // 0xff is white
+	spi_write_command_1param(0x0f, 0x02); //
+	//UC8156_update_display(FULL_UPDATE);
+	UC8156_send_repeated_image_data(0xff); // 0xff is white
+	UC8156_update_display(FULL_UPDATE);
 	UC8156_update_display(FULL_UPDATE);
 
 	UC8156_HVs_off();
