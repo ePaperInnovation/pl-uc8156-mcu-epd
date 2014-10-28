@@ -86,6 +86,12 @@ void UC8156_send_image_data(u8 *image_data)
 	spi_write_command_and_bulk_data(0x10, image_data, PIXEL_COUNT/4);
 }
 
+//send any data to UC8156 image data memory --> e.g. used for MTP programming
+void UC8156_send_data_to_image_RAM(u8 *data, u16 size)
+{
+	spi_write_command_and_bulk_data(0x10, data, size);
+}
+
 //send an repeated byte to the image buffer --> used to create a solid image like all white
 void UC8156_send_repeated_image_data(u8 image_data)
 {
