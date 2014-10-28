@@ -5,6 +5,7 @@
 #include "types.h"
 #include "pnm-utils.h"
 #include "utils.h"
+#include "UC8156.h"
 
 #define FILE_BUFFER_LENGTH 128
 
@@ -67,40 +68,23 @@ int parsevalue(char* str, int start, int length)
 }
 
 // loads waveform from SD-card
-int sdcard_load_waveform(const char *path, u8 *formdata)
+int sdcard_load_waveform(const char *path, u8 *waveform_data)
 {
-	FIL fl;
-	u8 buff=1;
-	u8 val[2];
-	int returnval= -1;
+	FIL file;
 	UINT count=0;
-	int z = 0;
-	bool isStart= false;
-	if(f_open(&fl,path,FA_READ) == FR_OK)
+
+	if(f_open(&file,path,FA_READ) == FR_OK)
 	{
-		while(z<90)
-		{
-			f_read(&fl,&buff,1,&count);
-
-			if(!isStart && buff=='C')
-			{
-				f_read(&fl,&val,2,&count);
-				isStart = val[0] =='3' & val[1] =='2';
-			}
-
-
-			if(isStart && buff=='D')
-			{
-				f_read(&fl,&val,2,&count);
-				formdata[z] = charToHex(val[0],val[1]);
-				z++;
-			}
-		}
-		f_close(&fl);
+		f_read(&file, waveform_data, WAVEFORM_LENGTH, &count);
+		f_close(&file);
 	}
+	else
+		return -1;
 
-
-	return returnval;
+	if (count==WAVEFORM_LENGTH)
+		return 0;
+	else
+		return -2;
 }
 
 // reads Vcom value from text-file on SD-card

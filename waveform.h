@@ -8,7 +8,9 @@
 #ifndef WAVEFORM_H_
 #define WAVEFORM_H_
 
-u8 waveform_default_wrong_scrambling[120] = { \
+#include "UC8156.h"
+
+u8 waveform_default_wrong_scrambling[WAVEFORM_LENGTH] = { \
                 0xAA, 0xAA, 0xA9, 0xA6, \
                 0xAA, 0xAA, 0xA6, 0xA5, \
                 0xAA, 0xA9, 0xA5, 0xA6, \
@@ -58,7 +60,7 @@ u8 waveform_default_wrong_scrambling[120] = { \
                 0x01, \
                 0x01, \
 };
-u8 waveform_default[120] = { \
+u8 waveform_default[WAVEFORM_LENGTH] = { \
                 0x9A, 0x6A, 0xAA, 0xAA, \
                 0x9A, 0x5A, 0xAA, 0xAA, \
                 0x96, 0x5A, 0x6A, 0xAA, \
@@ -109,7 +111,7 @@ u8 waveform_default[120] = { \
                 0x01, \
 };
 
-u8 waveform_debug[120]= { \
+u8 waveform_debug[WAVEFORM_LENGTH]= { \
 0xAA, 0x6A, 0xAA, 0xAA, \
 0x22, 0x22, 0x22, 0x22, \
 0x00, 0x00, 0x00, 0x00, \
@@ -160,7 +162,7 @@ u8 waveform_debug[120]= { \
 0x01, \
 };
 
-u8 waveform_long_null[120] = { \
+u8 waveform_long_null[WAVEFORM_LENGTH] = { \
                 0xAA, 0xAA, 0xAA, 0xAA, \
                 0xAA, 0xAA, 0xAA, 0xAA, \
                 0xAA, 0xAA, 0xAA, 0xAA, \
@@ -211,7 +213,7 @@ u8 waveform_long_null[120] = { \
                 0x01, \
 };
 
-u8 waveform_test[120]= { \
+u8 waveform_test[WAVEFORM_LENGTH]= { \
 0xA9, 0xAA, 0xAA, 0xAA, \
 0xAA, 0xAA, 0xAA, 0xAA, \
 0xAA, 0xAA, 0xAA, 0xAA, \
@@ -262,7 +264,7 @@ u8 waveform_test[120]= { \
 0x01 \
 };
 
-u8 waveform_new[120]= { \
+u8 waveform_new[WAVEFORM_LENGTH]= { \
 0xAA, 0xAA, 0xA9, 0xA6,\
 0xAA, 0xAA, 0xA5, 0xA6,\
 0xAA, 0xA9, 0xA5, 0x96,\

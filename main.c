@@ -202,8 +202,13 @@ int main(void)
 
 	UC8156_set_Vcom(1800);
 
+	u8 waveform[WAVEFORM_LENGTH];
+	sdcard_load_waveform("waveform.bin", waveform);
+	UC8156_send_waveform(waveform);
+
 	//UC8156_send_waveform(waveform_default);
-	UC8156_send_waveform(waveform_new);
+	//UC8156_send_waveform(waveform_new);
+
 	clear_display(); // initialize display with 2 white updates
 
 	//drift_test();
@@ -251,7 +256,6 @@ void clear_display()
 	spi_write_command_1param(0x0f, 0x12); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 	spi_write_command_1param(0x0f, 0x02); //
-	//UC8156_update_display(FULL_UPDATE);
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 	UC8156_update_display(FULL_UPDATE);
 	UC8156_update_display(FULL_UPDATE);

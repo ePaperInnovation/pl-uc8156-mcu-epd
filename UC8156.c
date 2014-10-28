@@ -77,7 +77,7 @@ void UC8156_set_Vcom(int Vcom_mv_value)
 // send waveform to UC8156
 void UC8156_send_waveform(u8 *waveform)
 {
-	spi_write_command_and_bulk_data(0x1C, waveform, 120);
+	spi_write_command_and_bulk_data(0x1C, waveform, WAVEFORM_LENGTH);
 }
 
 //send an image to UC8156 image data memory
