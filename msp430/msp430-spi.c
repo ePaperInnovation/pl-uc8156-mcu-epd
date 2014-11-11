@@ -227,11 +227,25 @@ void spi_write_command_and_bulk_data(u8 command, u8 *buffer, size_t size)
 	spi_write_read_byte(command);
 
     while (size--) {
-    	spi_write_read_byte(*buffer++);
+    	spi_write_read_byte(*buffer);
+    	buffer++;
     }
 	gpio_set_value_hi(SPI_CS);
 }
 
+void spi_read_command_and_bulk_data(u8 command, u8 *buffer, size_t size)
+{
+	gpio_set_value_lo(SPI_CS);
+	command |= 0x80;
+	spi_write_read_byte(command);
+
+    while (size--)
+    {
+    	*buffer = spi_write_read_byte(0x00); // 0x00 is dummy data
+    	buffer++;
+    }
+	gpio_set_value_hi(SPI_CS);
+}
 /*
 void spi_write_bulk_data(u8 *buffer, size_t size)
 {

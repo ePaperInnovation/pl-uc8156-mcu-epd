@@ -10,6 +10,7 @@
 #include <msp430.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "types.h"
 #include "assert.h"
 #include "FatFs/ff.h"
@@ -22,6 +23,7 @@
 #include "read-sd.h"
 #include "waveform.h"
 #include "config.h"
+#include "pattern.h"
 
 void clear_display();
 
@@ -157,13 +159,7 @@ int main(void)
 	UC8156_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
-	spi_write_command_1param(0x01, 0x12); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
-	spi_write_command_1param(0x0f, 0x02); //DEM=010
-	//spi_write_command_1param(0x0f, 0x12); //RAMSEL=1 (sets previous image buffer for initial write --> obviously the previous is used for first update), DEM=010
-	spi_write_command_2params(0x18, 0x40, 0x02); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
-	//spi_write_command_4params(0x18, 0x40, 0x01,0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
-	spi_write_command_2params(0x02, 0x25, 0xFF); // set Vgate to +17V/-25V
-	spi_write_command_2params(0x06, 0x67, 0x55); // set timing to LAT=105, S2G+G2S=5
+	UC8156_init_registers();
 
 	return_value = 	spi_read_command_1param(0x15);
 	if (return_value!=0) //check Status Register
@@ -184,43 +180,152 @@ int main(void)
 	fprintf(stderr, "RevID = %x\n", revID);
 	#endif
 
-	//new_MTP_program();
-	//one_Byte_MTP_program();
-
 	//measure_Vcom();
 
-#ifdef 0
+//#define TEMP_SENSOR_DEBUG
+#ifdef TEMP_SENSOR_DEBUG //debug temperature sensor
+	return_value = 	spi_read_command_1param(0x07); //read temperature value register
+	fprintf(stderr, "R07h = %xh\n", return_value);
 	return_value = 	spi_read_command_1param(0x08); //read temperature value register
-	fprintf(stderr, "temperature = %d\n", return_value);
+	fprintf(stderr, "temperature (R08h) = %dd\n", return_value);
+
 	spi_write_command_1param(0x07, 0x09); //trigger internal temperature sensor read
 	mdelay(170);
- 	while (spi_read_command_1param(0x15)!=0); // BUSY loop
+ 	while (spi_read_command_1param(0x15)!=0); // check status register bit for temperature sensor
+	return_value = 	spi_read_command_1param(0x07); //read temperature value register
+	fprintf(stderr, "R07h = %xh\n", return_value);
 
 	return_value = 	spi_read_command_1param(0x08);
-	fprintf(stderr, "temperature = %d\n", return_value); //read temperature value register
+	fprintf(stderr, "temperature (R08h) = %dd\n", return_value);
 #endif
 
-	UC8156_set_Vcom(1800);
+	UC8156_set_Vcom(2500);
 
 	u8 waveform[WAVEFORM_LENGTH];
 	sdcard_load_waveform("waveform.bin", waveform);
-	UC8156_send_waveform(waveform);
 
-	//UC8156_send_waveform(waveform_default);
-	//UC8156_send_waveform(waveform_new);
+/*
+	//one_Byte_MTP_program(0x060, 0x00);
+	write_waveform_to_MTP(waveform);
+	//one_Byte_MTP_program(0x4B0, 0x7f);
 
+    spi_write_command_1param(0x07, 0x00);
+    spi_write_command_1param(0x08, 0x00);
+
+	int i=0,j=0;
+	fprintf(stderr, "\n");
+	for(i=0;i<30;i++)
+	{
+		fprintf(stderr, "%2x: ", i*4+j);
+		while(j<4)
+		{
+			return_value = read_MTP_address(i*4+j);
+			fprintf(stderr, "%2x ", return_value);
+			j++;
+		}
+		fprintf(stderr, "\n");
+		j=0;
+	}
+
+	show_image("240x160/13_240~1.PGM", 0x03);
+
+	u8 buffer[120];
+	spi_read_command_and_bulk_data(0x1c, buffer, 120);
+*/
+//	UC8156_send_waveform(waveform);
+	UC8156_send_waveform(waveform_new);
+
+	//show_image("240x160/13_240~1.PGM", 0x03);
+/*
+	while(1)
+	{
+		alt_source();
+		inv_alt_source();
+		inv_alt_source();
+		alt_source();
+	}
+*/
+/*
+while(1)
+{
+	alt_source();
+	inv_alt_source();
+	inv_alt_source();
+	alt_source();
+}
+*/
 	clear_display(); // initialize display with 2 white updates
+
+	while (1)
+		slideshow_run(PATH, FULL_UPDATE, 1000);
+
+	//diagonale();
+
+	//walking_source_line();
+	//alt_source_4er();
+	checkerboard_debug(0x33, 0, SOURCE_LINES/4);
+
+	checkerboard();
+	white_update();
+	checkerboard();
+	alt_source();
+
+	show_image("240x160/08_240~1.PGM", FULL_UPDATE);
+
+	diagonale();
+
+	while(1)
+	{
+		alt_source();
+		inv_alt_source();
+		white_update();
+		alt_source();
+		white_update();
+		inv_alt_source();
+		checkerboard();
+		inv_checkerboard();
+		white_update();
+		checkerboard();
+		white_update();
+		inv_checkerboard();
+	}
+
 
 	//drift_test();
 
 	//UC8156_send_waveform(waveform_test);
 	//show_image("1st4pxl.PGM");
-	show_image("4GL.PGM", FULL_UPDATE);
+	//show_image("4GL.PGM", FULL_UPDATE);
+	//mdelay(3000);
+	//show_image("TestPicA.PGM", FULL_UPDATE);
+/*
 	show_image("240x160/13_240~1.PGM", FULL_UPDATE);
+	u8 *value;
+	value = spi_read_command_4params(0x1c);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+	value = spi_read_command_2params(0x1b);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+
+	show_image("240x160/13_240~1.PGM", 3);
+	value = spi_read_command_4params(0x1c);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+	value = spi_read_command_2params(0x1b);
+	fprintf(stderr, "value = %x\n", *value++);
+	fprintf(stderr, "value = %x\n", *value++);
+*/
 	while (1)
 		slideshow_run(PATH, FULL_UPDATE, 1000);
 		//slideshow_run(PATH, show_image);
 		//slideshow_run("240x80", show_image);
+
+//	clear_display(); // initialize display with 2 white updates
 
 	/*	GPIO output verification
  	spi_write_command_1param(0x09, 0xf0); //configure GPIO's for output
@@ -253,12 +358,17 @@ void clear_display()
 	UC8156_update_display(FULL_UPDATE);
 */
 //new
-	spi_write_command_1param(0x0f, 0x12); //
+	u8 reg0fh_backup = spi_read_command_1param(0x0f);
+
+	spi_write_command_1param(0x0f, 0x10); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	spi_write_command_1param(0x0f, 0x02); //
+	spi_write_command_1param(0x0f, 0x00); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 	UC8156_update_display(FULL_UPDATE);
 	UC8156_update_display(FULL_UPDATE);
 
 	UC8156_HVs_off();
+
+	spi_write_command_1param(0x0f, reg0fh_backup); //
 }
+
