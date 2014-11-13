@@ -66,79 +66,6 @@ static void MSP430_init_clock(void)
 	} while (SFRIFG1 & OFIFG);
 }
 
-void send_drift_test_image()
-{
-	  u8 image_data[PIXEL_COUNT/4];
-	  int i;
-
-	  for(i=0;i<PIXEL_COUNT/4/3;i++)
-		  image_data[i]=0x00;
-	  for(i=PIXEL_COUNT/4/3;i<PIXEL_COUNT/4;i++)
-		  image_data[i]=0xff;
-
-	  UC8156_send_image_data(image_data);
-}
-
-void measure_Vcom()
-{
-	u8 return_value;
-
-	spi_write_command_4params(0x18, 0x40, 0x01,0x24, 0x05); //TPCOM=Hi-Z before update and during null-frame drive
-
-	UC8156_HVs_on();
-	return_value = 	spi_read_command_1param(0x15);
-	fprintf(stderr, "R15h after HV_on = %x\n", return_value);
-	//spi_write_command_1param(0x19, 0x29); //trigger Vcom sensing with waiting time 5sec
-	spi_write_command_1param(0x19, 0x81); //trigger Vcom sensing with waiting time 5sec
-
-
-	int i;
-	u8 value[60][2];
-	for (i=0;i<60;i++)
-	{
-		spi_read_command_2params1(0x1a, &value[i][0]);
-		mdelay(250);
-	}
-
-	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
-	UC8156_HVs_off();
-
-	for (i=0;i<60;i++)
-	{
-		fprintf(stderr, "%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
-	}
-}
-
-void drift_test()
-{
-	UC8156_HVs_on();
-/*
-	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	UC8156_update_display(FULL);
-
-	UC8156_send_waveform(waveform_long_null);
-	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	UC8156_update_display(FULL);
-
-	UC8156_send_waveform(waveform_default);
-	UC8156_send_repeated_image_data(0x00); // 0xff is white
-	UC8156_update_display(FULL);
-
-	UC8156_send_waveform(waveform_long_null);
-	UC8156_send_repeated_image_data(0x00); // 0xff is white
-	UC8156_update_display(FULL);
-*/
-	//spi_write_command_1param(0x0f, 0x06); //
-	send_drift_test_image();
-	UC8156_update_display(FULL_UPDATE);
-
-	UC8156_send_waveform(waveform_long_null);
-	UC8156_update_display(FULL_UPDATE);
-
-	UC8156_HVs_off();
-
-}
-
 int main(void)
 {
 	u8 return_value;
@@ -182,25 +109,10 @@ int main(void)
 
 	//measure_Vcom();
 
-//#define TEMP_SENSOR_DEBUG
-#ifdef TEMP_SENSOR_DEBUG //debug temperature sensor
-	return_value = 	spi_read_command_1param(0x07); //read temperature value register
-	fprintf(stderr, "R07h = %xh\n", return_value);
-	return_value = 	spi_read_command_1param(0x08); //read temperature value register
-	fprintf(stderr, "temperature (R08h) = %dd\n", return_value);
-
-	spi_write_command_1param(0x07, 0x09); //trigger internal temperature sensor read
-	mdelay(170);
- 	while (spi_read_command_1param(0x15)!=0); // check status register bit for temperature sensor
-	return_value = 	spi_read_command_1param(0x07); //read temperature value register
-	fprintf(stderr, "R07h = %xh\n", return_value);
-
-	return_value = 	spi_read_command_1param(0x08);
-	fprintf(stderr, "temperature (R08h) = %dd\n", return_value);
-#endif
-
+	//set Vcom
 	UC8156_set_Vcom(2500);
 
+	//read waveform from SD-card
 	u8 waveform[WAVEFORM_LENGTH];
 	sdcard_load_waveform("waveform.bin", waveform);
 
@@ -208,32 +120,10 @@ int main(void)
 	//one_Byte_MTP_program(0x060, 0x00);
 	write_waveform_to_MTP(waveform);
 	//one_Byte_MTP_program(0x4B0, 0x7f);
-
-    spi_write_command_1param(0x07, 0x00);
-    spi_write_command_1param(0x08, 0x00);
-
-	int i=0,j=0;
-	fprintf(stderr, "\n");
-	for(i=0;i<30;i++)
-	{
-		fprintf(stderr, "%2x: ", i*4+j);
-		while(j<4)
-		{
-			return_value = read_MTP_address(i*4+j);
-			fprintf(stderr, "%2x ", return_value);
-			j++;
-		}
-		fprintf(stderr, "\n");
-		j=0;
-	}
-
-	show_image("240x160/13_240~1.PGM", 0x03);
-
-	u8 buffer[120];
-	spi_read_command_and_bulk_data(0x1c, buffer, 120);
 */
+
 //	UC8156_send_waveform(waveform);
-	UC8156_send_waveform(waveform_new);
+	UC8156_send_waveform(waveform_default);
 
 	//show_image("240x160/13_240~1.PGM", 0x03);
 /*
@@ -245,128 +135,26 @@ int main(void)
 		alt_source();
 	}
 */
-/*
-while(1)
-{
-	alt_source();
-	inv_alt_source();
-	inv_alt_source();
-	alt_source();
-}
-*/
+
 	clear_display(); // initialize display with 2 white updates
 
-	while (1)
-		slideshow_run(PATH, FULL_UPDATE, 1000);
+	slideshow_run(PATH, FULL_UPDATE, 1000);
 
-	//diagonale();
-
-	//walking_source_line();
-	//alt_source_4er();
-	checkerboard_debug(0x33, 0, SOURCE_LINES/4);
-
-	checkerboard();
-	white_update();
-	checkerboard();
-	alt_source();
-
-	show_image("240x160/08_240~1.PGM", FULL_UPDATE);
-
-	diagonale();
-
-	while(1)
-	{
-		alt_source();
-		inv_alt_source();
-		white_update();
-		alt_source();
-		white_update();
-		inv_alt_source();
-		checkerboard();
-		inv_checkerboard();
-		white_update();
-		checkerboard();
-		white_update();
-		inv_checkerboard();
-	}
-
-
-	//drift_test();
-
-	//UC8156_send_waveform(waveform_test);
-	//show_image("1st4pxl.PGM");
-	//show_image("4GL.PGM", FULL_UPDATE);
-	//mdelay(3000);
-	//show_image("TestPicA.PGM", FULL_UPDATE);
-/*
-	show_image("240x160/13_240~1.PGM", FULL_UPDATE);
-	u8 *value;
-	value = spi_read_command_4params(0x1c);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-	value = spi_read_command_2params(0x1b);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-
-	show_image("240x160/13_240~1.PGM", 3);
-	value = spi_read_command_4params(0x1c);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-	value = spi_read_command_2params(0x1b);
-	fprintf(stderr, "value = %x\n", *value++);
-	fprintf(stderr, "value = %x\n", *value++);
-*/
-	while (1)
-		slideshow_run(PATH, FULL_UPDATE, 1000);
-		//slideshow_run(PATH, show_image);
-		//slideshow_run("240x80", show_image);
-
-//	clear_display(); // initialize display with 2 white updates
-
-	/*	GPIO output verification
- 	spi_write_command_1param(0x09, 0xf0); //configure GPIO's for output
-	spi_write_command_1param(0x09, 0xf1); //configure GPIO's for output
-	spi_write_command_1param(0x09, 0xf2); //configure GPIO's for output
-	spi_write_command_1param(0x09, 0xf4); //configure GPIO's for output
-	spi_write_command_1param(0x09, 0xf8); //configure GPIO's for output
-*/
-
-/*	return_value = 	spi_read_command_1param(0x15);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	UC8156_HVs_on();
-	return_value = 	spi_read_command_1param(0x15);
-	fprintf(stderr, "return_value = %x\n", return_value);
-*/
-
-	//one_Byte_MTP_program();
-	//new_MTP_program();
-
+	while(1);
 }
 
 void clear_display()
 {
-	UC8156_HVs_on();
-
-/*old
-	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	UC8156_update_display(FULL_UPDATE);
-	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	UC8156_update_display(FULL_UPDATE);
-*/
-//new
 	u8 reg0fh_backup = spi_read_command_1param(0x0f);
 
 	spi_write_command_1param(0x0f, 0x10); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 	spi_write_command_1param(0x0f, 0x00); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	UC8156_update_display(FULL_UPDATE);
-	UC8156_update_display(FULL_UPDATE);
 
+	UC8156_HVs_on();
+	UC8156_update_display(FULL_UPDATE);
+	UC8156_update_display(FULL_UPDATE);
 	UC8156_HVs_off();
 
 	spi_write_command_1param(0x0f, reg0fh_backup); //

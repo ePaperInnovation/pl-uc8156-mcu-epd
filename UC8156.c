@@ -117,3 +117,33 @@ void UC8156_update_display(u8 mode)
 	spi_write_command_1param(0x14, mode);
 	UC8156_wait_for_BUSY_inactive();
 }
+
+void measure_Vcom()
+{
+	u8 return_value;
+
+	spi_write_command_4params(0x18, 0x40, 0x01,0x24, 0x05); //TPCOM=Hi-Z before update and during null-frame drive
+
+	UC8156_HVs_on();
+	return_value = 	spi_read_command_1param(0x15);
+	fprintf(stderr, "R15h after HV_on = %x\n", return_value);
+	//spi_write_command_1param(0x19, 0x29); //trigger Vcom sensing with waiting time 5sec
+	spi_write_command_1param(0x19, 0x81); //trigger Vcom sensing with waiting time 5sec
+
+
+	int i;
+	u8 value[60][2];
+	for (i=0;i<60;i++)
+	{
+		spi_read_command_2params1(0x1a, &value[i][0]);
+		mdelay(250);
+	}
+
+	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+	UC8156_HVs_off();
+
+	for (i=0;i<60;i++)
+	{
+		fprintf(stderr, "%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
+	}
+}

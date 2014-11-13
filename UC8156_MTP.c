@@ -214,4 +214,3 @@ void one_Byte_MTP_program(u16 address, u8 data)
 	return_value = read_MTP_address(address);
 	fprintf(stderr, "return_value = %x\n", return_value);
 }
-

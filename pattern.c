@@ -8,6 +8,7 @@
 #include "pattern.h"
 #include "UC8156.h"
 #include "config.h"
+#include "msp430/msp430-spi.h"
 
 void walking_source_line()
 {
