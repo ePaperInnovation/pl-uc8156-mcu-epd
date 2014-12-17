@@ -11,7 +11,6 @@
 #define MAX_PATH_LEN 64
 
 // loads image form SD-card and updates it on the display using REFRESH waveform
-//int show_image(const char *image)
 int show_image(const char *image, int mode)
 {
 	  u8 image_data[PIXEL_COUNT/4];

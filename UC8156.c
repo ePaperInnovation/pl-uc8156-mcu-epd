@@ -63,9 +63,12 @@ void UC8156_HVs_on()
 // UC8156 power-off sequence
 void UC8156_HVs_off()
 {
-	spi_write_command_1param (0x03, 0xD0); //Power control setting --> switch on CLKEN+PWRON bits
+	u8 reg_value = spi_read_command_1param (0x03); //read power control setting register
+	reg_value &= ~0x01; //switch off PWRON bit
+	spi_write_command_1param (0x03, reg_value); //write power control setting register
 	UC8156_wait_for_BUSY_inactive();
-	spi_write_command_1param (0x03, 0xC0); //Power control setting --> switch on CLKEN+PWRON bits
+	reg_value &= ~0x10; //switch off CLKEN bit
+	spi_write_command_1param (0x03, reg_value);
 }
 
 u8 UC8156_read_RevID()

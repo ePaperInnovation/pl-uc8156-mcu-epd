@@ -4,56 +4,28 @@
  *  Created on: 09.09.2014
  *      Author: andreas.meier
  */
+#define DEBUG_PRINTOUTS_ON
+
 #include <stdio.h>
 
 #include "msp430/msp430-spi.h"
 #include "UC8156.h"
 #include "UC8156_MTP.h"
 
+/*
+	//one_Byte_MTP_program(0x060, 0x00);
+	write_waveform_to_MTP(waveform);
+	//one_Byte_MTP_program(0x4B0, 0x7f);
+*/
+
 void write_Vcom_to_MTP(u16 Vcom_mv_value)
 {
-	u8 return_value;
-	u16 address=0x04B9;
-
-	static u8 v1[2];
-	spi_read_command_2params1(0x02, v1);
-	spi_write_command_2params(0x02, v1[0], 0x33);
-
-	return_value = read_MTP_address(address);
-	fprintf(stderr, "return_value = %x\n", return_value);
-
-	UC8156_HVs_on();
-
-	//switch internal VPP on (VSH)
-	return_value = spi_read_command_1param(0x03);
-	spi_write_command_1param(0x03, return_value|0x08);
-	mdelay(100);
-
-	//setup and start MTP program
-	spi_write_command_2params(0x41, address&0xFF, (address>>8)&0xFF);
-
 	u16 Vcom_register_value = (float)Vcom_mv_value/(float)30.0;
 
-	spi_write_command_1param(0x42, (Vcom_register_value>>8)&0xFF);
-	UC8156_wait_for_BUSY_inactive();
-
-	spi_write_command_1param(0x42, Vcom_register_value&0xFF);
-	UC8156_wait_for_BUSY_inactive();
-
-	//switch internal VPP off
-	return_value = spi_read_command_1param(0x03);
-	spi_write_command_1param(0x03, return_value&(~0x08));
-	mdelay(100);
-
-	UC8156_HVs_off();
-
-	spi_write_command_2params(0x02, v1[0], v1[1]);
-
-	return_value = read_MTP_address(address);
-	fprintf(stderr, "return_value = %x\n", return_value);
+	one_Byte_MTP_program(0x04B9, Vcom_register_value);
 }
 
-void write_waveform_to_MTP(u8 *waveform_lut)
+void write_single_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_offset_pgrs)
 {
 	//set VSH to 9.5V to be used as VPP
 	//spi_write_command_2params(0x02, 0x50, 0xFF); //set Vgate+Vsource
@@ -61,7 +33,7 @@ void write_waveform_to_MTP(u8 *waveform_lut)
 	spi_read_command_2params1(0x02, reg02h_backup);
 	spi_write_command_2params(0x02, reg02h_backup[0], 0x33);
 
-	//set SRAM access paramter
+	//set SRAM access parameter
 	spi_write_command_4params(0x0D, 0x00, 0xEF, 0x00, 0x9F); //set window to full size
 	spi_write_command_2params(0x0E, 0x00, 0x00); //set WS start location to (0,0)
 	u8 reg0fh_backup = spi_read_command_1param(0x0f);
@@ -72,7 +44,7 @@ void write_waveform_to_MTP(u8 *waveform_lut)
 
 	spi_write_command_2params(0x0e, 0x00, 0x00);
 	//write to be programmed data into SRAM
-	UC8156_send_data_to_image_RAM_for_MTP_program(waveform_lut, WAVEFORM_LENGTH);
+	UC8156_send_data_to_image_RAM_for_MTP_program(waveform_data, waveform_data_length);
 
 	UC8156_HVs_on();
 
@@ -82,7 +54,7 @@ void write_waveform_to_MTP(u8 *waveform_lut)
 	mdelay(100);
 
 	//start MTP program
-	spi_write_command_1param(0x40, 0x01);
+	spi_write_command_1param(0x40, (mtp_offset_pgrs<<4)&0xf0 | 0x01);
 	UC8156_wait_for_BUSY_inactive();
 
 	//switch VPP off
@@ -96,6 +68,7 @@ void write_waveform_to_MTP(u8 *waveform_lut)
 	spi_write_command_2params(0x02, reg02h_backup[0], reg02h_backup[1]);
 	spi_write_command_1param(0x0f, reg0fh_backup);
 
+#ifdef DEBUG_PRINTOUTS_ON
 	return_value = read_MTP_address(0x0000);
 	fprintf(stderr, "addr 0x00 = %x\n", return_value);
 	return_value = read_MTP_address(0x0010);
@@ -104,7 +77,7 @@ void write_waveform_to_MTP(u8 *waveform_lut)
 	fprintf(stderr, "addr 0x20 = %x\n", return_value);
 	return_value = read_MTP_address(0x0060);
 	fprintf(stderr, "addr 0x60 = %x\n", return_value);
-
+#endif
 }
 
 u8 read_MTP_address(const u16 address)
@@ -185,8 +158,10 @@ void one_Byte_MTP_program(u16 address, u8 data)
 	spi_read_command_2params1(0x02, v1);
 	spi_write_command_2params(0x02, v1[0], 0x33);
 
+#ifdef DEBUG_PRINTOUTS_ON
 	return_value = read_MTP_address(address);
-	fprintf(stderr, "return_value = %x\n", return_value);
+	fprintf(stderr, "value before program = %x\n", return_value);
+#endif
 
 	UC8156_HVs_on();
 
@@ -194,8 +169,6 @@ void one_Byte_MTP_program(u16 address, u8 data)
 	return_value = spi_read_command_1param(0x03);
 	spi_write_command_1param(0x03, return_value|0x08);
 	mdelay(100);
-	//return_value = spi_read_command_1param(0x03);
-	//fprintf(stderr, "return_value = %x\n", return_value);
 
 	//setup and start MTP program
 	spi_write_command_2params(0x41, address&0xFF, (address>>8)&0xFF);
@@ -211,6 +184,8 @@ void one_Byte_MTP_program(u16 address, u8 data)
 
 	spi_write_command_2params(0x02, v1[0], v1[1]);
 
+#ifdef DEBUG_PRINTOUTS_ON
 	return_value = read_MTP_address(address);
-	fprintf(stderr, "return_value = %x\n", return_value);
+	fprintf(stderr, "value after program = %x\n", return_value);
+#endif
 }

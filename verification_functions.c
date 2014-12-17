@@ -101,3 +101,36 @@ void send_drift_test_image()
 	  UC8156_send_image_data(image_data);
 }
 
+void check_GPIOs()
+{
+//	GPIO output verification
+	spi_write_command_1param(0x09, 0xf0); //configure GPIO's for output
+	spi_write_command_1param(0x09, 0xf1); //configure GPIO's for output
+	spi_write_command_1param(0x09, 0xf2); //configure GPIO's for output
+	spi_write_command_1param(0x09, 0xf4); //configure GPIO's for output
+	spi_write_command_1param(0x09, 0xf8); //configure GPIO's for output
+}
+
+
+void verify_update_modes()
+{
+	//show_image("240x160/13_240~1.PGM", FULL_UPDATE);
+
+	show_image("4GL.PGM", 0x20 | 0x01);
+
+	white_update();
+
+	spi_write_command_4params(0x0d, 0x00, 0xef, 0x10, 0x9f);
+	show_image("4GL.PGM", 0x20 | 0x01);
+
+	spi_write_command_4params(0x0d, 0x10, 0xef, 0x00, 0x9f);
+	show_image("4GL.PGM", 0x20 | 0x01);
+}
+
+void verify_ckbd_SOO_0()
+{
+	alt_source_SOO_0();
+	mdelay(2000);
+	clear_display(); // initialize display with 2 white updates
+	checkerboard_SOO_0();
+}

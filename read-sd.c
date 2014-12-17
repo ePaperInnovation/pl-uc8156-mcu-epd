@@ -6,8 +6,9 @@
 #include "pnm-utils.h"
 #include "utils.h"
 #include "UC8156.h"
+#include "config.h"
 
-#define FILE_BUFFER_LENGTH 128
+#define BUFFER_LENGTH SOURCE_LINES
 
 // global file system information used by FatFs
 static FATFS Sd_Card;
@@ -110,12 +111,11 @@ int sdcard_load_vcom(const char *filename, int *vcom_mv_value)
 // reads image data from PMG image file - part of load_image function
 static int read_image_data(FIL *f, u8 *image)
 {
-	u8 data[FILE_BUFFER_LENGTH];
-	//u8 packed_data[IMAGE_BUFFER_LENGTH];
+	u8 data[BUFFER_LENGTH];
 	size_t count;
 
 	do {
-		if (f_read(f, data, FILE_BUFFER_LENGTH, &count) != FR_OK)
+		if (f_read(f, data, BUFFER_LENGTH, &count) != FR_OK)
 			return -1;
 
 		pack_4bpp(data, image, count);
@@ -123,6 +123,57 @@ static int read_image_data(FIL *f, u8 *image)
 		image+=count/4;
 
 	} while (count);
+
+	return 0;
+}
+
+// reads image data from PMG image file - part of load_image function
+static int read_image_data_test(FIL *f, u8 *image)
+{
+	u8 data[SOURCE_LINES];
+	u8 data_scrambled[SOURCE_LINES];
+	size_t count;
+	int i;
+
+		if (f_read(f, data, SOURCE_LINES, &count) != FR_OK)
+			return -1;
+
+		for(i=0; i<SOURCE_LINES/2; i++)
+		{
+			data_scrambled[i] = data[i*2];
+			data_scrambled[SOURCE_LINES/2+i]=data[i*2+1];
+		}
+
+		pack_4bpp(data_scrambled, image, count);
+
+		image+=count/4;
+
+
+	return 0;
+}
+
+// reads image data from PMG image file - part of load_image function
+static int read_image_data_SOO_0(FIL *f, u8 *image)
+{
+	u8 data[SOURCE_LINES];
+	u8 data_scrambled[SOURCE_LINES];
+	size_t count;
+	int i,j;
+
+	for(j=0; j<GATE_LINES; j++)
+	{
+		if (f_read(f, data, SOURCE_LINES, &count) != FR_OK)
+			return -1;
+
+		for(i=0; i<SOURCE_LINES/2; i++)
+		{
+			data_scrambled[i] = data[i*2];
+			data_scrambled[SOURCE_LINES/2+i]=data[i*2+1];
+		}
+
+		pack_4bpp(data_scrambled, image, count);
+		image+=count/4;
+	}
 
 	return 0;
 }
@@ -146,7 +197,9 @@ int sdcard_load_image(const char *image_name, u8 *image_data)
 		goto err_close_file;
 	}
 
-	ret = read_image_data(&image_file, image_data);
+	//ret = read_image_data(&image_file, image_data);
+	ret = read_image_data_SOO_0(&image_file, image_data);
+	//ret = read_image_data_test(&image_file, image_data);
 
 err_close_file:
 	f_close(&image_file);

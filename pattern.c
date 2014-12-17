@@ -73,6 +73,50 @@ void diagonale()
     UC8156_HVs_off();
 }
 
+void alt_source_SOO_0()
+{
+	u8 image_data[PIXEL_COUNT/4];
+	int gate_p=0, source_p=0;
+
+	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
+		for (source_p=0; source_p<SOURCE_LINES/2/4; source_p++)
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0x00;
+	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
+		for (source_p=SOURCE_LINES/2/4; source_p<SOURCE_LINES/4; source_p++)
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0xff;
+
+	UC8156_send_image_data(image_data);
+
+	UC8156_HVs_on();
+	UC8156_update_display(FULL_UPDATE);
+    UC8156_HVs_off();
+}
+
+void checkerboard_SOO_0()
+{
+	u8 image_data[PIXEL_COUNT/4];
+	int gate_p=0, source_p=0;
+
+	for (gate_p=0; gate_p<GATE_LINES; gate_p+=2)
+		for (source_p=0; source_p<SOURCE_LINES/2/4; source_p++)
+		{
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0x00;
+			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;
+		}
+	for (gate_p=0; gate_p<GATE_LINES; gate_p+=2)
+		for (source_p=SOURCE_LINES/2/4; source_p<SOURCE_LINES/4; source_p++)
+		{
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0xff;
+			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0x00;
+		}
+
+	UC8156_send_image_data(image_data);
+
+	UC8156_HVs_on();
+	UC8156_update_display(FULL_UPDATE);
+    UC8156_HVs_off();
+}
+
 void alt_source_debug(u8 data)
 {
 	u8 image_data[PIXEL_COUNT/4];
@@ -88,6 +132,7 @@ void alt_source_debug(u8 data)
 	UC8156_update_display(FULL_UPDATE);
     UC8156_HVs_off();
 }
+
 void alt_source()
 {
 	alt_source_debug(0x33);
@@ -216,3 +261,36 @@ void alt_source_4er()
     UC8156_HVs_off();
 }
 
+void pattern_sequence()
+{
+	//diagonale();
+
+	//walking_source_line();
+	//alt_source_4er();
+	checkerboard_debug(0x33, 0, SOURCE_LINES/4);
+
+	checkerboard();
+	white_update();
+	checkerboard();
+	alt_source();
+
+	show_image("240x160/08_240~1.PGM", FULL_UPDATE);
+
+	diagonale();
+
+	while(1)
+	{
+		alt_source();
+		inv_alt_source();
+		white_update();
+		alt_source();
+		white_update();
+		inv_alt_source();
+		checkerboard();
+		inv_checkerboard();
+		white_update();
+		checkerboard();
+		white_update();
+		inv_checkerboard();
+	}
+}

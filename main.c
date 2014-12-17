@@ -87,6 +87,7 @@ int main(void)
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 	UC8156_init_registers();
+	spi_write_command_1param(0x01, 0x10); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
 
 	return_value = 	spi_read_command_1param(0x15);
 	if (return_value!=0) //check Status Register
@@ -107,8 +108,6 @@ int main(void)
 	fprintf(stderr, "RevID = %x\n", revID);
 	#endif
 
-	//measure_Vcom();
-
 	//set Vcom
 	UC8156_set_Vcom(2500);
 
@@ -116,25 +115,8 @@ int main(void)
 	u8 waveform[WAVEFORM_LENGTH];
 	sdcard_load_waveform("waveform.bin", waveform);
 
-/*
-	//one_Byte_MTP_program(0x060, 0x00);
-	write_waveform_to_MTP(waveform);
-	//one_Byte_MTP_program(0x4B0, 0x7f);
-*/
-
 //	UC8156_send_waveform(waveform);
 	UC8156_send_waveform(waveform_default);
-
-	//show_image("240x160/13_240~1.PGM", 0x03);
-/*
-	while(1)
-	{
-		alt_source();
-		inv_alt_source();
-		inv_alt_source();
-		alt_source();
-	}
-*/
 
 	clear_display(); // initialize display with 2 white updates
 

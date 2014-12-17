@@ -1,8 +1,7 @@
 /*
  * config.h
  *
- *  Created on: 07.03.2014
- *      Author: andreas.meier
+ * Author: andreas.meier
  */
 
 #ifndef CONFIG_H_
@@ -14,8 +13,7 @@
 
 #define PIXEL_COUNT (u16)GATE_LINES*SOURCE_LINES
 
-#define PATH "240x160"
-//#define PATH "card_2GL"
-//#define PATH "card_4GL"
+//#define PATH "240x160"
+#define PATH "240x80"
 
 #endif /* CONFIG_H_ */
