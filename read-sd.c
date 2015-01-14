@@ -68,24 +68,24 @@ int parsevalue(char* str, int start, int length)
 	return ret;
 }
 
-// loads waveform from SD-card
-int sdcard_load_waveform(const char *path, u8 *waveform_data)
+// load waveform data from SD-card
+int sdcard_load_waveform(const char *path, u8 *waveform_data, UINT length)
 {
 	FIL file;
 	UINT count=0;
 
 	if(f_open(&file,path,FA_READ) == FR_OK)
 	{
-		f_read(&file, waveform_data, WAVEFORM_LENGTH, &count);
+		f_read(&file, waveform_data, length, &count);
 		f_close(&file);
 	}
 	else
 		return -1;
 
-	if (count==WAVEFORM_LENGTH)
+	if (count==length)
 		return 0;
 	else
-		return -2;
+		exit();
 }
 
 // reads Vcom value from text-file on SD-card

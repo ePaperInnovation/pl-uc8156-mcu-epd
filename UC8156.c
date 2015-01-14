@@ -46,8 +46,7 @@ void UC8156_init_registers()
 	spi_write_command_2params(0x06, 0x67, 0x55); // set timing to LAT=105, S2G+G2S=5
 	spi_write_command_1param(0x0f, 0x02); //DEM=010 --> Y-decrement
 	spi_write_command_2params(0x0e, 0x00, 0x9f); //start Y from 159d/9fh, related to R0fh/DEM setting
-	spi_write_command_2params(0x18, 0x68, 0x02); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
-	//spi_write_command_4params(0x18, 0x40, 0x01,0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+	spi_write_command_2params(0x18, 0x40, 0x02); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
 }
 
 // UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)

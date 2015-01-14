@@ -59,7 +59,8 @@ int spi_init(u8 spi_channel, u16 divisor)
 	gpio_request(SPI_SIMO,	PIN_SPECIAL | PIN_OUTPUT);
 	gpio_request(SPI_SOMI, 	PIN_SPECIAL | PIN_INPUT);
 	gpio_request(SPI_CLK, 	PIN_SPECIAL | PIN_OUTPUT);
-	gpio_request(SPI_CS, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
+	gpio_request(SPI_CS, PIN_GPIO | PIN_OUTPUT);
+	//gpio_request(SPI_CS, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
 
 	// SPI setting, MSb first, 8bit, Master Mode, 3 pin SPI, Synch Mode
 	UCxnCTL0 |= (UCMST | UCSYNC | UCMSB | UCCKPH);

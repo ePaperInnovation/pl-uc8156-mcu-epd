@@ -60,7 +60,7 @@ void diagonale()
 
 /*	image_data[0]=0x00;
 	image_data[2]=0x00;
-	image_data[4]=0x00;
+	image_data[8]=0x00;
 */
 	int i;
 	for (i=0; i<GATE_LINES; i++)
@@ -222,6 +222,32 @@ void alt_gate()
 	//for (gate_p=20; gate_p<40; gate_p+=2)
 		for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
 		//for (source_p=20; source_p<21; source_p++)
+		{
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0x00;
+			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;
+		}
+
+	UC8156_send_image_data(image_data);
+
+	UC8156_HVs_on();
+	UC8156_update_display(FULL_UPDATE);
+    UC8156_HVs_off();
+}
+
+void alt_gate_SOO_0()
+{
+	u8 image_data[PIXEL_COUNT/4];
+	int gate_p=0, source_p=0;
+
+	for (gate_p=0; gate_p<GATE_LINES; gate_p+=2)
+		for (source_p=0; source_p<SOURCE_LINES/2/4; source_p++)
+		{
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0x00;
+			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;
+		}
+
+	for (gate_p=0; gate_p<GATE_LINES; gate_p+=2)
+		for (source_p=SOURCE_LINES/2/4; source_p<SOURCE_LINES/4; source_p++)
 		{
 			image_data[gate_p*SOURCE_LINES/4+source_p]=0x00;
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;

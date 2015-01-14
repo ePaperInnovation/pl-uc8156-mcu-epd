@@ -68,36 +68,35 @@ static void MSP430_init_clock(void)
 
 int main(void)
 {
-	u8 return_value;
-	static u8 revID;
-
  	MSP430_init_clock();
 
 	sdcard_init(); // initialize SD-card using FatFS
 	spi_init(0,16); // initialize SPI interface towards the display
 
 	gpio_init(); // initialize GPIO's used for display communication
-	gpio_set_value_hi(PIN_3V3_ENABLE); //enable 3.3V on interface board (also controller VDD)
+	gpio_set_value_hi(PIN_3V3_ENABLE);
+	mdelay(5);
 	gpio_set_value_hi(PIN_RESET);
-	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
- 	//while (gpio_get_value(PIN_BUSY)!=0); // BUSY loop
-	//UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
+	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+
+	mdelay(5);
 	UC8156_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 	UC8156_init_registers();
-	spi_write_command_1param(0x01, 0x10); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
+	spi_write_command_1param(0x01, 0x10); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=0
 
-	return_value = 	spi_read_command_1param(0x15);
-	if (return_value!=0) //check Status Register
+	u8 status_reg = 	spi_read_command_1param(0x15);
+	if (status_reg!=0) //check Status Register
 	{
-		fprintf(stderr, "Status Register not clear (%x).\n", return_value);
+		fprintf(stderr, "Status Register not clear (%x).\n", status_reg);
 		return 1;
 	}
 	#ifdef DEBUG_PRINTOUTS
-	fprintf(stderr, "Status Register = %x\n", return_value);
+	fprintf(stderr, "Status Register = %x\n", status_reg);
 	#endif
+	static u8 revID;
 	revID = UC8156_read_RevID();
 	if (revID!=0x56)
 	{
@@ -108,37 +107,47 @@ int main(void)
 	fprintf(stderr, "RevID = %x\n", revID);
 	#endif
 
+//	write_waveform_library_to_MTP();
+
 	//set Vcom
 	UC8156_set_Vcom(2500);
 
 	//read waveform from SD-card
 	u8 waveform[WAVEFORM_LENGTH];
-	sdcard_load_waveform("waveform.bin", waveform);
+	//sdcard_load_waveform("waveform.bin", waveform);
 
 //	UC8156_send_waveform(waveform);
 	UC8156_send_waveform(waveform_default);
 
 	clear_display(); // initialize display with 2 white updates
 
-	slideshow_run(PATH, FULL_UPDATE, 1000);
+	spi_write_command_1param(0x0f, 0x00);
+	spi_write_command_2params(0x0e, 0x00, 0x00);
+	diagonale();
 
+/*	while(1)
+	{
+		show_image("240x160/13_240~1.PGM", WAVEFORM_FROM_MTP | FULL_UPDATE);
+		check_temperature_sensor();
+	}
+*/
+	//slideshow_run("240x160", WAVEFORM_FROM_MTP | FULL_UPDATE, 1000);
+	slideshow_run("240x80", FULL_UPDATE, 1000);
 	while(1);
 }
 
 void clear_display()
 {
-	u8 reg0fh_backup = spi_read_command_1param(0x0f);
+	u8 reg0fh_value = spi_read_command_1param(0x0f);
 
-	spi_write_command_1param(0x0f, 0x10); //
+	spi_write_command_1param(0x0f, reg0fh_value|0x10); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	spi_write_command_1param(0x0f, 0x00); //
+	spi_write_command_1param(0x0f, reg0fh_value&(~0x10)); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 
 	UC8156_HVs_on();
 	UC8156_update_display(FULL_UPDATE);
 	UC8156_update_display(FULL_UPDATE);
 	UC8156_HVs_off();
-
-	spi_write_command_1param(0x0f, reg0fh_backup); //
 }
 

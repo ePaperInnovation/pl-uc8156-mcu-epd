@@ -134,3 +134,40 @@ void verify_ckbd_SOO_0()
 	clear_display(); // initialize display with 2 white updates
 	checkerboard_SOO_0();
 }
+
+void register_dump()
+{
+	int i;
+	u8 *return_value;
+
+	for(i=0;i<0x20;i++)
+	{
+		return_value=spi_read_command_4params(i);
+		fprintf(stderr, "%02x: %02x%02x%02x%02x\n", i, *(return_value+3), *(return_value+2), *(return_value+1), *(return_value+0));
+	}
+}
+
+void power_measurement()
+{
+	//debug power consumption
+	spi_write_command_2params(0x04, 0x11, 0x34);
+	//spi_read_command_2params(0x04);
+	spi_write_command_2params(0x02, 0x25, 0x88); // set Vgate to +17V/-25V
+	spi_write_command_2params(0x06, 0xda, 0xaa); // set timing to LAT=105, S2G+G2S=5
+
+	while(1)
+	{
+		//checkerboard_SOO_0();
+		alt_gate_SOO_0();
+		alt_gate_SOO_0();
+		checkerboard_SOO_0();
+		checkerboard_SOO_0();
+		show_image("240x160/13_240~1.PGM", FULL_UPDATE);
+		show_image("240x160/13_240~1.PGM", FULL_UPDATE);
+	}
+}
+
+void measure_vcom()
+{
+	spi_write_command_4params(0x18, 0x68, 0x02, 0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+}

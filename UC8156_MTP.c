@@ -7,16 +7,30 @@
 #define DEBUG_PRINTOUTS_ON
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "msp430/msp430-spi.h"
 #include "UC8156.h"
 #include "UC8156_MTP.h"
 
-/*
-	//one_Byte_MTP_program(0x060, 0x00);
-	write_waveform_to_MTP(waveform);
-	//one_Byte_MTP_program(0x4B0, 0x7f);
-*/
+#define WF_LIBRARY_LENGTH 2560
+
+void write_waveform_library_to_MTP()
+{
+	//u8 *waveform_data = (u8 *)malloc(WF_LIBRARY_LENGTH);
+	u8 waveform_data[WF_LIBRARY_LENGTH];
+
+	sdcard_load_waveform("TempCh~1.wav", waveform_data, WF_LIBRARY_LENGTH);
+	write_waveform_to_MTP(waveform_data, WF_LIBRARY_LENGTH, 0x0b);
+
+	one_Byte_MTP_program(0x4B0, 0);
+	one_Byte_MTP_program(0x4B1, 0);
+	one_Byte_MTP_program(0x4B2, 0);
+	one_Byte_MTP_program(0x4B3, 0);
+	one_Byte_MTP_program(0x4B4, 0);
+	one_Byte_MTP_program(0x4B5, 30);
+	one_Byte_MTP_program(0x4B6, 35);
+}
 
 void write_Vcom_to_MTP(u16 Vcom_mv_value)
 {
@@ -25,7 +39,7 @@ void write_Vcom_to_MTP(u16 Vcom_mv_value)
 	one_Byte_MTP_program(0x04B9, Vcom_register_value);
 }
 
-void write_single_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_offset_pgrs)
+void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_offset_pgrs)
 {
 	//set VSH to 9.5V to be used as VPP
 	//spi_write_command_2params(0x02, 0x50, 0xFF); //set Vgate+Vsource
@@ -69,14 +83,20 @@ void write_single_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, i
 	spi_write_command_1param(0x0f, reg0fh_backup);
 
 #ifdef DEBUG_PRINTOUTS_ON
-	return_value = read_MTP_address(0x0000);
-	fprintf(stderr, "addr 0x00 = %x\n", return_value);
-	return_value = read_MTP_address(0x0010);
-	fprintf(stderr, "addr 0x10 = %x\n", return_value);
-	return_value = read_MTP_address(0x0020);
-	fprintf(stderr, "addr 0x20 = %x\n", return_value);
-	return_value = read_MTP_address(0x0060);
-	fprintf(stderr, "addr 0x60 = %x\n", return_value);
+	int addr;
+	addr=0x0000;
+	return_value = read_MTP_address(addr);
+	fprintf(stderr, "addr %x = %x\n", addr, return_value);
+	addr=0x0350;
+	return_value = read_MTP_address(addr);
+	fprintf(stderr, "addr %x = %x\n", addr, return_value);
+	addr=0x0440;
+	return_value = read_MTP_address(addr);
+	fprintf(stderr, "addr %x = %x\n", addr, return_value);
+	addr=0x0970;
+	return_value = read_MTP_address(addr);
+	fprintf(stderr, "addr %x = %x\n", addr, return_value);
+
 #endif
 }
 

@@ -13,7 +13,10 @@
 
 enum UPDATE_MODES {FULL_UPDATE=0x01, PARTIAL_UPDATE=0x05};
 
+#define WAVEFORM_FROM_MTP 0x02
+
 #define WAVEFORM_LENGTH 120
+#define TS_LENGTH 10
 
 void UC8156_reset();
 void UC8156_wait_for_BUSY_inactive();
