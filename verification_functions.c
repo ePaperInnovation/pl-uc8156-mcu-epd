@@ -147,6 +147,23 @@ void register_dump()
 	}
 }
 
+void print_register_value(u8 reg, u8 count)
+{
+	int i;
+
+	u8 *values_p = (u8 *)malloc(count);
+	spi_read_command_and_bulk_data(reg, values_p, count);
+
+	fprintf(stderr, "Reg0x%02xh: ", reg);
+	for(i=0; i<count; i++)
+		fprintf(stderr, "%02x ", *(values_p+i));
+	fprintf(stderr, "\n");
+
+	free(values_p);
+}
+
+
+
 void power_measurement()
 {
 	//debug power consumption
@@ -171,3 +188,10 @@ void measure_vcom()
 {
 	spi_write_command_4params(0x18, 0x68, 0x02, 0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
 }
+
+/*	while(1)
+	{
+		show_image("240x160/13_240~1.PGM", WAVEFORM_FROM_MTP | FULL_UPDATE);
+		check_temperature_sensor();
+	}
+*/
