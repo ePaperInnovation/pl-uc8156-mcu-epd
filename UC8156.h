@@ -11,6 +11,9 @@
 #include "types.h"
 #include <stddef.h>
 
+#define GATE_LINES_MAX 160
+#define SOURCE_LINES_MAX 240
+
 enum UPDATE_MODES {FULL_UPDATE=0x01, PARTIAL_UPDATE=0x05};
 
 #define WAVEFORM_FROM_MTP 0x02

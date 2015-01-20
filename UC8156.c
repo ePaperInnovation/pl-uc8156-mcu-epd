@@ -44,9 +44,12 @@ void UC8156_init_registers()
 	spi_write_command_1param(0x01, 0x12); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
 	spi_write_command_2params(0x02, 0x25, 0xFF); // set Vgate to +17V/-25V
 	spi_write_command_2params(0x06, 0x67, 0x55); // set timing to LAT=105, S2G+G2S=5
-	spi_write_command_1param(0x0f, 0x02); //DEM=010 --> Y-decrement
-	spi_write_command_2params(0x0e, 0x00, 0x9f); //start Y from 159d/9fh, related to R0fh/DEM setting
 	spi_write_command_2params(0x18, 0x40, 0x02); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+
+	// image RAM configuration
+	spi_write_command_1param(0x0f, 0x02); //DEM=010 --> Y-decrement
+	spi_write_command_4params(0x0d, 0x00, SOURCE_LINES-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // RAM window setup
+	spi_write_command_2params(0x0e, 0x00, GATE_LINES_MAX-1); //start Y from 159d/9fh, related to R0fh/DEM setting
 }
 
 // UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)
