@@ -121,16 +121,6 @@ int main(void)
 
 	clear_display(); // initialize display with 2 white updates
 
-	spi_write_command_1param(0x0f, 0x00);
-	spi_write_command_2params(0x0e, 0x00, 0x00);
-	diagonale();
-
-/*	while(1)
-	{
-		show_image("240x160/13_240~1.PGM", WAVEFORM_FROM_MTP | FULL_UPDATE);
-		check_temperature_sensor();
-	}
-*/
 	//slideshow_run("240x160", WAVEFORM_FROM_MTP | FULL_UPDATE, 1000);
 	slideshow_run("240x80", FULL_UPDATE, 1000);
 	while(1);
