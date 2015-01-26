@@ -101,7 +101,7 @@ int main(void)
 	if (revID!=0x56)
 	{
 		fprintf(stderr, "RevID 0x56 not read correctly (%x).\n", revID);
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 	#ifdef DEBUG_PRINTOUTS
 	fprintf(stderr, "RevID = %x\n", revID);
@@ -113,16 +113,27 @@ int main(void)
 	UC8156_set_Vcom(2500);
 
 	//read waveform from SD-card
-	u8 waveform[WAVEFORM_LENGTH];
-	//sdcard_load_waveform("waveform.bin", waveform);
+	u8 waveform_from_file[WAVEFORM_LENGTH];
+	int res;
+	//res = sdcard_load_waveform("waveform.bin", waveform_from_file, WAVEFORM_LENGTH);
+	res = sdcard_load_waveform("UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
+	if (res!=0)
+	{
+		fprintf(stderr, "Waveform could not be read correctly.\n");
+		exit(EXIT_FAILURE);
+	}
 
-//	UC8156_send_waveform(waveform);
-	UC8156_send_waveform(waveform_default);
+	u8 *waveform_p;
+	waveform_p = waveform_from_file;
+	//waveform_p = waveform_default;
+	UC8156_send_waveform(waveform_p);
 
 	clear_display(); // initialize display with 2 white updates
 
 	//slideshow_run("240x160", WAVEFORM_FROM_MTP | FULL_UPDATE, 1000);
-	slideshow_run("240x80", FULL_UPDATE, 1000);
+	//slideshow_run("240x80", FULL_UPDATE, 1000);
+	slideshow_run(PATH, FULL_UPDATE, 1000);
+
 	while(1);
 }
 
