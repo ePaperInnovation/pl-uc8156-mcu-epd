@@ -85,7 +85,7 @@ int sdcard_load_waveform(const char *path, u8 *waveform_data, UINT length)
 	if (count==length)
 		return 0;
 	else
-		exit();
+		return -2;
 }
 
 // reads Vcom value from text-file on SD-card
