@@ -206,3 +206,25 @@ err_close_file:
 
 	return ret;
 }
+
+int read_directory_list(const char *path)
+{
+	DIR dir;
+	FILINFO fno;
+	fno.lfsize = _MAX_LFN - 1;
+	static TCHAR lfname[_MAX_LFN];
+	fno.lfname = lfname;
+
+	if (f_opendir(&dir, path) != FR_OK)
+		return -1;
+
+	while(1)
+	{
+		if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)
+			break;
+
+		fprintf(stderr,"%s\n", fno.fname);
+		fprintf(stderr,"%s\n", fno.lfname);
+	}
+}
+
