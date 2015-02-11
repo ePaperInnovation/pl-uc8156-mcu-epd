@@ -110,7 +110,7 @@ int main(void)
 //	write_waveform_library_to_MTP();
 
 	//set Vcom
-	UC8156_set_Vcom(2500);
+	UC8156_set_Vcom(4500);
 
 	//read waveform from SD-card
 	u8 waveform_from_file[WAVEFORM_LENGTH];
@@ -132,9 +132,8 @@ int main(void)
 
 	//slideshow_run("240x160", WAVEFORM_FROM_MTP | FULL_UPDATE, 1000);
 	//slideshow_run("240x80", FULL_UPDATE, 1000);
-	slideshow_run(PATH, FULL_UPDATE, 1000);
-
-	while(1);
+	while(1)
+		slideshow_run(PATH, FULL_UPDATE, 2000);
 }
 
 void clear_display()
