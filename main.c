@@ -91,7 +91,7 @@ int main(void)
 	if (status_reg!=0) //check Status Register
 	{
 		fprintf(stderr, "Status Register not clear (%x).\n", status_reg);
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 	#ifdef DEBUG_PRINTOUTS
 	fprintf(stderr, "Status Register = %x\n", status_reg);
@@ -113,15 +113,17 @@ int main(void)
 	UC8156_set_Vcom(4500);
 
 	//read waveform from SD-card
+
 	u8 waveform_from_file[WAVEFORM_LENGTH];
 	int res;
-	//res = sdcard_load_waveform("waveform.bin", waveform_from_file, WAVEFORM_LENGTH);
-	res = sdcard_load_waveform("UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
+	res = sdcard_load_waveform("waveforms/waveform.bin", waveform_from_file, WAVEFORM_LENGTH);
+	//res = sdcard_load_waveform("waveforms/UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
 	if (res!=0)
 	{
 		fprintf(stderr, "Waveform could not be read correctly.\n");
 		exit(EXIT_FAILURE);
 	}
+
 
 	u8 *waveform_p;
 	waveform_p = waveform_from_file;
@@ -130,8 +132,11 @@ int main(void)
 
 	clear_display(); // initialize display with 2 white updates
 
+	//checkerboard_SOO_0();
+	//show_image("240x80/amex_2GL.pgm", FULL_UPDATE);
+
 	//slideshow_run("240x160", WAVEFORM_FROM_MTP | FULL_UPDATE, 1000);
-	//slideshow_run("240x80", FULL_UPDATE, 1000);
+
 	while(1)
 		slideshow_run(PATH, FULL_UPDATE, 2000);
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 //#include "image-data.h"
 #include "FatFs/ff.h"
@@ -207,7 +208,7 @@ err_close_file:
 	return ret;
 }
 
-int read_directory_list(const char *path)
+void read_directory_list(const char *path)
 {
 	DIR dir;
 	FILINFO fno;
@@ -216,7 +217,7 @@ int read_directory_list(const char *path)
 	fno.lfname = lfname;
 
 	if (f_opendir(&dir, path) != FR_OK)
-		return -1;
+		exit(EXIT_FAILURE);
 
 	while(1)
 	{
@@ -228,3 +229,61 @@ int read_directory_list(const char *path)
 	}
 }
 
+struct config
+{
+	u16 gate_lines;
+	u16 source_lines;
+	char img_path[13];
+};
+
+static const char SEP[] = ", ";
+
+struct config read_config_file(const char *config_file_name)
+{
+	FIL *fp;
+	char line[81];
+	int stat=0;
+
+	if (f_open(fp, config_file_name, FA_READ) != FR_OK)
+	{
+		LOG("Could not open config-file");
+		exit(EXIT_FAILURE);
+	}
+
+	while (!stat)
+	{
+		stat = parser_read_config_file_line(fp, line, sizeof(line));
+		if (stat < 0)
+		{
+			LOG("Failed to read line");
+			break;
+		}
+	}
+
+
+}
+
+int parser_read_config_file_line(FIL *f, char *buffer, int max_length)
+{
+	size_t count;
+	char *out;
+	int i;
+
+	for (i = 0, out = buffer; i < max_length; ++i, ++out) {
+		if (f_read(f, out, 1, &count) != FR_OK)
+			return -1;
+
+		if ((*out == '\n') || !count)
+			break;
+
+		if (*out == '\r')
+			--out;
+	}
+
+	if (i == max_length)
+		return -1;
+
+	*out = '\0';
+
+	return !!count;
+}
