@@ -70,7 +70,7 @@ int parsevalue(char* str, int start, int length)
 }
 
 // load waveform data from SD-card
-int sdcard_load_waveform(const char *path, u8 *waveform_data, UINT length)
+void sdcard_load_waveform(const char *path, u8 *waveform_data, UINT length)
 {
 	FIL file;
 	UINT count=0;
@@ -81,12 +81,10 @@ int sdcard_load_waveform(const char *path, u8 *waveform_data, UINT length)
 		f_close(&file);
 	}
 	else
-		return -1;
+		abort_now("Fatal error in: read-sd.c/sdcard_load_waveform: File not found");
 
-	if (count==length)
-		return 0;
-	else
-		return -2;
+	if (count!=length)
+		abort_now("Fatal error in: read-sd.c/sdcard_load_waveform: count!=length");
 }
 
 // reads Vcom value from text-file on SD-card
@@ -198,8 +196,8 @@ int sdcard_load_image(const char *image_name, u8 *image_data)
 		goto err_close_file;
 	}
 
-	//ret = read_image_data(&image_file, image_data);
-	ret = read_image_data_SOO_0(&image_file, image_data);
+	ret = read_image_data(&image_file, image_data);
+	//ret = read_image_data_SOO_0(&image_file, image_data);
 	//ret = read_image_data_test(&image_file, image_data);
 
 err_close_file:
