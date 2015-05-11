@@ -8,7 +8,7 @@
 
 /* FatFS only supports 8.3 filenames, and we work from the current directory so
    paths should be short... */
-#define MAX_PATH_LEN 64
+#define MAX_PATH_LEN 256
 
 // loads image form SD-card and updates it on the display using REFRESH waveform
 int show_image(const char *image, int mode)
@@ -16,7 +16,7 @@ int show_image(const char *image, int mode)
 	  u8 image_data[PIXEL_COUNT/4];
 
 	  if (sdcard_load_image(image, image_data))
-		return -1;
+		abort_now("slideshow.c - show_image - error in sdcard_load_image");
 
 	  UC8156_send_image_data(image_data);
 
@@ -27,8 +27,7 @@ int show_image(const char *image, int mode)
 	return 0;
 }
 
-/** Slideshow callback function, called on each file found in a directory */
-//int slideshow_run(const char *path, slideshow_cb_t callback)
+/** Slideshow, calling show_image for each pgm-file found in a directory */
 int slideshow_run(const char *path, int mode, u16 delay_ms)
 {
 	DIR dir;
@@ -48,7 +47,7 @@ int slideshow_run(const char *path, int mode, u16 delay_ms)
 			continue;
 
 		/* .. and files without the PGM extension */
-		if (!strstr(fno.fname, ".PGM"))
+		if (!strstr(fno.fname, ".PGM") && !strstr(fno.fname, ".pgm"))
 			continue;
 
 		sprintf(full_path, "%s/%s", path, fno.fname);
@@ -60,3 +59,4 @@ int slideshow_run(const char *path, int mode, u16 delay_ms)
 
 	return result;
 }
+
