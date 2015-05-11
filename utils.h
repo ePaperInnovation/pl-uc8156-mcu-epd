@@ -66,8 +66,10 @@ extern void dump_hex(const void *data, uint16_t len);
 
 /* --  Other display related utilities */
 
-/*Converts image data to 4 bit per pixel data */
+/* Converts image data to 4 bit per pixel data */
 void pack_4bpp(u8 *in, u8 *out, int in_count);
 
+/* aborts the program in case of a fatal error and prints an error message */
+void abort_now(const char *error_string);
 
 #endif /* INCLUDE_UTIL_H */

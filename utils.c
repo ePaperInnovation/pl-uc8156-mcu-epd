@@ -277,3 +277,10 @@ void pack_4bpp(u8 *in, u8 *out, int in_count)
 		in_count -= 4;
 	}
 }
+
+void abort_now(const char *error_string)
+{
+	fprintf(stderr, error_string);
+	fprintf(stderr, "\n\n");
+	exit(EXIT_FAILURE);
+}
