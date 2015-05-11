@@ -19,7 +19,7 @@ u8 x_start, y_start;
 void UC8156_reset()
 {
 	gpio_set_value_lo(PIN_RESET);
-	mdelay(5);
+	mdelay(1);
 	gpio_set_value_hi(PIN_RESET);
 }
 
@@ -48,6 +48,7 @@ void UC8156_init_registers()
 
 	// image RAM configuration
 	spi_write_command_1param(0x0f, 0x02); //DEM=010 --> Y-decrement
+	//spi_write_command_4params(0x0c, 0x00, SOURCE_LINES-1, 60, GATE_LINES_MAX-1); //
 	spi_write_command_4params(0x0d, 0x00, SOURCE_LINES-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // RAM window setup
 	spi_write_command_2params(0x0e, 0x00, GATE_LINES_MAX-1); //start Y from 159d/9fh, related to R0fh/DEM setting
 }
@@ -119,7 +120,7 @@ void UC8156_update_display_full()
 //update display and wait for BUSY-pin low
 void UC8156_update_display(u8 mode)
 {
-	spi_write_command_1param(0x14, mode);
+	spi_write_command_1param(0x14, UPDATE_WAVEFORMSOURCESELECT | mode);
 	UC8156_wait_for_BUSY_inactive();
 }
 
