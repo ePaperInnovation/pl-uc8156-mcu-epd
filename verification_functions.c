@@ -61,23 +61,7 @@ void read_and_print_MTP()
 void drift_test()
 {
 	UC8156_HVs_on();
-/*
-	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	UC8156_update_display(FULL);
 
-	UC8156_send_waveform(waveform_long_null);
-	UC8156_send_repeated_image_data(0xff); // 0xff is white
-	UC8156_update_display(FULL);
-
-	UC8156_send_waveform(waveform_default);
-	UC8156_send_repeated_image_data(0x00); // 0xff is white
-	UC8156_update_display(FULL);
-
-	UC8156_send_waveform(waveform_long_null);
-	UC8156_send_repeated_image_data(0x00); // 0xff is white
-	UC8156_update_display(FULL);
-*/
-	//spi_write_command_1param(0x0f, 0x06); //
 	send_drift_test_image();
 	UC8156_update_display(FULL_UPDATE);
 
@@ -93,9 +77,9 @@ void send_drift_test_image()
 	  u8 image_data[PIXEL_COUNT/4];
 	  int i;
 
-	  for(i=0;i<PIXEL_COUNT/4/3;i++)
+	  for(i=0;i<PIXEL_COUNT/4/2;i++)
 		  image_data[i]=0x00;
-	  for(i=PIXEL_COUNT/4/3;i<PIXEL_COUNT/4;i++)
+	  for(i=PIXEL_COUNT/4/2;i<PIXEL_COUNT/4;i++)
 		  image_data[i]=0xff;
 
 	  UC8156_send_image_data(image_data);
