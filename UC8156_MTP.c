@@ -14,32 +14,115 @@
 #include "UC8156_MTP.h"
 
 #define WF_LIBRARY_LENGTH 2560
+#define WF_1TYPEonly_LENGTH 0x4b9 //=1209d
+#define MTP_TYPE2_OFFSET 0x500
+#define MTP_VCOM_OFFSET 0x04b9
 
-void write_waveform_library_to_MTP()
+#define WF_TYPE1 0 // R40h.bit1 (MARS) =0
+#define WF_TYPE2 2 // R40h.bit1 (MARS) =1
+
+void write_single_waveform_to_MTP(const char *filename)
 {
-	//u8 *waveform_data = (u8 *)malloc(WF_LIBRARY_LENGTH);
-	u8 waveform_data[WF_LIBRARY_LENGTH];
+	u8 waveform_data[WAVEFORM_LENGTH];
 
-	sdcard_load_waveform("TempCh~1.wav", waveform_data, WF_LIBRARY_LENGTH);
-	write_waveform_to_MTP(waveform_data, WF_LIBRARY_LENGTH, 0x0b);
+	sdcard_load_waveform(filename, waveform_data, WAVEFORM_LENGTH);
+	write_waveform_to_MTP(waveform_data, WAVEFORM_LENGTH, 0x00, WF_TYPE1); // program WS1 only
 
-	one_Byte_MTP_program(0x4B0, 0);
-	one_Byte_MTP_program(0x4B1, 0);
-	one_Byte_MTP_program(0x4B2, 0);
-	one_Byte_MTP_program(0x4B3, 0);
-	one_Byte_MTP_program(0x4B4, 0);
-	one_Byte_MTP_program(0x4B5, 30);
-	one_Byte_MTP_program(0x4B6, 35);
+	// program TS to use always WS1
+	one_Byte_MTP_program(0x4B0, 99);
+
+	//read/verify
+	u8 value;
+	int addr;
+	for (addr=0; addr<WAVEFORM_LENGTH; addr++)
+	{
+		value = read_MTP_address(addr);
+		//fprintf(stderr, "addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+		if (value != waveform_data[addr])
+			fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+	}
 }
 
-void write_Vcom_to_MTP(u16 Vcom_mv_value)
+void write_waveform_library_for_type1_only_to_MTP(const char *filename)
+{
+	u8 waveform_data[WF_LIBRARY_LENGTH];
+
+	sdcard_load_waveform(filename, waveform_data, WF_1TYPEonly_LENGTH);
+	write_waveform_to_MTP(waveform_data, WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE1);
+
+	//read/verify
+	u8 value;
+	int addr;
+	for (addr=0; addr<WF_1TYPEonly_LENGTH; addr++)
+	{
+		value = read_MTP_address(addr);
+		//fprintf(stderr, "addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+		if (value != waveform_data[addr])
+			fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+	}
+}
+
+void write_complete_waveform_library_to_MTP(const char *filename)
+{
+	u8 waveform_data[WF_LIBRARY_LENGTH];
+	u8 value;
+	int addr;
+
+// load complete waveform library (2 types, size=0xA00) from SD-card
+	sdcard_load_waveform(filename, waveform_data, WF_LIBRARY_LENGTH);
+// write Type1
+	write_waveform_to_MTP(waveform_data, WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE1);
+
+	//read/verify
+	for (addr=0; addr<WF_1TYPEonly_LENGTH; addr++)
+	{
+		value = read_MTP_address(addr);
+		//fprintf(stderr, "addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+		if (value != waveform_data[addr])
+			fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+	}
+
+// write Type2
+	write_waveform_to_MTP((u8 *)waveform_data[MTP_TYPE2_OFFSET], WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE2);
+
+
+	//read/verify
+	for (addr=MTP_TYPE2_OFFSET; addr<WF_1TYPEonly_LENGTH; addr++)
+	{
+		value = read_MTP_address(addr);
+		//fprintf(stderr, "addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+		if (value != waveform_data[addr])
+			fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+	}
+
+// write_Vcom_to_MTP
+	addr=MTP_VCOM_OFFSET;
+	one_Byte_MTP_program(addr, waveform_data[addr]);
+	value = read_MTP_address(addr);
+	//fprintf(stderr, "addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+	if (value != waveform_data[addr])
+		fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+}
+
+int write_Vcom_to_MTP(u16 Vcom_mv_value)
 {
 	u16 Vcom_register_value = (float)Vcom_mv_value/(float)30.0;
 
-	one_Byte_MTP_program(0x04B9, Vcom_register_value);
+	one_Byte_MTP_program(MTP_VCOM_OFFSET, Vcom_register_value);
+
+	u8 read_value = read_MTP_address(MTP_VCOM_OFFSET);
+#ifdef DEBUG_PRINTOUTS_ON
+	fprintf(stderr, "written value: 0x%x\n", Vcom_register_value);
+	fprintf(stderr, "read value   : 0x%x\n", read_value);
+#endif
+
+	if (read_value == Vcom_register_value)
+		return 0;
+	else
+		return -1;
 }
 
-void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_offset_pgrs)
+void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_offset_pgrs, int wf_type)
 {
 	//set VSH to 9.5V to be used as VPP
 	//spi_write_command_2params(0x02, 0x50, 0xFF); //set Vgate+Vsource
@@ -68,7 +151,7 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 	mdelay(100);
 
 	//start MTP program
-	spi_write_command_1param(0x40, (mtp_offset_pgrs<<4)&0xf0 | 0x01);
+	spi_write_command_1param(0x40, (mtp_offset_pgrs<<4)&0xf0 | wf_type | 0x01);
 	UC8156_wait_for_BUSY_inactive();
 
 	//switch VPP off
@@ -81,23 +164,6 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 	//reset register to previous values
 	spi_write_command_2params(0x02, reg02h_backup[0], reg02h_backup[1]);
 	spi_write_command_1param(0x0f, reg0fh_backup);
-
-#ifdef DEBUG_PRINTOUTS_ON
-	int addr;
-	addr=0x0000;
-	return_value = read_MTP_address(addr);
-	fprintf(stderr, "addr %x = %x\n", addr, return_value);
-	addr=0x0350;
-	return_value = read_MTP_address(addr);
-	fprintf(stderr, "addr %x = %x\n", addr, return_value);
-	addr=0x0440;
-	return_value = read_MTP_address(addr);
-	fprintf(stderr, "addr %x = %x\n", addr, return_value);
-	addr=0x0970;
-	return_value = read_MTP_address(addr);
-	fprintf(stderr, "addr %x = %x\n", addr, return_value);
-
-#endif
 }
 
 u8 read_MTP_address(const u16 address)
@@ -180,7 +246,7 @@ void one_Byte_MTP_program(u16 address, u8 data)
 
 #ifdef DEBUG_PRINTOUTS_ON
 	return_value = read_MTP_address(address);
-	fprintf(stderr, "value before program = %x\n", return_value);
+	fprintf(stderr, "value before program = 0x%x\n", return_value);
 #endif
 
 	UC8156_HVs_on();
@@ -206,6 +272,6 @@ void one_Byte_MTP_program(u16 address, u8 data)
 
 #ifdef DEBUG_PRINTOUTS_ON
 	return_value = read_MTP_address(address);
-	fprintf(stderr, "value after program = %x\n", return_value);
+	fprintf(stderr, "value after program = 0x%x\n", return_value);
 #endif
 }
