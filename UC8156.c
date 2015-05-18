@@ -120,7 +120,7 @@ void UC8156_update_display_full()
 //update display and wait for BUSY-pin low
 void UC8156_update_display(u8 mode)
 {
-	spi_write_command_1param(0x14, UPDATE_WAVEFORMSOURCESELECT | mode);
+	spi_write_command_1param(0x14, UPDATE_WAVEFORMSOURCESELECT | mode | 1);
 	UC8156_wait_for_BUSY_inactive();
 }
 
