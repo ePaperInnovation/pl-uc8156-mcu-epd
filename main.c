@@ -70,22 +70,26 @@ int main(void)
 {
  	MSP430_init_clock();
 
-	sdcard_init(); // initialize SD-card using FatFS
+	if (sdcard_init()) // initialize SD-card using FatFS
+		abort_now("Fatal error in main.c - main: sdcard_init not successful");
 	spi_init(0,16); // initialize SPI interface towards the display
 
 	gpio_init(); // initialize GPIO's used for display communication
 	gpio_set_value_hi(PIN_3V3_ENABLE);
-	mdelay(5);
+	mdelay(1);
 	gpio_set_value_hi(PIN_RESET);
 
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
-	mdelay(5);
+	mdelay(1);
 	UC8156_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 	UC8156_init_registers();
-	spi_write_command_1param(0x01, 0x10); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=0
+	//spi_write_command_4params(0x18, 0x40, 0x01, 0x24, 0x0a); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+	spi_write_command_4params(0x18, 0x00, 0x00, 0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+	spi_write_command_1param(0x1d, 0x04); //set Vborder to Vcom
+	spi_write_command_3params(0x1f, 0x00, 0x00, 0x00); //set all NF's and waiting times to 0
 
 	u8 status_reg = 	spi_read_command_1param(0x15);
 	if (status_reg!=0) //check Status Register
@@ -107,35 +111,25 @@ int main(void)
 	fprintf(stderr, "RevID = %x\n", revID);
 	#endif
 
-//	write_waveform_library_to_MTP();
+	//read-out VCOM setting
+	//u8 return_value = spi_read_command_1param(0x1b);
+	//fprintf(stderr, "Vcom read = 0x%x\n", return_value);
 
-	//set Vcom
-	UC8156_set_Vcom(4500);
+	//set Vcom -> not necessary if Vcom is already programmed into MTP memory
+	UC8156_set_Vcom(3600);
 
-	//read waveform from SD-card
-
+	//read waveform table from SD-card and send to UC8156 -> not necessary if waveform is already programmed into MTP memory
 	u8 waveform_from_file[WAVEFORM_LENGTH];
 	int res;
-	res = sdcard_load_waveform("waveforms/waveform.bin", waveform_from_file, WAVEFORM_LENGTH);
-	//res = sdcard_load_waveform("waveforms/UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
+	//res = sdcard_load_waveform("waveforms/waveform.bin", waveform_from_file, WAVEFORM_LENGTH);
+	res = sdcard_load_waveform("waveforms/UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
 	if (res!=0)
-	{
-		fprintf(stderr, "Waveform could not be read correctly.\n");
-		exit(EXIT_FAILURE);
-	}
-
-
+		abort_now("main.c - main - Waveform could not be read correctly");
 	u8 *waveform_p;
 	waveform_p = waveform_from_file;
-	//waveform_p = waveform_default;
 	UC8156_send_waveform(waveform_p);
 
-	clear_display(); // initialize display with 2 white updates
-
-	//checkerboard_SOO_0();
-	//show_image("240x80/amex_2GL.pgm", FULL_UPDATE);
-
-	//slideshow_run("240x160", WAVEFORM_FROM_MTP | FULL_UPDATE, 1000);
+	//spi_write_command_1param(0x07, 0x0a); //Temperature Auto Retrieval enabled from internal sensor -> works only with waveform from MTP
 
 	while(1)
 		slideshow_run(PATH, FULL_UPDATE, 2000);
