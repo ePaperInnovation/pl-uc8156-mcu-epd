@@ -21,7 +21,7 @@
 #define WF_TYPE1 0 // R40h.bit1 (MARS) =0
 #define WF_TYPE2 2 // R40h.bit1 (MARS) =1
 
-void write_single_waveform_to_MTP(const char *filename)
+void write_single_waveform_table_to_MTP(const char *filename)
 {
 	u8 waveform_data[WAVEFORM_LENGTH];
 
@@ -68,12 +68,13 @@ void write_complete_waveform_library_to_MTP(const char *filename)
 	u8 value;
 	int addr;
 
-// load complete waveform library (2 types, size=0xA00) from SD-card
+	// load complete waveform library (2 types, size=0xA00) from SD-card
 	sdcard_load_waveform(filename, waveform_data, WF_LIBRARY_LENGTH);
-// write Type1
+
+	// write type1
 	write_waveform_to_MTP(waveform_data, WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE1);
 
-	//read/verify
+	//read/verify type1
 	for (addr=0; addr<WF_1TYPEonly_LENGTH; addr++)
 	{
 		value = read_MTP_address(addr);
@@ -82,12 +83,22 @@ void write_complete_waveform_library_to_MTP(const char *filename)
 			fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
 	}
 
-// write Type2
-	write_waveform_to_MTP((u8 *)waveform_data[MTP_TYPE2_OFFSET], WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE2);
+	// write type2
+	write_waveform_to_MTP(waveform_data+MTP_TYPE2_OFFSET, WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE2);
 
+	//read/verify type2
+	spi_write_command_1param(0x40, 0x02); //set MARS=1
+	for (addr=0; addr<WF_1TYPEonly_LENGTH; addr++)
+	{
+		value = read_MTP_address(addr);
+		//fprintf(stderr, "addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
+		if (value != waveform_data[addr+MTP_TYPE2_OFFSET])
+			fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr+MTP_TYPE2_OFFSET], value);
+	}
 
-	//read/verify
-	for (addr=MTP_TYPE2_OFFSET; addr<WF_1TYPEonly_LENGTH; addr++)
+	//read/verify type1 -> double-check
+	spi_write_command_1param(0x40, 0x00); //set MARS=0
+	for (addr=0; addr<WF_1TYPEonly_LENGTH; addr++)
 	{
 		value = read_MTP_address(addr);
 		//fprintf(stderr, "addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
@@ -128,7 +139,7 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 	//spi_write_command_2params(0x02, 0x50, 0xFF); //set Vgate+Vsource
 	static u8 reg02h_backup[2];
 	spi_read_command_2params1(0x02, reg02h_backup);
-	spi_write_command_2params(0x02, reg02h_backup[0], 0x33);
+	spi_write_command_2params(0x02, reg02h_backup[0], 0x32);
 
 	//set SRAM access parameter
 	spi_write_command_4params(0x0D, 0x00, 0xEF, 0x00, 0x9F); //set window to full size
@@ -152,8 +163,11 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 
 	//start MTP program
 	spi_write_command_1param(0x40, (mtp_offset_pgrs<<4)&0xf0 | wf_type | 0x01);
-	UC8156_wait_for_BUSY_inactive();
-
+    UC8156_wait_for_BUSY_inactive();
+ 	while (spi_read_command_1param(0x15)&0x08); // BUSY loop
+#ifdef DEBUG_PRINTOUTS_ON
+ 	fprintf(stderr, "Reg[15h]=0x%02x\n", spi_read_command_1param(0x15));
+#endif
 	//switch VPP off
 	return_value = spi_read_command_1param(0x03);
 	spi_write_command_1param(0x03, return_value&(~0x08));
@@ -169,71 +183,14 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 u8 read_MTP_address(const u16 address)
 {
 	spi_write_command_2params(0x41, address&0xFF, (address>>8)&0x07); // set MTP address
-	//spi_read_command_2params(0x43);
 	return spi_read_command_1param_1dummy(0x43);
 }
 
-void debug_complex_MTP_program()
+u8 read_MTP_address_and_print(const u16 address)
 {
-	u8 return_value;
-
-	return_value = read_MTP_address(0x0000);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0010);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0033);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0066);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0077);
-	fprintf(stderr, "return_value = %x\n", return_value);
-
-	//set VSH to 9.5V to be used as VPP
-	//spi_write_command_2params(0x02, 0x50, 0xFF); //set Vgate+Vsource
-	static u8 v1[2];
-	spi_read_command_2params1(0x02, v1);
-	spi_write_command_2params(0x02, v1[0], 0x33);
-
-	//power-up default is [0x20, 0xE1]
-	spi_write_command_2params(0x44, 0x20, 0xEC); //MTP option setting --> Vs=2.4V (new default)
-
-	//write to be programmed data into SRAM
-	UC8156_send_repeated_image_data(0x67);
-
-	UC8156_HVs_on();
-
-	//spi_write_command_4params(0x0D, 0x00, 0xEF, 0x00, 0x9F); //set window to full size
-	//spi_write_command_2params(0x0E, 0x00, 0x00); //set WS start location to (0,0)
-	//spi_write_command_1param(0x0F, 0x00); //set data entry mode
-
-	//switch on VPP manually
-
-	//switch internal VPP on (VSH)
-	return_value = spi_read_command_1param(0x03);
-	spi_write_command_1param(0x03, return_value|0x08);
-	mdelay(100);
-
-	//start MTP program
-	spi_write_command_1param(0x40, 0x01);
-	UC8156_wait_for_BUSY_inactive();
-
-	//switch VPP off
-	return_value = spi_read_command_1param(0x03);
-	spi_write_command_1param(0x03, return_value&(~0x08));
-	mdelay(100);
-
-	UC8156_HVs_off();
-
-	return_value = read_MTP_address(0x0000);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0010);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0033);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0066);
-	fprintf(stderr, "return_value = %x\n", return_value);
-	return_value = read_MTP_address(0x0077);
-	fprintf(stderr, "return_value = %x\n", return_value);
+	u8 return_value = read_MTP_address(address);
+	fprintf(stderr, "MTP addr %x = %x\n", address, return_value);
+	return return_value;
 }
 
 void one_Byte_MTP_program(u16 address, u8 data)
