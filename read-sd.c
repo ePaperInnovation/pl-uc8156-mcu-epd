@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "image-data.h"
 #include "FatFs/ff.h"
 #include "types.h"
 #include "pnm-utils.h"
 #include "utils.h"
 #include "UC8156.h"
 #include "config.h"
+
+#define LOG(msg) fprintf(stderr,"%s\n", msg);
 
 #define BUFFER_LENGTH SOURCE_LINES
 
@@ -196,9 +197,12 @@ int sdcard_load_image(const char *image_name, u8 *image_data)
 		goto err_close_file;
 	}
 
+#ifdef WORKAROUND_FOR_SOO=1_BUG
+	ret = read_image_data_SOO_0(&image_file, image_data);
+#else
 	ret = read_image_data(&image_file, image_data);
-	//ret = read_image_data_SOO_0(&image_file, image_data);
 	//ret = read_image_data_test(&image_file, image_data);
+#endif
 
 err_close_file:
 	f_close(&image_file);
@@ -236,28 +240,51 @@ struct config
 
 static const char SEP[] = ", ";
 
-struct config read_config_file(const char *config_file_name)
-{
-	FIL *fp;
-	char line[81];
-	int stat=0;
 
-	if (f_open(fp, config_file_name, FA_READ) != FR_OK)
+void read_config_file(const char *config_file_name)
+//struct config read_config_file(const char *config_file_name)
+{
+	FIL fp;
+	char line[81] = "source_lines, 180 ", *opt;
+	int stat=0, len;
+	int value, value1, value2;
+	char string[20];
+	const char *test = "source_lines, 34";
+	char param_name[16];
+
+	stat = f_open(&fp, config_file_name, FA_READ);
+	if (stat != FR_OK)
 	{
 		LOG("Could not open config-file");
 		exit(EXIT_FAILURE);
 	}
 
-	while (!stat)
+/*	fprintf(stderr,"%s\n", line);
+	sscanf(line,"%[^,] %d", string, &value);
+	fprintf(stderr,"%s - %d\n", string, value);
+*/
+	int counter=0;
+	//while (!stat)
+	do
 	{
-		stat = parser_read_config_file_line(fp, line, sizeof(line));
-		if (stat < 0)
-		{
+		stat = parser_read_config_file_line(&fp, line, sizeof(line));
+		fprintf(stderr,"%s\n", line);
+
+		if (stat < 0) {
 			LOG("Failed to read line");
 			break;
 		}
-	}
 
+		opt = line;
+		len = parser_read_str(opt, SEP, param_name, sizeof(param_name));
+		fprintf(stderr,"%d - %s\n", len, param_name);
+
+		opt += len;
+		len = parser_read_int(opt, SEP, &value);
+		fprintf(stderr,"%d - %d\n", len, value);
+
+	}
+	while (stat>0);
 
 }
 

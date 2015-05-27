@@ -66,6 +66,8 @@ static void MSP430_init_clock(void)
 	} while (SFRIFG1 & OFIFG);
 }
 
+//#define MTP_PROGRAM
+
 int main(void)
 {
  	MSP430_init_clock();
@@ -74,22 +76,20 @@ int main(void)
 		abort_now("Fatal error in main.c - main: sdcard_init not successful");
 	spi_init(0,16); // initialize SPI interface towards the display
 
+	//read_config_file("display-config.txt");
+
 	gpio_init(); // initialize GPIO's used for display communication
 	gpio_set_value_hi(PIN_3V3_ENABLE);
-	mdelay(1);
+	mdelay(5);
 	gpio_set_value_hi(PIN_RESET);
 
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
-	mdelay(1);
-	UC8156_reset(); // UC8156 hardware reset
+	mdelay(5);
+	UC8156_hardware_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 	UC8156_init_registers();
-	//spi_write_command_4params(0x18, 0x40, 0x01, 0x24, 0x0a); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
-	spi_write_command_4params(0x18, 0x00, 0x00, 0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
-	spi_write_command_1param(0x1d, 0x04); //set Vborder to Vcom
-	spi_write_command_3params(0x1f, 0x00, 0x00, 0x00); //set all NF's and waiting times to 0
 
 	u8 status_reg = 	spi_read_command_1param(0x15);
 	if (status_reg!=0) //check Status Register
@@ -111,13 +111,24 @@ int main(void)
 	fprintf(stderr, "RevID = %x\n", revID);
 	#endif
 
+//MTP program - should be used by Plastic Logic only
+#ifdef MTP_PROGRAM
+	write_single_waveform_table_to_MTP("UC_V6C221_4GL_V1.23.0.uc8156_lut");
+	write_Vcom_to_MTP(3600);
+
+	UC8156_hardware_reset(); // UC8156 hardware reset
+	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 	//read-out VCOM setting
-	//u8 return_value = spi_read_command_1param(0x1b);
-	//fprintf(stderr, "Vcom read = 0x%x\n", return_value);
+	u8 return_value = spi_read_command_1param(0x1b);
+	fprintf(stderr, "Vcom read = 0x%x\n", return_value);
+#endif
 
 	//set Vcom -> not necessary if Vcom is already programmed into MTP memory
+#if MTP_VCOM_PROGRAMMED != YES
 	UC8156_set_Vcom(3600);
+#endif
 
+#if MTP_WAVEFORM_PROGRAMMED != YES
 	//read waveform table from SD-card and send to UC8156 -> not necessary if waveform is already programmed into MTP memory
 	u8 waveform_from_file[WAVEFORM_LENGTH];
 	int res;
@@ -128,6 +139,9 @@ int main(void)
 	u8 *waveform_p;
 	waveform_p = waveform_from_file;
 	UC8156_send_waveform(waveform_p);
+#endif
+
+	clear_display();
 
 	//spi_write_command_1param(0x07, 0x0a); //Temperature Auto Retrieval enabled from internal sensor -> works only with waveform from MTP
 
@@ -145,8 +159,9 @@ void clear_display()
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 
 	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-	UC8156_update_display(FULL_UPDATE);
+	//UC8156_update_display(FULL_UPDATE);
+	//UC8156_update_display(FULL_UPDATE);
+	UC8156_update_display(INIT_UPDATE);
 	UC8156_HVs_off();
 }
 

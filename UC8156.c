@@ -16,7 +16,7 @@
 u8 x_start, y_start;
 
 // UC8156 hardware reset
-void UC8156_reset()
+void UC8156_hardware_reset()
 {
 	gpio_set_value_lo(PIN_RESET);
 	mdelay(1);
@@ -41,16 +41,28 @@ unsigned long UC8156_wait_for_BUSY_inactive_debug()
 // UC8156 change registers which need values different from power-up values
 void UC8156_init_registers()
 {
+#ifdef WORKAROUND_FOR_SOO=1_BUG
+	spi_write_command_1param(0x01, 0x10); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
+#else
 	spi_write_command_1param(0x01, 0x12); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
+#endif
 	spi_write_command_2params(0x02, 0x25, 0xFF); // set Vgate to +17V/-25V
 	spi_write_command_2params(0x06, 0x67, 0x55); // set timing to LAT=105, S2G+G2S=5
 	spi_write_command_2params(0x18, 0x40, 0x02); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
 
 	// image RAM configuration
 	spi_write_command_1param(0x0f, 0x02); //DEM=010 --> Y-decrement
-	//spi_write_command_4params(0x0c, 0x00, SOURCE_LINES-1, 60, GATE_LINES_MAX-1); //
+	spi_write_command_4params(0x0c, 0x00, SOURCE_LINES, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
 	spi_write_command_4params(0x0d, 0x00, SOURCE_LINES-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // RAM window setup
 	spi_write_command_2params(0x0e, 0x00, GATE_LINES_MAX-1); //start Y from 159d/9fh, related to R0fh/DEM setting
+
+	//spi_write_command_4params(0x18, 0x40, 0x01, 0x24, 0x0a); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+
+#ifdef WORKAROUND_FOR_VCOM2VBORDER_BUG //work-around for TPCOM_to_VBorder short on first 1.38inch displays
+	spi_write_command_4params(0x18, 0x00, 0x00, 0x24, 0x07); //BPCOM=GND, TPCOM=GND after update, gate_out=GND after update
+	spi_write_command_1param(0x1d, 0x04); //set Vborder to Vcom
+	spi_write_command_3params(0x1f, 0x00, 0x00, 0x00); //set all NF's and waiting times to 0
+#endif
 }
 
 // UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)
