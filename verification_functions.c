@@ -170,12 +170,30 @@ void power_measurement()
 
 void measure_vcom()
 {
-	spi_write_command_4params(0x18, 0x68, 0x02, 0x24, 0x07); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
-}
+#define MEAS_TIME 5 //in seconds
+#define MEAS_RESOLUTION 100 // in ms
+#define MEAS_COUNT MEAS_TIME * 1000 / MEAS_RESOLUTION
 
-/*	while(1)
+	u8 meas_value[MEAS_COUNT];
+	int i;
+	u8 *return_value;
+
+	spi_write_command_4params(0x18, 0x40, 0x02, 0x24, 0x05); //TPCOM always Hi-Z
+
+	UC8156_HVs_on();
+
+	fprintf(stderr,"Reg[19h]=0x%2x\n\n", ((MEAS_TIME * 50 / 24)<<2) | 0x01);
+	spi_write_command_1param(0x19, ((MEAS_TIME * 50 / 24)<<2) | 0x01);
+
+	for (i=0; i<MEAS_COUNT; i++)
 	{
-		show_image("240x160/13_240~1.PGM", WAVEFORM_FROM_MTP | FULL_UPDATE);
-		check_temperature_sensor();
+		mdelay(MEAS_RESOLUTION);
+		return_value = spi_read_command_2params(0x1a);
+		meas_value[i] = return_value[0];
 	}
-*/
+
+	for (i=0; i<MEAS_COUNT; i++)
+	{
+		fprintf(stderr, "Vkb[%dms] = %d - %f\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03);
+	}
+}
