@@ -58,15 +58,27 @@ void read_and_print_MTP()
 	}
 }
 
-void drift_test()
+void drift_test(u8 *waveform_p)
 {
 	UC8156_HVs_on();
 
 	send_drift_test_image();
 	UC8156_update_display(FULL_UPDATE);
 
+	send_drift_test_image();
+	UC8156_set_Vcom(3600);
 	UC8156_send_waveform(waveform_long_null);
 	UC8156_update_display(FULL_UPDATE);
+
+	send_drift_test_image();
+	//UC8156_set_Vcom(4000);
+	UC8156_send_waveform(waveform_p);
+	spi_write_command_4params(0x0c, 0x00, 80, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
+	spi_write_command_3params(0x18, 0x40, 0x02, 0x34); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+	//spi_write_command_4params(0x0c, 0x00, SOURCE_LINES/2/8*8-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
+	UC8156_update_display(FULL_UPDATE);
+
+	spi_write_command_4params(0x0c, 0x00, SOURCE_LINES, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
 
 	UC8156_HVs_off();
 
