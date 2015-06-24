@@ -66,7 +66,7 @@ static void MSP430_init_clock(void)
 	} while (SFRIFG1 & OFIFG);
 }
 
-//#define MTP_PROGRAM
+#define MTP_PROGRAM
 
 int main(void)
 {
@@ -114,21 +114,25 @@ int main(void)
 //MTP program - should be used by Plastic Logic only
 #ifdef MTP_PROGRAM
 	write_single_waveform_table_to_MTP("UC_V6C221_4GL_V1.23.0.uc8156_lut");
-	write_Vcom_to_MTP(3600);
+	write_Vcom_to_MTP(3900);
 
 	UC8156_hardware_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 	//read-out VCOM setting
 	u8 return_value = spi_read_command_1param(0x1b);
-	fprintf(stderr, "Vcom read = 0x%x\n", return_value);
+	//fprintf(stderr, "Vcom read = 0x%x\n", return_value);
+
+	UC8156_init_registers();
 #endif
 
 	//set Vcom -> not necessary if Vcom is already programmed into MTP memory
-#if MTP_VCOM_PROGRAMMED != YES
-	UC8156_set_Vcom(3600);
+#if MTP_VCOM_PROGRAMMED
+#else
+	UC8156_set_Vcom(3900);
 #endif
 
-#if MTP_WAVEFORM_PROGRAMMED != YES
+#if MTP_WAVEFORM_PROGRAMMED
+#else
 	//read waveform table from SD-card and send to UC8156 -> not necessary if waveform is already programmed into MTP memory
 	u8 waveform_from_file[WAVEFORM_LENGTH];
 	int res;
