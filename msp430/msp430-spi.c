@@ -24,6 +24,7 @@
  *
  */
 
+#include <stdio.h>
 #include <msp430.h>
 #include "types.h"
 #include "assert.h"
@@ -109,6 +110,18 @@ volatile u8 spi_write_read_byte(u8 byte) --> from Epson code, but not working
 }
 */
 
+void spi_write_command(u8 command, u8 *params, int count)
+{
+	int i;
+
+	gpio_set_value_lo(SPI_CS);
+	command &= ~0x80;
+	spi_write_read_byte(command);
+	for (i=0; i<count; i++)
+		spi_write_read_byte(*(params+i));
+	gpio_set_value_hi(SPI_CS);
+}
+
 void spi_write_command_1param(u8 command, u8 param1)
 {
 	gpio_set_value_lo(SPI_CS);
@@ -181,6 +194,39 @@ void spi_read_command_2params1(u8 command, u8 *return_value)
 	*return_value = spi_write_read_byte(0x00);
 	*(return_value+1) = spi_write_read_byte(0x00);
 	gpio_set_value_hi(SPI_CS);
+}
+
+int spi_read_command(u8 command, u8 *read_values_p, int count)
+{
+	int i;
+
+	gpio_set_value_lo(SPI_CS);
+	command |= 0x80;
+	spi_write_read_byte(command);
+	for (i=0; i<count; i++)
+		*(read_values_p+i) = spi_write_read_byte(0x00);
+	gpio_set_value_hi(SPI_CS);
+
+	return i;
+}
+
+void print_spi_read_command(u8 command, int count)
+{
+	u8 *read_values_p;
+	int i, ret;
+
+	read_values_p = (u8*) malloc(count * sizeof(u8));
+	if (read_values_p==0)
+		abort_now("Fatal error in msp430-spi.c - print_spi_read_command: malloc not successful");
+
+	ret = spi_read_command(command, read_values_p, count);
+
+	fprintf(stderr, "R%02xh: ", command);
+	for(i=0; i<ret; i++)
+		fprintf(stderr, "0x%02x ", *(read_values_p+i));
+	fprintf(stderr, "\n");
+
+	free(read_values_p);
 }
 
 u8* spi_read_command_3params(u8 command)
