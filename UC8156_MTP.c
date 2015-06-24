@@ -4,7 +4,7 @@
  *  Created on: 09.09.2014
  *      Author: andreas.meier
  */
-#define DEBUG_PRINTOUTS_ON
+//#define DEBUG_PRINTOUTS_ON
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -189,7 +189,9 @@ u8 read_MTP_address(const u16 address)
 u8 read_MTP_address_and_print(const u16 address)
 {
 	u8 return_value = read_MTP_address(address);
+#ifdef	DEBUG_PRINTOUTS_ON
 	fprintf(stderr, "MTP addr %x = %x\n", address, return_value);
+#endif
 	return return_value;
 }
 

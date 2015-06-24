@@ -104,15 +104,15 @@ u8 waveform_long_null[WAVEFORM_LENGTH] = { \
                 0xF1, \
                 0xF1, \
                 0xF1, \
-                0x01, \
-                0x01, \
-                0x01, \
-                0x01, \
-                0x01, \
-                0x01, \
-                0x01, \
-                0x01, \
-                0x01, \
+                0xF1, \
+                0xF1, \
+                0xF1, \
+                0xF1, \
+                0xF1, \
+                0xF1, \
+                0xF1, \
+                0xF1, \
+                0xF1, \
 };
 
 u8 waveform_test[WAVEFORM_LENGTH]= { \
