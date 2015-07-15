@@ -209,3 +209,22 @@ void measure_vcom()
 		fprintf(stderr, "Vkb[%dms] = %d - %f\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03);
 	}
 }
+
+void WF_type2_update_verification()
+{
+spi_write_command_1param(0x07, 0x00);
+	spi_write_command_1param(0x07, 20);
+
+	u8 R44h_temp;
+	spi_read_command(0x44, &R44h_temp, 1);
+	spi_write_command_1param(0x44, R44h_temp | 0x40);
+
+	while(1)
+	{
+		spi_write_command_1param(0x40, 0x00);
+		white_update();
+
+		spi_write_command_1param(0x40, 0x02);
+		white_update();
+	}
+}
