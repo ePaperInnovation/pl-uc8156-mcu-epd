@@ -28,9 +28,6 @@ void write_single_waveform_table_to_MTP(const char *filename)
 	sdcard_load_waveform(filename, waveform_data, WAVEFORM_LENGTH);
 	write_waveform_to_MTP(waveform_data, WAVEFORM_LENGTH, 0x00, WF_TYPE1); // program WS1 only
 
-	// program TS to use always WS1
-	one_Byte_MTP_program(0x4B0, 99);
-
 	//read/verify
 	u8 value;
 	int addr;
@@ -41,6 +38,9 @@ void write_single_waveform_table_to_MTP(const char *filename)
 		if (value != waveform_data[addr])
 			fprintf(stderr, "Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
 	}
+
+	// program TS to use always WS1
+	one_Byte_MTP_program(0x4B0, 99);
 }
 
 void write_waveform_library_for_type1_only_to_MTP(const char *filename)
@@ -193,6 +193,22 @@ u8 read_MTP_address_and_print(const u16 address)
 	fprintf(stderr, "MTP addr %x = %x\n", address, return_value);
 #endif
 	return return_value;
+}
+
+void read_MTP_addresses_and_print(u16 address)
+{
+	u8 values[4];
+	int i;
+
+	while (address < 0x80)
+	{
+		for (i=0;i<4;i++)
+		{
+			 values[i] = read_MTP_address(address);
+			 address++;
+		}
+		fprintf(stderr, "0x%02x = 0x%02x, 0x%02x, 0x%02x, 0x%02x\n", address-4, values[0], values[1], values[2], values[3]);
+	}
 }
 
 void one_Byte_MTP_program(u16 address, u8 data)
