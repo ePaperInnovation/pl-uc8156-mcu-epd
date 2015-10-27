@@ -1,0 +1,24 @@
+/*
+ * config.h
+ *
+ * Author: andreas.meier
+ */
+
+#ifndef CONFIG_H_
+#define CONFIG_H_
+
+#include "config_180x100.h"
+
+#define PIXEL_COUNT (u16)GATE_LINES*SOURCE_LINES
+
+#define MTP_WAVEFORM_PROGRAMMED 1
+#define MTP_VCOM_PROGRAMMED 1
+
+#if MTP_WAVEFORM_PROGRAMMED
+	#define UPDATE_WAVEFORMSOURCESELECT WAVEFORM_FROM_MTP
+#else
+	#define UPDATE_WAVEFORMSOURCESELECT WAVEFORM_FROM_LUT
+#endif
+
+#endif /* CONFIG_H_ */
+
