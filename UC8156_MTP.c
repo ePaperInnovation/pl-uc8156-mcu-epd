@@ -139,7 +139,8 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 	//spi_write_command_2params(0x02, 0x50, 0xFF); //set Vgate+Vsource
 	static u8 reg02h_backup[2];
 	spi_read_command_2params1(0x02, reg02h_backup);
-	spi_write_command_2params(0x02, reg02h_backup[0], 0x32);
+	//spi_write_command_2params(0x02, reg02h_backup[0], 0x32);
+	spi_write_command_2params(0x02, reg02h_backup[0], 0x44);
 
 	//set SRAM access parameter
 	spi_write_command_4params(0x0D, 0x00, 0xEF, 0x00, 0x9F); //set window to full size
@@ -148,7 +149,9 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 	spi_write_command_1param(0x0f, 0x00); //set data entry mode
 
 	//power-up default is [0x20, 0xE1]
-	spi_write_command_2params(0x44, 0x20, 0xEC); //MTP option setting --> Vs=2.4V (new default)
+	//spi_write_command_2params(0x44, 0x20, 0xEC); //MTP option setting --> Vs=2.4V (new default)
+	//spi_write_command_2params(0x44, 0x30, 0xfc); //MTP option setting --> Vs=2.4V (new default)
+	spi_write_command_2params(0x44, 0x30, 0xf1); //MTP option setting --> Vs=2.4V (new default)
 
 	spi_write_command_2params(0x0e, 0x00, 0x00);
 	//write to be programmed data into SRAM
@@ -195,12 +198,13 @@ u8 read_MTP_address_and_print(const u16 address)
 	return return_value;
 }
 
-void read_MTP_addresses_and_print(u16 address)
+void read_MTP_addresses_and_print(u16 start_address, int count)
 {
 	u8 values[4];
 	int i;
+	u16 address = start_address;
 
-	while (address < 0x80)
+	while (address < (start_address + count))
 	{
 		for (i=0;i<4;i++)
 		{
@@ -232,6 +236,7 @@ void one_Byte_MTP_program(u16 address, u8 data)
 	mdelay(100);
 
 	//setup and start MTP program
+	spi_write_command_2params(0x44, 0x30, 0xf1); //MTP option setting --> Vs=2.4V (new default)
 	spi_write_command_2params(0x41, address&0xFF, (address>>8)&0xFF);
 	spi_write_command_1param(0x42, data);
 	UC8156_wait_for_BUSY_inactive();
@@ -247,6 +252,7 @@ void one_Byte_MTP_program(u16 address, u8 data)
 
 #ifdef DEBUG_PRINTOUTS_ON
 	return_value = read_MTP_address(address);
+	fprintf(stderr, "value to be programed = 0x%x\n", data);
 	fprintf(stderr, "value after program = 0x%x\n", return_value);
 #endif
 }
