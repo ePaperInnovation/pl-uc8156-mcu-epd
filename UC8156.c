@@ -11,6 +11,7 @@
 #include "msp430/msp430-spi.h"
 #include "msp430/msp430-gpio.h"
 #include "config.h"
+#include "types.h"
 
 //global variables
 u8 x_start, y_start;
@@ -41,22 +42,11 @@ unsigned long UC8156_wait_for_BUSY_inactive_debug()
 // UC8156 change registers which need values different from power-up values
 void UC8156_init_registers()
 {
-#ifdef WORKAROUND_FOR_SOO=1_BUG
-	spi_write_command_1param(0x01, 0x10); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=0
-#else
-	spi_write_command_1param(0x01, 0x12); //GVS=1 (p-mos, selected gate to VGL and non-selected gate to VGH) + SOO=1
-#endif
-	spi_write_command_2params(0x02, 0x25, 0xFF); // set Vgate to +17V/-25V
-	spi_write_command_2params(0x06, 0x67, 0x55); // set timing to LAT=105, S2G+G2S=5
-	spi_write_command_4params(0x18, 0x00, 0x00, 0x24, 0x07); //BPCOM=GND, TPCOM=GND after update, gate_out=GND after update
-	spi_write_command_1param(0x1d, 0x04); //set Vborder to Vcom
-	spi_write_command_3params(0x1f, 0x00, 0x00, 0x00); //set all NF's and waiting times to 0
+	int i;
 
-	// image RAM configuration
-	spi_write_command_1param(0x0f, 0x02); //DEM=010 --> Y-decrement
-	spi_write_command_4params(0x0c, 0x00, SOURCE_LINES, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
-	spi_write_command_4params(0x0d, 0x00, SOURCE_LINES-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // RAM window setup
-	spi_write_command_2params(0x0e, 0x00, GATE_LINES_MAX-1); //start Y from 159d/9fh, related to R0fh/DEM setting
+	for (i=0; i<sizeof(reg_settings)/sizeof(regSetting_t); i++) {
+		spi_write_command(reg_settings[i].addr, reg_settings[i].val, reg_settings[i].valCount);
+	}
 }
 
 // UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)
