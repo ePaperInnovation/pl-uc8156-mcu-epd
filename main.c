@@ -41,8 +41,6 @@ int main(void)
 		abort_now("Fatal error in main.c - main: sdcard_init not successful");
 	spi_init(0,16); // initialize SPI interface towards the display
 
-	//read_config_file("display-config.txt");
-
 	gpio_init(); // initialize GPIO's used for display communication
 	gpio_set_value_hi(PIN_3V3_ENABLE);
 	mdelay(5);
@@ -79,11 +77,15 @@ int main(void)
 //MTP program - should be used by Plastic Logic only
 #if MTP_PROGRAM
 	write_single_waveform_table_to_MTP("UC_V6C221_4GL_V1.23.0.uc8156_lut");
-	write_Vcom_to_MTP(3900);
 
 	UC8156_hardware_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+	UC8156_init_registers();
 
+	write_Vcom_to_MTP(VCOM);
+
+	UC8156_hardware_reset(); // UC8156 hardware reset
+	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 	UC8156_init_registers();
 #endif
 
@@ -95,7 +97,7 @@ int main(void)
 		fprintf(stderr, "Vcom read = 0x%x\n", return_value);
 	#endif
 #else
-	UC8156_set_Vcom(3900);
+	UC8156_set_Vcom(VCOM);
 #endif
 
 #if MTP_WAVEFORM_PROGRAMMED
@@ -103,7 +105,6 @@ int main(void)
 	//read waveform table from SD-card and send to UC8156 -> not necessary if waveform is already programmed into MTP memory
 	u8 waveform_from_file[WAVEFORM_LENGTH];
 	int res;
-	//res = sdcard_load_waveform("waveforms/waveform.bin", waveform_from_file, WAVEFORM_LENGTH);
 	res = sdcard_load_waveform("waveforms/UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
 	if (res!=0)
 		abort_now("main.c - main - Waveform could not be read correctly");
