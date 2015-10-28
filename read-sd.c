@@ -128,25 +128,27 @@ static int read_image_data(FIL *f, u8 *image)
 }
 
 // reads image data from PMG image file - part of load_image function
-static int read_image_data_test(FIL *f, u8 *image)
+static int read_image_data_line_sharing(FIL *f, u8 *image)
 {
 	u8 data[SOURCE_LINES];
 	u8 data_scrambled[SOURCE_LINES];
 	size_t count;
 	int i;
 
+	do {
 		if (f_read(f, data, SOURCE_LINES, &count) != FR_OK)
 			return -1;
 
 		for(i=0; i<SOURCE_LINES/2; i++)
 		{
-			data_scrambled[i] = data[i*2];
-			data_scrambled[SOURCE_LINES/2+i]=data[i*2+1];
+			data_scrambled[i*2]   = data[SOURCE_LINES/2+i];
+			data_scrambled[i*2+1] = data[i];
 		}
 
 		pack_4bpp(data_scrambled, image, count);
 
 		image+=count/4;
+	} while (count);
 
 
 	return 0;
@@ -200,8 +202,11 @@ int sdcard_load_image(const char *image_name, u8 *image_data)
 #ifdef WORKAROUND_FOR_SOO=1_BUG
 	ret = read_image_data_SOO_0(&image_file, image_data);
 #else
+	#ifdef LINE_SHARING
+	ret = read_image_data_line_sharing(&image_file, image_data);
+	#else
 	ret = read_image_data(&image_file, image_data);
-	//ret = read_image_data_test(&image_file, image_data);
+	#endif
 #endif
 
 err_close_file:
