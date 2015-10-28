@@ -202,4 +202,10 @@ extern void msleep(u16 ms);
 
 extern int util_read_vcom(void);
 
+typedef struct {
+	u8 addr;
+	int valCount;
+	u8 val[4];
+} regSetting_t;
+
 #endif /* TYPES_H_ */
