@@ -320,3 +320,49 @@ void pattern_sequence()
 		inv_checkerboard();
 	}
 }
+
+void pixel_00_update()
+{
+	u8 image_data[PIXEL_COUNT/4];
+	int gate_p=0, source_p=0;
+
+	spi_write_command_2params(0x0e, 0x00, 0x00); //set SRAM start location
+
+	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
+		for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0xff;
+
+	image_data[0]=0x00;
+	//for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
+		//image_data[source_p]=0x00;
+
+	UC8156_send_image_data(image_data);
+
+	UC8156_HVs_on();
+	UC8156_update_display(FULL_UPDATE);
+    UC8156_HVs_off();
+}
+
+void pixel_00_update_windowed()
+{
+	print_spi_read_command(0x0f, 2);
+	print_spi_read_command(0x0e, 2);
+
+	spi_write_command_4params(0x0d, 10, 15, 10, 15); // RAM window setup
+	spi_write_command_2params(0x0e, 10, 15); //start Y from 159d/9fh, related to R0fh/DEM setting
+
+	u8 image_data[4];
+	image_data[0]=0x00;
+	image_data[1]=0x00;
+	image_data[2]=0x00;
+	image_data[3]=0x00;
+
+	spi_write_command_and_bulk_data(0x10, image_data, 3);
+	print_spi_read_command(0x0e, 2);
+
+	//UC8156_send_image_data(image_data);
+
+	UC8156_HVs_on();
+	UC8156_update_display(FULL_UPDATE);
+    UC8156_HVs_off();
+}
