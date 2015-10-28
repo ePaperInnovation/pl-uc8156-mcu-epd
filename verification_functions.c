@@ -228,3 +228,48 @@ spi_write_command_1param(0x07, 0x00);
 		white_update();
 	}
 }
+
+void RAM_window_test()
+{
+u8 image_data[30*30/4];
+
+u8 x_s=20;
+u8 y_s=10;
+u8 x_e=50;
+u8 y_e=40;
+
+spi_write_command_4params(0x0d, x_s, x_e-1, GATE_LINES_MAX-y_e, GATE_LINES_MAX-y_s-1); // RAM window setup
+//spi_write_command_2params(0x0e, 0x00, GATE_LINES-1); //start Y from 159d/9fh, related to R0fh/DEM setting
+
+UC8156_send_image_data(image_data);
+
+UC8156_HVs_on();
+UC8156_update_display_full();
+UC8156_HVs_off();
+
+	x_s=50;
+	y_s=50;
+	x_e=65;
+	y_e=65;
+
+	  spi_write_command_4params(0x0d, x_s, x_e-1, GATE_LINES_MAX-y_e, GATE_LINES_MAX-y_s-1); // RAM window setup
+
+	  UC8156_send_image_data(image_data);
+
+	  UC8156_HVs_on();
+	  UC8156_update_display_full();
+	  UC8156_HVs_off();
+
+		x_s=90;
+		y_s=70;
+		x_e=120;
+		y_e=90;
+
+		  spi_write_command_4params(0x0d, x_s, x_e-1, GATE_LINES_MAX-y_e, GATE_LINES_MAX-y_s-1); // RAM window setup
+
+		  UC8156_send_image_data(image_data);
+
+		  UC8156_HVs_on();
+		  UC8156_update_display_full();
+		  UC8156_HVs_off();
+}
