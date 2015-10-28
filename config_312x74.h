@@ -12,7 +12,7 @@
 
 #define PATH "074x312"
 
-#define LINESHARING
+#define LINE_SHARING
 
 #define VCOM 3600
 
