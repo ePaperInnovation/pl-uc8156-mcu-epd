@@ -236,26 +236,35 @@ void read_directory_list(const char *path)
 	}
 }
 
-struct config
-{
-	u16 gate_lines;
-	u16 source_lines;
-	char img_path[13];
-};
-
 static const char SEP[] = ", ";
 
+static void param_source_lines(int value);
+static void param_gate_lines(int value);
+static void param_mtp_program(int value);
+static void param_mtp_already_programmed(int value);
 
 void read_config_file(const char *config_file_name)
-//struct config read_config_file(const char *config_file_name)
 {
 	FIL fp;
-	char line[81] = "source_lines, 180 ", *opt;
 	int stat=0, len;
-	int value, value1, value2;
-	char string[20];
-	const char *test = "source_lines, 34";
+	int param_value;
+	char line[81];
 	char param_name[16];
+	char *opt;
+
+	struct param {
+		const char *name;
+		void (*func)(int value);
+	};
+	static const struct param param_table[] = {
+		{ "source_lines", param_source_lines },
+		{ "gate_lines", param_gate_lines },
+		{ "do_mtp_program", param_mtp_program },
+		{ "mtp_already_programmed", param_mtp_already_programmed },
+		{ NULL, NULL }
+	};
+	const struct param *param;
+
 
 	stat = f_open(&fp, config_file_name, FA_READ);
 	if (stat != FR_OK)
@@ -269,7 +278,6 @@ void read_config_file(const char *config_file_name)
 	fprintf(stderr,"%s - %d\n", string, value);
 */
 	int counter=0;
-	//while (!stat)
 	do
 	{
 		stat = parser_read_config_file_line(&fp, line, sizeof(line));
@@ -282,11 +290,24 @@ void read_config_file(const char *config_file_name)
 
 		opt = line;
 		len = parser_read_str(opt, SEP, param_name, sizeof(param_name));
-		fprintf(stderr,"%d - %s\n", len, param_name);
+//		fprintf(stderr,"%d - %s\n", len, param_name);
 
 		opt += len;
-		len = parser_read_int(opt, SEP, &value);
-		fprintf(stderr,"%d - %d\n", len, value);
+		len = parser_read_int(opt, SEP, &param_value);
+//		fprintf(stderr,"%d - %d\n", len, param_value);
+
+		for (param = param_table; param->name != NULL; ++param) {
+			if (!strcmp(param->name, param_name)) {
+				param->func(param_value);
+				break;
+			}
+		}
+
+		if (param->name == NULL) {
+			LOG("Invalid parameter");
+			stat = -1;
+			break;
+		}
 
 	}
 	while (stat>0);
@@ -316,4 +337,28 @@ int parser_read_config_file_line(FIL *f, char *buffer, int max_length)
 	*out = '\0';
 
 	return !!count;
+}
+
+void param_source_lines(int value)
+{
+	fprintf(stderr,"param_source_lines - %d\n", value);
+}
+
+void param_gate_lines(int value)
+{
+	fprintf(stderr,"param_gate_lines - %d\n", value);
+}
+
+extern int DO_PROGRAM_MTP;
+void param_mtp_program(int value)
+{
+	fprintf(stderr,"param_mtp_program - %d\n", value);
+	DO_PROGRAM_MTP = value;
+}
+
+extern int MTP_ALREADY_PROGRAMMED;
+void param_mtp_already_programmed(int value)
+{
+	fprintf(stderr,"param_mtp_alread_programmed - %d\n", value);
+	MTP_ALREADY_PROGRAMMED = value;
 }

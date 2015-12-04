@@ -14,7 +14,7 @@
 #include "types.h"
 
 //global variables
-u8 x_start, y_start;
+u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
 
 // UC8156 hardware reset
 void UC8156_hardware_reset()
@@ -94,6 +94,15 @@ void UC8156_send_image_data(u8 *image_data)
 	spi_write_command_and_bulk_data(0x10, image_data, PIXEL_COUNT/4);
 }
 
+//send an image to UC8156 image data memory
+void UC8156_send_image_data_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size)
+{
+	spi_write_command_4params(0x0d, row_start*2, row_start*2+row_size*2-1, col_start/2, col_start/2+col_size/2-1);
+	spi_write_command_2params(0x0e, row_start*2, col_start/2);
+
+	spi_write_command_and_bulk_data(0x10, image_data, col_size*row_size/4);
+}
+
 //send any data to UC8156 image data memory --> e.g. used for MTP programming
 void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t size)
 {
@@ -116,8 +125,26 @@ void UC8156_update_display_full()
 //update display and wait for BUSY-pin low
 void UC8156_update_display(u8 mode)
 {
-	spi_write_command_1param(0x14, UPDATE_WAVEFORMSOURCESELECT | mode | 1);
+	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | mode | 1);
 	UC8156_wait_for_BUSY_inactive();
+}
+
+void UC8156_show_image(u8 *image_data, int mode)
+{
+	  UC8156_send_image_data(image_data);
+
+	  UC8156_HVs_on();
+	  UC8156_update_display(mode);
+      UC8156_HVs_off();
+}
+
+void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, int mode)
+{
+	  UC8156_send_image_data_area(image_data, col_start, col_size, row_start, row_size);
+
+	  UC8156_HVs_on();
+	  UC8156_update_display(mode);
+      UC8156_HVs_off();
 }
 
 void measure_Vcom()

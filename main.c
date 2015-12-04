@@ -25,20 +25,29 @@
 #include "image.h"
 
 #define DEBUG_PRINTOUTS 0
-#define MTP_PROGRAM 0
+
+int DO_MTP_PROGRAMMING = 1;
+int MTP_ALREADY_PROGRAMMED = 1;
 
 void clear_display();
 int _system_pre_init(void);
 static void MSP430_init_clock(void);
+extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 
 int main(void)
 {
-	u8 return_value;
-
- 	MSP430_init_clock();
+	if (MTP_ALREADY_PROGRAMMED)
+		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
+	else
+		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
 
 	if (sdcard_init()) // initialize SD-card using FatFS
 		abort_now("Fatal error in main.c - main: sdcard_init not successful");
+
+//	read_config_file("display-config.txt");
+
+ 	MSP430_init_clock();
+
 	spi_init(0,16); // initialize SPI interface towards the display
 
 	gpio_init(); // initialize GPIO's used for display communication
@@ -75,49 +84,57 @@ int main(void)
 	#endif
 
 //MTP program - should be used by Plastic Logic only
-#if MTP_PROGRAM
-	write_single_waveform_table_to_MTP("UC_V6C221_4GL_V1.23.0.uc8156_lut");
+	if (DO_MTP_PROGRAMMING)
+	{
+		//write_single_waveform_table_to_MTP("UC_V6C221_4GL_V1.23.0.uc8156_lut");
+		write_single_waveform_table_to_MTP("waveforms/waveform.bin");
 
-	UC8156_hardware_reset(); // UC8156 hardware reset
-	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
-	UC8156_init_registers();
+		UC8156_hardware_reset(); // UC8156 hardware reset
+		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+		UC8156_init_registers();
 
-	write_Vcom_to_MTP(VCOM);
+		write_Vcom_to_MTP(VCOM);
 
-	UC8156_hardware_reset(); // UC8156 hardware reset
-	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
-	UC8156_init_registers();
-#endif
+		UC8156_hardware_reset(); // UC8156 hardware reset
+		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+		UC8156_init_registers();
+	}
 
 	//set Vcom -> not necessary if Vcom is already programmed into MTP memory
-#if MTP_VCOM_PROGRAMMED
-	#if DEBUG_PRINTOUTS
-		//read-out VCOM setting
-		return_value = spi_read_command_1param(0x1b);
-		fprintf(stderr, "Vcom read = 0x%x\n", return_value);
-	#endif
-#else
-	UC8156_set_Vcom(VCOM);
+	if (!MTP_ALREADY_PROGRAMMED)
+		UC8156_set_Vcom(VCOM);
+
+#if DEBUG_PRINTOUTS
+	//read-out VCOM setting
+	u8 return_value = spi_read_command_1param(0x1b);
+	fprintf(stderr, "Vcom read = 0x%x\n", return_value);
 #endif
 
-#if MTP_WAVEFORM_PROGRAMMED
-#else
-	//read waveform table from SD-card and send to UC8156 -> not necessary if waveform is already programmed into MTP memory
-	u8 waveform_from_file[WAVEFORM_LENGTH];
-	int res;
-	res = sdcard_load_waveform("waveforms/UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
-	if (res!=0)
-		abort_now("main.c - main - Waveform could not be read correctly");
-	u8 *waveform_p;
-	waveform_p = waveform_from_file;
-	UC8156_send_waveform(waveform_p);
-#endif
+	if (!MTP_ALREADY_PROGRAMMED)
+	{
+		//read waveform table from SD-card and send to UC8156 -> not necessary if waveform is already programmed into MTP memory
+		u8 waveform_from_file[WAVEFORM_LENGTH];
+		int res;
+		res = sdcard_load_waveform("waveforms/UC_V6C221_4GL_V1.23.0.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH);
+		if (res!=0)
+			abort_now("main.c - main - Waveform could not be read correctly");
+		u8 *waveform_p;
+		waveform_p = waveform_from_file;
+		UC8156_send_waveform(waveform_p);
+	}
 
 	clear_display();
 
+//	 UC8156_show_image((u8 *)visa_180x100, FULL_UPDATE);
+//	 exit(EXIT_SUCCESS);
+
+	//print_characters_312x74();
+
 	//spi_write_command_1param(0x07, 0x0a); //Temperature Auto Retrieval enabled from internal sensor -> works only with waveform from MTP
 
-	//show_image("TestPic.pgm", FULL_UPDATE);
+//	show_image_from_SDcard("TestPic.pgm", FULL_UPDATE);
+//	mdelay(1000);
+//	show_image_from_SDcard("TestPic.pgm", FULL_UPDATE);
 
 	while(1)
 		slideshow_run(PATH, FULL_UPDATE, 2000);

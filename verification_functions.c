@@ -12,6 +12,7 @@
 #include "UC8156_MTP.h"
 #include "waveform.h"
 #include "config.h"
+#include "image.h"
 
 void check_temperature_sensor()
 {
@@ -229,23 +230,22 @@ spi_write_command_1param(0x07, 0x00);
 	}
 }
 
-void RAM_window_test()
+void RAM_window_test_180x100()
 {
-u8 image_data[30*30/4];
+	u8 image_data[30*30/4];
 
-u8 x_s=20;
-u8 y_s=10;
-u8 x_e=50;
-u8 y_e=40;
+	u8 x_s=20;
+	u8 y_s=10;
+	u8 x_e=50;
+	u8 y_e=40;
 
-spi_write_command_4params(0x0d, x_s, x_e-1, GATE_LINES_MAX-y_e, GATE_LINES_MAX-y_s-1); // RAM window setup
-//spi_write_command_2params(0x0e, 0x00, GATE_LINES-1); //start Y from 159d/9fh, related to R0fh/DEM setting
+	spi_write_command_4params(0x0d, x_s, x_e-1, GATE_LINES_MAX-y_e, GATE_LINES_MAX-y_s-1); // RAM window setup
 
-UC8156_send_image_data(image_data);
+	UC8156_send_image_data(image_data);
 
-UC8156_HVs_on();
-UC8156_update_display_full();
-UC8156_HVs_off();
+	UC8156_HVs_on();
+	UC8156_update_display_full();
+	UC8156_HVs_off();
 
 	x_s=50;
 	y_s=50;
@@ -272,4 +272,46 @@ UC8156_HVs_off();
 		  UC8156_HVs_on();
 		  UC8156_update_display_full();
 		  UC8156_HVs_off();
+}
+
+void RAM_window_test_312x74()
+{
+	int col_start, col_size, row_start, row_size;
+
+	col_start = 0, col_size = 312;
+	row_start = 0, row_size = 74;
+	spi_write_command_4params(0x0d, row_start*2, row_start*2+row_size*2-1, col_start/2, col_start/2+col_size/2-1);
+	spi_write_command_2params(0x0e, row_start*2, col_size/2-1);
+	spi_write_command_1param(0x0f, 2);
+	show_image_area(image_74x312_1card, col_size*row_size, FULL_UPDATE);
+
+	col_start = 70, col_size = 8;
+	row_start = 10, row_size = 8;
+	spi_write_command_4params(0x0d, row_start*2, row_start*2+row_size*2-1, col_start/2, col_start/2+col_size/2-1);
+	spi_write_command_2params(0x0e, row_start*2, col_start/2);
+	spi_write_command_1param(0x0f, 4);
+	show_image_area(image_8x8_scrambled_A, col_size*row_size, PARTIAL_UPDATE);
+
+	//show_image(image_74x312_1card, FULL_UPDATE);
+}
+
+void print_characters_312x74()
+{
+	int col_start, col_size, row_start, row_size;
+
+	spi_write_command_1param(0x0f, 4);
+
+	col_start = 70, col_size = 8;
+	row_start = 10, row_size = 8;
+	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE);
+	UC8156_send_image_data_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size);
+
+	col_start = 80, col_size = 8;
+	row_start = 10, row_size = 8;
+	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE);
+	UC8156_send_image_data_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size);
+
+	col_start = 90, col_size = 8;
+	row_start = 10, row_size = 8;
+	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE);
 }

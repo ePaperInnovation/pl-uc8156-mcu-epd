@@ -18,8 +18,6 @@ enum UPDATE_MODES {FULL_UPDATE=0x00, PARTIAL_UPDATE=0x04, INIT_UPDATE=0x10};
 
 #define WAVEFORM_FROM_LUT 0x00
 #define WAVEFORM_FROM_MTP 0x02
-//#define UPDATE_WAVEFORMSOURCESELECT WAVEFORM_FROM_MTP
-#define UPDATE_WAVEFORMSOURCESELECT WAVEFORM_FROM_LUT
 
 #define WAVEFORM_LENGTH 120
 #define TS_LENGTH 10
@@ -36,8 +34,11 @@ u8 UC8156_read_RevID();
 void UC8156_send_waveform(u8 *waveform);
 void UC8156_set_Vcom(int VCOM_mv_value);
 void UC8156_send_image_data(u8 *image_data);
+void UC8156_send_image_data_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size);
 void UC8156_send_repeated_image_data(u8 image_data);
 void UC8156_update_display(u8 mode);
+void UC8156_show_image(u8 *image_data, int mode);
+void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, int mode);
 
 void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t size);
 
