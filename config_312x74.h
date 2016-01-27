@@ -14,8 +14,6 @@
 
 #define LINE_SHARING
 
-#define VCOM 4300 //value in mV
-
 static regSetting_t reg_settings[] =
 {
 		{0x01, 1, {0x12}},

@@ -76,6 +76,7 @@ int main(void)
 	fprintf(stderr, "RevID = %x\n", revID);
 	#endif
 
+	int vcom_mv_value;
 //MTP program - should be used by Plastic Logic only
 	if (DO_MTP_PROGRAMMING)
 	{
@@ -86,7 +87,8 @@ int main(void)
 		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 		UC8156_init_registers();
 
-		write_Vcom_to_MTP(VCOM);
+		if (sdcard_load_vcom(&vcom_mv_value)==0)
+			write_Vcom_to_MTP(vcom_mv_value);
 
 		UC8156_hardware_reset(); // UC8156 hardware reset
 		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
@@ -94,7 +96,6 @@ int main(void)
 	}
 
 	//set Vcom from SD card data -> if "/700xxx/display/vcom.txt" exist
-	int vcom_mv_value;
 	if (sdcard_load_vcom(&vcom_mv_value)==0)
 		UC8156_set_Vcom(vcom_mv_value);
 

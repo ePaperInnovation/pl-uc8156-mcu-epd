@@ -12,8 +12,6 @@
 
 #define PATH "70081x"
 
-#define VCOM 3900
-
 static regSetting_t reg_settings[] =
 {
 		{0x01, 1, {0x12}},

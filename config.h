@@ -9,6 +9,7 @@
 
 #include "config_180x100.h"
 //#include "config_312x74.h"
+//#include "config_148x70.h"
 
 #define PIXEL_COUNT (u16)GATE_LINES*SOURCE_LINES
 
