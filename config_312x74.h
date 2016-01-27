@@ -10,11 +10,11 @@
 #define SOURCE_LINES 148
 #define GATE_LINES 156
 
-#define PATH "074x312"
+#define PATH "70052x"
 
 #define LINE_SHARING
 
-#define VCOM 3600
+#define VCOM 4300 //value in mV
 
 static regSetting_t reg_settings[] =
 {
@@ -25,7 +25,7 @@ static regSetting_t reg_settings[] =
 		{0x0d, 4, {0, 148-1, 0, 156-1}},
 		{0x0e, 2, {0, 156-1}},
 		{0x0f, 1, {0x02}},
-		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},
+		{0x18, 4, {0x50,0x01,0x24,0x07}},
 		{0x1d, 1, {0x04}},
 		{0x1f, 3, {0x00, 0x00, 0x00}}
 };

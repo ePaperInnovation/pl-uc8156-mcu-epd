@@ -10,7 +10,7 @@
 #define SOURCE_LINES 180
 #define GATE_LINES 100
 
-#define PATH "180x100"
+#define PATH "70081x"
 
 #define VCOM 3900
 

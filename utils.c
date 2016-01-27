@@ -246,27 +246,6 @@ void dump_hex(const void *data, uint16_t len)
 	puts(s);
 }
 
-/* ----------------------------------------------------------------------------
- * Other display related utilities
- */
-
-/*
-int util_read_vcom(void)
-{
-	FIL vcom_file;
-	int ret;
-
-	if (f_open(&vcom_file, "display/VCOM.txt", FA_READ) != FR_OK)
-		return -ENOENT;
-
-	ret = pnm_read_int(&vcom_file);
-
-	f_close(&vcom_file);
-
-	return ret;
-}
-*/
-
 /*Converts image data to 4 bit per pixel data */
 void pack_4bpp(u8 *in, u8 *out, int in_count)
 {
@@ -284,3 +263,9 @@ void abort_now(const char *error_string)
 	fprintf(stderr, "\n\n");
 	exit(EXIT_FAILURE);
 }
+
+int join_path(char *path, size_t n, const char *dir, const char *file)
+{
+	return (snprintf(path, n, "%s/%s", dir, file) >= n) ? -1 : 0;
+}
+

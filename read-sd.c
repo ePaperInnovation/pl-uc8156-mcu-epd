@@ -10,7 +10,7 @@
 
 #define LOG(msg) fprintf(stderr,"%s\n", msg);
 
-#define BUFFER_LENGTH SOURCE_LINES
+#define BUFFER_LENGTH 1024
 
 // global file system information used by FatFs
 static FATFS Sd_Card;
@@ -71,41 +71,46 @@ int parsevalue(char* str, int start, int length)
 }
 
 // load waveform data from SD-card
-void sdcard_load_waveform(const char *path, u8 *waveform_data, UINT length)
+int sdcard_load_waveform(u8 *waveform_data, UINT length)
 {
 	FIL file;
 	UINT count=0;
+	int res;
+	char path[64];
 
-	if(f_open(&file,path,FA_READ) == FR_OK)
-	{
-		f_read(&file, waveform_data, length, &count);
-		f_close(&file);
-	}
-	else
-		abort_now("Fatal error in: read-sd.c/sdcard_load_waveform: File not found");
+	sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
+
+	if (f_open(&file, path, FA_READ))
+		return res;
+
+	if (f_read(&file, waveform_data, length, &count))
+		return res;
+
+	if (f_close(&file))
+		return res;
 
 	if (count!=length)
 		abort_now("Fatal error in: read-sd.c/sdcard_load_waveform: count!=length");
+
+	return 0;
 }
 
 // reads Vcom value from text-file on SD-card
-int sdcard_load_vcom(const char *filename, int *vcom_mv_value)
+int sdcard_load_vcom(int *value)
 {
 	FIL fVcom;
 	char buff[4];
-	int val;
-	if (f_open(&fVcom, filename, FA_READ) != FR_OK) {
-				//LOG("Failed to open slideshow text file [%s]", SLIDES_PATH);
-				return -1;
-			}
+	char path[64];
 
-	while(parser_read_file_line(&fVcom,buff,4))
-	{
-		val = parsevalue(buff,0,4);
+	sprintf(path, "/%s/%s", PATH, "display/vcom.txt");
 
-		*vcom_mv_value = val;
-	}
-	return 1;
+	if (f_open(&fVcom, path, FA_READ) != FR_OK)
+		return -1;
+
+	parser_read_file_line(&fVcom, buff, 4);
+	*value = parsevalue(buff, 0, 4);
+
+	return 0;
 }
 
 // reads image data from PMG image file - part of load_image function

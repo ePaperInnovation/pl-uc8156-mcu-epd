@@ -5,9 +5,7 @@
 
 int sdcard_init(void);
 int sdcard_load_image(const char *image_name, u8 *image_data);
-int sdcard_load_vcom(const char *filename, int *regValue);
-int sdcard_load_waveform(const char *path, u8 *waveform_data, UINT length);
-
-int parsevalue(char* str, int start, int length);
+int sdcard_load_vcom(int *value);
+int sdcard_load_waveform(u8 *waveform_data, UINT length);
 
 #endif /*READ_SD_H_*/

@@ -8,7 +8,7 @@
 
 /* FatFS only supports 8.3 filenames, and we work from the current directory so
    paths should be short... */
-#define MAX_PATH_LEN 256
+#define MAX_PATH_LEN 64
 
 // loads image form SD-card and updates it on the display using REFRESH waveform
 int show_image_from_SDcard(const char *image, int mode)
@@ -28,12 +28,16 @@ int show_image_from_SDcard(const char *image, int mode)
 }
 
 /** Slideshow, calling show_image for each pgm-file found in a directory */
-int slideshow_run(const char *path, int mode, u16 delay_ms)
+int slideshow_run(int mode, u16 delay_ms)
 {
 	DIR dir;
 	FILINFO fno;
+	char path[MAX_PATH_LEN];
 	char full_path[MAX_PATH_LEN];
 	int result = 0;
+
+	sprintf(path, "/%s/%s", PATH, "img");
+
 
 	if (f_opendir(&dir, path) != FR_OK)
 		return -1;
