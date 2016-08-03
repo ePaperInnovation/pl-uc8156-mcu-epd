@@ -11,7 +11,7 @@
 #include "types.h"
 
 void check_temperature_sensor();
-void read_waveform_LUT();
+u8* read_waveform_LUT();
 void read_and_print_MTP();
 void send_drift_test_image();
 

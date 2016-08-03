@@ -68,9 +68,9 @@ void diagonale()
 
 	UC8156_send_image_data(image_data);
 
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+//	UC8156_HVs_on();
+//	UC8156_update_display(FULL_UPDATE);
+//    UC8156_HVs_off();
 }
 
 void alt_source_SOO_0()
@@ -324,17 +324,20 @@ void pattern_sequence()
 void pixel_00_update()
 {
 	u8 image_data[PIXEL_COUNT/4];
-	int gate_p=0, source_p=0;
+	int gate_p=0, source_p=0, i;
 
 //	spi_write_command_2params(0x0e, 0x00, 0x00); //set SRAM start location
 
-	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
+/*	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
 		for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
 			image_data[gate_p*SOURCE_LINES/4+source_p]=0xff;
+*/
+	for (i=0; i<GATE_LINES*SOURCE_LINES/4; i++)
+		image_data[i]=0xff;
 
 	image_data[0]=0x00;
-	image_data[156/4]=0x00;
-	int i;
+//	image_data[156/4]=0x00;
+
 //	for (i=0; i<200; i++)
 //		image_data[i]=0x00;
 
@@ -344,8 +347,8 @@ void pixel_00_update()
 	UC8156_send_image_data(image_data);
 
 	UC8156_HVs_on();
-//	UC8156_update_display(FULL_UPDATE);
-	UC8156_update_display(PARTIAL_UPDATE);
+	UC8156_update_display(FULL_UPDATE);
+//	UC8156_update_display(PARTIAL_UPDATE);
     UC8156_HVs_off();
 }
 
