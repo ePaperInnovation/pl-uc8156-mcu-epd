@@ -71,14 +71,14 @@ int parsevalue(char* str, int start, int length)
 }
 
 // load waveform data from SD-card
-int sdcard_load_waveform(u8 *waveform_data, UINT length)
+int sdcard_load_waveform(char *waveform_file_name, u8 *waveform_data, UINT length)
 {
 	FIL file;
 	UINT count=0;
 	int res;
 	char path[64];
 
-	sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
+	sprintf(path, "/%s/%s/%s", PATH, "display", waveform_file_name);
 
 	if (f_open(&file, path, FA_READ))
 		return res;

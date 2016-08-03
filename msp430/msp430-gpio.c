@@ -193,6 +193,8 @@ void gpio_init()
 	gpio_request(PIN_3V3_ENABLE, PIN_GPIO | PIN_OUTPUT);
 	gpio_request(PIN_RESET, PIN_GPIO | PIN_OUTPUT);
 	gpio_request(PIN_BUSY, PIN_GPIO | PIN_INPUT);
+
+	gpio_request(PIN_RUDDOCK_5V_ENABLE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
 }
 
 #if GPIO_CHECK_PARAMETERS

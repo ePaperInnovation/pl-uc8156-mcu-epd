@@ -224,7 +224,7 @@ void print_spi_read_command(u8 command, int count)
 	fprintf(stderr, "R%02xh: ", command);
 	for(i=0; i<ret; i++)
 		fprintf(stderr, "0x%02x ", *(read_values_p+i));
-	fprintf(stderr, "\n");
+	fprintf(stderr, "\n\n");
 
 	free(read_values_p);
 }

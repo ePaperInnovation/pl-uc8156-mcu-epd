@@ -23,7 +23,7 @@ enum UPDATE_MODES {FULL_UPDATE=0x00, PARTIAL_UPDATE=0x04, INIT_UPDATE=0x10};
 #define TS_LENGTH 10
 
 void UC8156_reset();
-void UC8156_wait_for_BUSY_inactive();
+unsigned int UC8156_wait_for_BUSY_inactive();
 void UC8156_init_registers();
 void UC8156_HVs_on();
 void UC8156_HVs_off();

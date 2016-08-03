@@ -49,6 +49,9 @@ enum PinDefs {
 #define PIN_BUSY 		GPIO(2,6) 	// BUSY_N pin
 #define PIN_3V3_ENABLE 	GPIO(1,7) 	// 3V3_Enable pin
 
+#define PIN_RUDDOCK_5V_ENABLE 	GPIO(5,1) 	// if Parrot board is used on Ruddock board BB_SHUTDOWN needs to be high in order to enable the 5V Vmain
+
+
 void gpio_init(void);
 void gpio_mark_busy(int gpio);
 int gpio_request(int gpio, u16 flags);

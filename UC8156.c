@@ -25,18 +25,58 @@ void UC8156_hardware_reset()
 }
 
 // waits for BUSY getting inactive = 1 (BUSY pin is low-active)
-void UC8156_wait_for_BUSY_inactive()
-{
- 	while (gpio_get_value(PIN_BUSY)==0); // BUSY loop
-}
-
-// waits for BUSY getting inactive = 1 (BUSY pin is low-active)
-unsigned long UC8156_wait_for_BUSY_inactive_debug()
+ unsigned int UC8156_wait_for_BUSY_inactive()
 {
 	unsigned long counter=0;
  	while (gpio_get_value(PIN_BUSY)==0) // BUSY loop
+ 	{
+ 		mdelay(1);
 		counter++; // BUSY loop
-	return counter;
+ 	}
+ 	return counter;
+}
+
+// waits for BUSY getting inactive = 1 (BUSY pin is low-active)
+void UC8156_wait_for_BUSY_inactive_print()
+{
+	fprintf(stderr, "BUSY loop counter = %d\n", UC8156_wait_for_BUSY_inactive());
+}
+
+// waits for Power_ON RDY
+void UC8156_wait_for_PowerON_ready_debug()
+{
+	unsigned long counter=0;
+	while (spi_read_command_1param(0x15)!=4)
+	{
+ 		mdelay(1);
+		counter++; // BUSY loop
+ 	}
+	fprintf(stderr, "PowerOn loop counter = %d\n", counter);
+}
+
+// waits for Power_ON RDY
+void UC8156_wait_for_PowerON_ready_printOUT()
+{
+#define MEAS_RESOLUTION 1 // in ms
+#define MEAS_COUNT 100
+
+	u8 status_reg[MEAS_COUNT];
+	int i;
+	u8 *return_value;
+
+	for (i=0; i<MEAS_COUNT; i++)
+	{
+		spi_read_command(0x15, &status_reg[i], 1);
+
+		mdelay(MEAS_RESOLUTION);
+	}
+
+	for (i=0; i<MEAS_COUNT; i++)
+		if (status_reg[i]==4)
+		{
+			fprintf(stderr, "%dms= %x\n", i, status_reg[i]);
+			break;
+		}
 }
 
 // UC8156 change registers which need values different from power-up values
@@ -55,6 +95,8 @@ void UC8156_HVs_on()
 	u8 reg_value = spi_read_command_1param (0x03); //read power control setting register
 	reg_value |= 0x11; //switch on CLKEN+PWRON bits
 	spi_write_command_1param (0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
+	//UC8156_wait_for_PowerON_ready_debug();
+	//UC8156_wait_for_PowerON_ready_printOUT();
 	UC8156_wait_for_BUSY_inactive();
  	while (spi_read_command_1param(0x15)!=4); // BUSY loop
 }
@@ -125,8 +167,10 @@ void UC8156_update_display_full()
 //update display and wait for BUSY-pin low
 void UC8156_update_display(u8 mode)
 {
-	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | mode | 1);
+	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | mode | 1 );
+	//spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | mode | 1 | 0x20); // test area update mode
 	UC8156_wait_for_BUSY_inactive();
+	//UC8156_wait_for_BUSY_inactive_debug();
 }
 
 void UC8156_show_image(u8 *image_data, int mode)
@@ -176,3 +220,24 @@ void measure_Vcom()
 		fprintf(stderr, "%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
 	}
 }
+
+char * read_SerialNo_from_MTP()
+{
+	char display_serial_no[18];
+	u16 start_address = 0x4b9+3;
+	int i;
+
+	u8 backup_reg40h = spi_read_command_1param(0x40);
+
+	// switch to "type2" MTP area
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+
+	for (i=0; i<18; i++)
+		display_serial_no[i] = read_MTP_address(start_address + i);
+
+	fprintf(stderr, "Display Serial No: %s\n", display_serial_no);
+
+	// restore Reg[40h] value
+	spi_write_command_1param(0x40, backup_reg40h);
+}
+
