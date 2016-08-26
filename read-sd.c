@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "FatFs/ff.h"
 #include "types.h"
@@ -8,9 +9,9 @@
 #include "UC8156.h"
 #include "config.h"
 
-#define LOG(msg) fprintf(stderr,"%s\n", msg);
-
 #define BUFFER_LENGTH 1024
+
+#define LOG(msg) fprintf(stderr,"%s\n", msg);
 
 // global file system information used by FatFs
 static FATFS Sd_Card;
@@ -70,33 +71,64 @@ int parsevalue(char* str, int start, int length)
 	return ret;
 }
 
+int parser_read_config_file_line(FIL *f, char *buffer, int max_length)
+{
+	size_t count;
+	char *out;
+	int i;
+
+	for (i = 0, out = buffer; i < max_length; ++i, ++out) {
+		if (f_read(f, out, 1, &count) != FR_OK)
+			return -1;
+
+		if ((*out == '\n') || !count)
+			break;
+
+		if (*out == '\r')
+			--out;
+	}
+
+	if (i == max_length)
+		return -1;
+
+	*out = '\0';
+
+	return !!count;
+}
+
+void param_source_lines(int value)
+{
+	printf("param_source_lines - %d\n", value);
+}
+
+void param_gate_lines(int value)
+{
+	printf("param_gate_lines - %d\n", value);
+}
+
+
 // load waveform data from SD-card
-int sdcard_load_waveform(char *waveform_file_name, u8 *waveform_data, UINT length)
+bool sdcard_load_waveform(char *path, u8 *waveform_data, UINT length)
 {
 	FIL file;
 	UINT count=0;
-	int res;
-	char path[64];
-
-	sprintf(path, "/%s/%s/%s", PATH, "display", waveform_file_name);
 
 	if (f_open(&file, path, FA_READ))
-		return res;
+		return false;
 
 	if (f_read(&file, waveform_data, length, &count))
-		return res;
+		return false;
 
-	if (f_close(&file))
-		return res;
+	f_close(&file);
 
 	if (count!=length)
-		abort_now("Fatal error in: read-sd.c/sdcard_load_waveform: count!=length");
+		return false;
 
-	return 0;
+	return(true);
 }
 
 // reads Vcom value from text-file on SD-card
-int sdcard_load_vcom(int *value)
+bool sdcard_load_vcom(int *value)
 {
 	FIL fVcom;
 	char buff[4];
@@ -105,12 +137,12 @@ int sdcard_load_vcom(int *value)
 	sprintf(path, "/%s/%s", PATH, "display/vcom.txt");
 
 	if (f_open(&fVcom, path, FA_READ) != FR_OK)
-		return -1;
+		return false;
 
 	parser_read_file_line(&fVcom, buff, 4);
 	*value = parsevalue(buff, 0, 4);
 
-	return 0;
+	return true;
 }
 
 // reads image data from PMG image file - part of load_image function
@@ -123,7 +155,7 @@ static int read_image_data(FIL *f, u8 *image)
 		if (f_read(f, data, BUFFER_LENGTH, &count) != FR_OK)
 			return -1;
 
-		pack_4bpp(data, image, count);
+		pack_2bpp(data, image, count);
 
 		image+=count/4;
 
@@ -150,7 +182,7 @@ static int read_image_data_line_sharing(FIL *f, u8 *image)
 			data_scrambled[i*2+1] = data[i];
 		}
 
-		pack_4bpp(data_scrambled, image, count);
+		pack_2bpp(data_scrambled, image, count);
 
 		image+=count/4;
 	} while (count);
@@ -178,7 +210,7 @@ static int read_image_data_SOO_0(FIL *f, u8 *image)
 			data_scrambled[SOURCE_LINES/2+i]=data[i*2+1];
 		}
 
-		pack_4bpp(data_scrambled, image, count);
+		pack_2bpp(data_scrambled, image, count);
 		image+=count/4;
 	}
 
@@ -186,38 +218,33 @@ static int read_image_data_SOO_0(FIL *f, u8 *image)
 }
 
 /* Reads an image from SD Card */
-int sdcard_load_image(const char *image_name, u8 *image_data)
+void sdcard_load_image(char *image_name, u8 *image_data)
 {
 	FIL image_file;
 	struct pnm_header hdr;
-	int ret;
 
-	if (f_open(&image_file, image_name, FA_READ) != FR_OK) {
-		//LOG("Failed to open image file");
-		return -1;
+	if (f_open(&image_file, image_name, FA_READ) != FR_OK)
+	{
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open");
 	}
 
-	ret = pnm_read_header(&image_file, &hdr);
-
-	if (ret < 0) {
-		//LOG("Failed to parse PGM header");
-		goto err_close_file;
-	}
+	if (pnm_read_header(&image_file, &hdr) < 0)
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header");
 
 #ifdef WORKAROUND_FOR_SOO=1_BUG
-	ret = read_image_data_SOO_0(&image_file, image_data);
+	if (read_image_data_SOO_0(&image_file, image_data) != 0)
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_SOO_0");
 #else
 	#ifdef LINE_SHARING
-	ret = read_image_data_line_sharing(&image_file, image_data);
+	if (read_image_data_line_sharing(&image_file, image_data) != 0)
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_line_sharing");
 	#else
-	ret = read_image_data(&image_file, image_data);
+	if (read_image_data(&image_file, image_data) != 0)
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data");
 	#endif
 #endif
 
-err_close_file:
 	f_close(&image_file);
-
-	return ret;
 }
 
 void read_directory_list(const char *path)
@@ -236,8 +263,8 @@ void read_directory_list(const char *path)
 		if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)
 			break;
 
-		fprintf(stderr,"%s\n", fno.fname);
-		fprintf(stderr,"%s\n", fno.lfname);
+		printf("%s\n", fno.fname);
+		printf("%s\n", fno.lfname);
 	}
 }
 
@@ -278,15 +305,14 @@ void read_config_file(const char *config_file_name)
 		exit(EXIT_FAILURE);
 	}
 
-/*	fprintf(stderr,"%s\n", line);
+/*	printf("%s\n", line);
 	sscanf(line,"%[^,] %d", string, &value);
-	fprintf(stderr,"%s - %d\n", string, value);
+	printf("%s - %d\n", string, value);
 */
-	int counter=0;
 	do
 	{
 		stat = parser_read_config_file_line(&fp, line, sizeof(line));
-		fprintf(stderr,"%s\n", line);
+		printf("%s\n", line);
 
 		if (stat < 0) {
 			LOG("Failed to read line");
@@ -295,11 +321,11 @@ void read_config_file(const char *config_file_name)
 
 		opt = line;
 		len = parser_read_str(opt, SEP, param_name, sizeof(param_name));
-//		fprintf(stderr,"%d - %s\n", len, param_name);
+//		printf("%d - %s\n", len, param_name);
 
 		opt += len;
 		len = parser_read_int(opt, SEP, &param_value);
-//		fprintf(stderr,"%d - %d\n", len, param_value);
+//		printf("%d - %d\n", len, param_value);
 
 		for (param = param_table; param->name != NULL; ++param) {
 			if (!strcmp(param->name, param_name)) {
@@ -319,51 +345,16 @@ void read_config_file(const char *config_file_name)
 
 }
 
-int parser_read_config_file_line(FIL *f, char *buffer, int max_length)
-{
-	size_t count;
-	char *out;
-	int i;
-
-	for (i = 0, out = buffer; i < max_length; ++i, ++out) {
-		if (f_read(f, out, 1, &count) != FR_OK)
-			return -1;
-
-		if ((*out == '\n') || !count)
-			break;
-
-		if (*out == '\r')
-			--out;
-	}
-
-	if (i == max_length)
-		return -1;
-
-	*out = '\0';
-
-	return !!count;
-}
-
-void param_source_lines(int value)
-{
-	fprintf(stderr,"param_source_lines - %d\n", value);
-}
-
-void param_gate_lines(int value)
-{
-	fprintf(stderr,"param_gate_lines - %d\n", value);
-}
-
 extern int DO_PROGRAM_MTP;
 void param_mtp_program(int value)
 {
-	fprintf(stderr,"param_mtp_program - %d\n", value);
+	printf("param_mtp_program - %d\n", value);
 	DO_PROGRAM_MTP = value;
 }
 
 extern int MTP_ALREADY_PROGRAMMED;
 void param_mtp_already_programmed(int value)
 {
-	fprintf(stderr,"param_mtp_alread_programmed - %d\n", value);
+	printf("param_mtp_alread_programmed - %d\n", value);
 	MTP_ALREADY_PROGRAMMED = value;
 }

@@ -37,12 +37,14 @@ void spi_write_command_1param(u8 command, u8 param);
 void spi_write_command_2params(u8 command, u8 param1, u8 param2);
 void spi_write_command_3params(u8 command, u8 param1, u8 param2, u8 param3);
 void spi_write_command_4params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4);
+void spi_write_command(u8 command, u8 *params, int count);
 
 u8 spi_read_command_1param(u8 command);
 void spi_read_command_2params1(u8 command, u8 *);
 u8* spi_read_command_2params(u8 command);
 u8* spi_read_command_3params(u8 command);
 u8* spi_read_command_4params(u8 command);
+int spi_read_command(u8 command, u8 *read_values_p, int count);
 
 u8 spi_read_command_1param_1dummy(u8 command);
 

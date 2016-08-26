@@ -5,10 +5,11 @@
  *      Author: andreas.meier
  */
 
-#include "pattern.h"
+#include "msp430/msp430-spi.h"
+
 #include "UC8156.h"
 #include "config.h"
-#include "msp430/msp430-spi.h"
+#include "display_functions.h"
 
 void walking_source_line()
 {
@@ -39,7 +40,7 @@ void walking_source_line()
 			UC8156_send_image_data(image_data);
 
 			UC8156_HVs_on();
-			UC8156_update_display(FULL_UPDATE);
+			UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
 			UC8156_HVs_off();
 
 			for (gate_p=0; gate_p<GATE_LINES; gate_p++)
@@ -85,11 +86,7 @@ void alt_source_SOO_0()
 		for (source_p=SOURCE_LINES/2/4; source_p<SOURCE_LINES/4; source_p++)
 			image_data[gate_p*SOURCE_LINES/4+source_p]=0xff;
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void checkerboard_SOO_0()
@@ -110,11 +107,7 @@ void checkerboard_SOO_0()
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0x00;
 		}
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_source_debug(u8 data)
@@ -126,11 +119,7 @@ void alt_source_debug(u8 data)
 		for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
 			image_data[gate_p*SOURCE_LINES/4+source_p]=data;//0x33 is "real" alt_source
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_source()
@@ -172,11 +161,7 @@ void checkerboard_debug(u8 data, u8 s_start, u8 s_end)
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=~data;
 		}
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void checkerboard()
@@ -193,18 +178,21 @@ void white_update()
 {
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-	UC8156_HVs_off();
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }
 
 void black_update()
 {
 	UC8156_send_repeated_image_data(0x00); // 0xff is white
 
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-	UC8156_HVs_off();
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
+}
+
+void solid_update(u8 value)
+{
+	UC8156_send_repeated_image_data(value);
+
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_gate()
@@ -227,11 +215,7 @@ void alt_gate()
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;
 		}
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_gate_SOO_0()
@@ -253,11 +237,7 @@ void alt_gate_SOO_0()
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;
 		}
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_source_4er()
@@ -280,11 +260,7 @@ void alt_source_4er()
 			image_data[gate_p*SOURCE_LINES/4+source_p+1]=0xf0;
 		}
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void pattern_sequence()
@@ -300,7 +276,7 @@ void pattern_sequence()
 	checkerboard();
 	alt_source();
 
-	show_image("240x160/08_240~1.PGM", FULL_UPDATE);
+	show_image_from_SDcard("240x160/08_240~1.PGM", FULL_UPDATE);
 
 	diagonale();
 
@@ -344,12 +320,7 @@ void pixel_00_update()
 	//for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
 		//image_data[source_p]=0x00;
 
-	UC8156_send_image_data(image_data);
-
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-//	UC8156_update_display(PARTIAL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void pixel_00_update_windowed()
@@ -371,7 +342,34 @@ void pixel_00_update_windowed()
 
 	//UC8156_send_image_data(image_data);
 
-	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
-    UC8156_HVs_off();
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }
+
+void checkerboard_20x20()
+{
+	u8 image_data[PIXEL_COUNT/4];
+	int gate_p=0, source_p=0, x=0, y=0;
+	u8 data, data_org=0xff;
+
+	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
+		for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
+			image_data[gate_p*SOURCE_LINES/4+source_p]=0xff;
+
+	for (gate_p=0; gate_p<GATE_LINES; gate_p+=20)
+	{
+		for (y=0; y<20; y++)
+		{
+			data=data_org;
+			for (source_p=0; source_p<SOURCE_LINES/4; source_p+=5)
+			{
+				for(x=0; x<5; x++)
+					image_data[(gate_p+y)*SOURCE_LINES/4+source_p+x]=data;
+				data=~data;
+			}
+		}
+		data_org=~data_org;
+	}
+
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+}
+

@@ -25,9 +25,14 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <msp430.h>
+
 #include "types.h"
 #include "assert.h"
+#include "utils.h"
+
 #include "msp430-defs.h"
 #include "msp430-spi.h"
 #include "msp430-gpio.h"
@@ -221,10 +226,10 @@ void print_spi_read_command(u8 command, int count)
 
 	ret = spi_read_command(command, read_values_p, count);
 
-	fprintf(stderr, "R%02xh: ", command);
+	printf("Reg[%02xh] = ", command);
 	for(i=0; i<ret; i++)
-		fprintf(stderr, "0x%02x ", *(read_values_p+i));
-	fprintf(stderr, "\n\n");
+		printf("0x%02x ", *(read_values_p+i));
+	printf("\n");
 
 	free(read_values_p);
 }

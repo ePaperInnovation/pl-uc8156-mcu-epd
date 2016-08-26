@@ -26,7 +26,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "platform.h"
 #include "types.h"
 #include "FatFs/ff.h"
 #include "msp430-gpio.h"
@@ -193,7 +192,7 @@ extern void assert_test(int expr, const char *abort_msg);
 	//	"Fatal error\n", "Assertion failed\n", "Check failed\n",
 	//};
 
-//	fprintf(stderr, "%s, line %u: %s\n", file, line, message);
+//	printf("%s, line %u: %s\n", file, line, message);
 	//assert_test(0, error_str[error]);
 //}
 
@@ -246,8 +245,8 @@ void dump_hex(const void *data, uint16_t len)
 	puts(s);
 }
 
-/*Converts image data to 4 bit per pixel data */
-void pack_4bpp(u8 *in, u8 *out, int in_count)
+/*Converts image data to 2 bit per pixel data */
+void pack_2bpp(u8 *in, u8 *out, int in_count)
 {
 	while (in_count > 0) {
 		*out = (u8)(((in[0] >> 6) << 6) | ((in[1] >> 6) << 4) | ((in[2] >> 6) << 2) | (in[3] >> 6));
@@ -259,8 +258,8 @@ void pack_4bpp(u8 *in, u8 *out, int in_count)
 
 void abort_now(const char *error_string)
 {
-	fprintf(stderr, error_string);
-	fprintf(stderr, "\n\n");
+	printf(error_string);
+	printf("\n\n");
 	exit(EXIT_FAILURE);
 }
 

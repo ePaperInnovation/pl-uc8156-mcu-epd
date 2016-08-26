@@ -37,9 +37,9 @@ void UC8156_hardware_reset()
 }
 
 // waits for BUSY getting inactive = 1 (BUSY pin is low-active)
-void UC8156_wait_for_BUSY_inactive_print()
+void UC8156_wait_for_BUSY_inactive_debug()
 {
-	fprintf(stderr, "BUSY loop counter = %d\n", UC8156_wait_for_BUSY_inactive());
+	printf("BUSY loop counter = %d\n", UC8156_wait_for_BUSY_inactive());
 }
 
 // waits for Power_ON RDY
@@ -51,7 +51,7 @@ void UC8156_wait_for_PowerON_ready_debug()
  		mdelay(1);
 		counter++; // BUSY loop
  	}
-	fprintf(stderr, "PowerOn loop counter = %d\n", counter);
+	printf("PowerOn loop counter = %d\n", counter);
 }
 
 // waits for Power_ON RDY
@@ -61,8 +61,7 @@ void UC8156_wait_for_PowerON_ready_printOUT()
 #define MEAS_COUNT 100
 
 	u8 status_reg[MEAS_COUNT];
-	int i;
-	u8 *return_value;
+	unsigned int i;
 
 	for (i=0; i<MEAS_COUNT; i++)
 	{
@@ -74,7 +73,7 @@ void UC8156_wait_for_PowerON_ready_printOUT()
 	for (i=0; i<MEAS_COUNT; i++)
 		if (status_reg[i]==4)
 		{
-			fprintf(stderr, "%dms= %x\n", i, status_reg[i]);
+			printf("%dms= %x\n", i, status_reg[i]);
 			break;
 		}
 }
@@ -165,29 +164,35 @@ void UC8156_update_display_full()
 }
 
 //update display and wait for BUSY-pin low
-void UC8156_update_display(u8 mode)
+void UC8156_update_display(u8 update_mode, u8 waveform_mode)
 {
-	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | mode | 1 );
-	//spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | mode | 1 | 0x20); // test area update mode
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
+	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
+	//spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | 0x20); // test area update mode
 	UC8156_wait_for_BUSY_inactive();
 	//UC8156_wait_for_BUSY_inactive_debug();
 }
 
-void UC8156_show_image(u8 *image_data, int mode)
+void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode)
 {
-	  UC8156_send_image_data(image_data);
-
 	  UC8156_HVs_on();
-	  UC8156_update_display(mode);
+	  UC8156_update_display(update_mode, waveform_mode);
       UC8156_HVs_off();
 }
 
-void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, int mode)
+void UC8156_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode)
+{
+	  UC8156_send_image_data(image_data);
+
+	  UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
+}
+
+void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, u8 update_mode, u8 waveform_mode)
 {
 	  UC8156_send_image_data_area(image_data, col_start, col_size, row_start, row_size);
 
 	  UC8156_HVs_on();
-	  UC8156_update_display(mode);
+	  UC8156_update_display(update_mode, waveform_mode);
       UC8156_HVs_off();
 }
 
@@ -199,7 +204,7 @@ void measure_Vcom()
 
 	UC8156_HVs_on();
 	return_value = 	spi_read_command_1param(0x15);
-	fprintf(stderr, "R15h after HV_on = %x\n", return_value);
+	printf("R15h after HV_on = %x\n", return_value);
 	//spi_write_command_1param(0x19, 0x29); //trigger Vcom sensing with waiting time 5sec
 	spi_write_command_1param(0x19, 0x81); //trigger Vcom sensing with waiting time 5sec
 
@@ -217,27 +222,51 @@ void measure_Vcom()
 
 	for (i=0;i<60;i++)
 	{
-		fprintf(stderr, "%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
+		printf("%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
 	}
 }
 
-char * read_SerialNo_from_MTP()
+void print_temperature_sensor_value()
 {
-	char display_serial_no[18];
-	u16 start_address = 0x4b9+3;
-	int i;
-
-	u8 backup_reg40h = spi_read_command_1param(0x40);
-
-	// switch to "type2" MTP area
-	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
-
-	for (i=0; i<18; i++)
-		display_serial_no[i] = read_MTP_address(start_address + i);
-
-	fprintf(stderr, "Display Serial No: %s\n", display_serial_no);
-
-	// restore Reg[40h] value
-	spi_write_command_1param(0x40, backup_reg40h);
+	u8 return_value = spi_read_command_1param(0x08);
+	printf("Temperatur sensor value read from Reg[08h] = 0x%x\n", return_value);
 }
 
+void print_current_VCOM()
+{
+	u8 return_value = spi_read_command_1param(0x1b);
+	printf("Vcom read from Reg[1Bh] = 0x%x = %.3fV\n", return_value, return_value*0.03);
+}
+
+bool UC8156_check_status_register(u8 expected_value)
+{
+	u8 status_reg_value = spi_read_command_1param(0x15);
+
+	#if DEBUG_PRINTOUTS
+	printf("Status Register = %x\n", status_reg_value);
+	#endif
+
+	if (status_reg_value != expected_value) //check Status Register
+	{
+			printf("Status Register not %x but %x.\n", expected_value, status_reg_value);
+			return(false);
+	}
+
+	return(true);
+}
+
+bool UC8156_check_RevID()
+{
+	u8 revID = UC8156_read_RevID();
+
+	#if DEBUG_PRINTOUTS
+	printf("RevID = %x\n", revID);
+	#endif
+
+	if (revID != 0x56)
+	{
+		printf("RevID 0x56 not read correctly (%x).\n", revID);
+		return(false);
+	}
+	return(true);
+}

@@ -6,6 +6,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+
 #include "verification_functions.h"
 #include "msp430/msp430-spi.h"
 #include "UC8156.h"
@@ -13,6 +15,7 @@
 #include "waveform.h"
 #include "config.h"
 #include "image.h"
+#include "display_functions.h"
 
 void register_dump()
 {
@@ -22,7 +25,7 @@ void register_dump()
 	for(i=0;i<0x20;i++)
 	{
 		return_value=spi_read_command_4params(i);
-		fprintf(stderr, "%02x: %02x%02x%02x%02x\n", i, *(return_value+3), *(return_value+2), *(return_value+1), *(return_value+0));
+		printf("%02x: %02x%02x%02x%02x\n", i, *(return_value+3), *(return_value+2), *(return_value+1), *(return_value+0));
 	}
 }
 
@@ -33,10 +36,10 @@ void print_register_value(u8 reg, u8 count)
 	u8 *values_p = (u8 *)malloc(count);
 	spi_read_command_and_bulk_data(reg, values_p, count);
 
-	fprintf(stderr, "Reg0x%02xh: ", reg);
+	printf("Reg0x%02xh: ", reg);
 	for(i=0; i<count; i++)
-		fprintf(stderr, "%02x ", *(values_p+i));
-	fprintf(stderr, "\n");
+		printf("%02x ", *(values_p+i));
+	printf("\n");
 
 	free(values_p);
 }
@@ -54,16 +57,16 @@ void read_and_print_LUT()
 	u8 *LUT = read_waveform_LUT();
 
 	int i=0,j=0;
-	fprintf(stderr, "\n");
+	printf("\n");
 	for(i=0;i<30;i++)
 	{
-		fprintf(stderr, "%2x: ", i*4+j);
+		printf("%2x: ", i*4+j);
 		while(j<4)
 		{
-			fprintf(stderr, "%02x ", LUT[i*4+j]);
+			printf("%02x ", LUT[i*4+j]);
 			j++;
 		}
-		fprintf(stderr, "\n");
+		printf("\n");
 		j=0;
 	}
 }
@@ -73,17 +76,17 @@ void read_and_print_MTP()
 	u8 return_value;
 
 	int i=0,j=0;
-	fprintf(stderr, "\n");
+	printf("\n");
 	for(i=0;i<30;i++)
 	{
-		fprintf(stderr, "%2x: ", i*4+j);
+		printf("%2x: ", i*4+j);
 		while(j<4)
 		{
 			return_value = read_MTP_address(i*4+j);
-			fprintf(stderr, "%2x ", return_value);
+			printf("%2x ", return_value);
 			j++;
 		}
-		fprintf(stderr, "\n");
+		printf("\n");
 		j=0;
 	}
 }
@@ -94,18 +97,18 @@ void check_temperature_sensor()
 	u8 return_value;
 
 	return_value = 	spi_read_command_1param(0x07); //read temperature value register
-	fprintf(stderr, "R07h = %xh\n", return_value);
+	printf("R07h = %xh\n", return_value);
 	return_value = 	spi_read_command_1param(0x08); //read temperature value register
-	fprintf(stderr, "temperature (R08h) = %dd\n", return_value);
+	printf("temperature (R08h) = %dd\n", return_value);
 
 	spi_write_command_1param(0x07, 0x09); //trigger internal temperature sensor read
 	mdelay(170);
  	while (spi_read_command_1param(0x15)!=0); // check status register bit for temperature sensor
 	return_value = 	spi_read_command_1param(0x07); //read temperature value register
-	fprintf(stderr, "R07h = %xh\n", return_value);
+	printf("R07h = %xh\n", return_value);
 
 	return_value = 	spi_read_command_1param(0x08);
-	fprintf(stderr, "temperature (R08h) = %dd\n", return_value);
+	printf("temperature (R08h) = %dd\n", return_value);
 }
 
 void drift_test(u8 *waveform_p)
@@ -113,12 +116,12 @@ void drift_test(u8 *waveform_p)
 	UC8156_HVs_on();
 
 	send_drift_test_image();
-	UC8156_update_display(FULL_UPDATE);
+	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
 
 	send_drift_test_image();
 	UC8156_set_Vcom(3600);
 	UC8156_send_waveform(waveform_long_null);
-	UC8156_update_display(FULL_UPDATE);
+	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
 
 	send_drift_test_image();
 	//UC8156_set_Vcom(4000);
@@ -126,7 +129,7 @@ void drift_test(u8 *waveform_p)
 	spi_write_command_4params(0x0c, 0x00, 80, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
 	spi_write_command_3params(0x18, 0x40, 0x02, 0x34); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
 	//spi_write_command_4params(0x0c, 0x00, SOURCE_LINES/2/8*8-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
-	UC8156_update_display(FULL_UPDATE);
+	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
 
 	spi_write_command_4params(0x0c, 0x00, SOURCE_LINES, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
 
@@ -162,15 +165,15 @@ void verify_update_modes()
 {
 	//show_image("240x160/13_240~1.PGM", FULL_UPDATE);
 
-	show_image("4GL.PGM", 0x20 | 0x01);
+	show_image_from_SDcard("4GL.PGM", 0x20 | 0x01);
 
 	white_update();
 
 	spi_write_command_4params(0x0d, 0x00, 0xef, 0x10, 0x9f);
-	show_image("4GL.PGM", 0x20 | 0x01);
+	show_image_from_SDcard("4GL.PGM", 0x20 | 0x01);
 
 	spi_write_command_4params(0x0d, 0x10, 0xef, 0x00, 0x9f);
-	show_image("4GL.PGM", 0x20 | 0x01);
+	show_image_from_SDcard("4GL.PGM", 0x20 | 0x01);
 }
 
 void verify_ckbd_SOO_0()
@@ -196,8 +199,8 @@ void power_measurement()
 		alt_gate_SOO_0();
 		checkerboard_SOO_0();
 		checkerboard_SOO_0();
-		show_image("240x160/13_240~1.PGM", FULL_UPDATE);
-		show_image("240x160/13_240~1.PGM", FULL_UPDATE);
+		show_image_from_SDcard("240x160/13_240~1.PGM", FULL_UPDATE);
+		show_image_from_SDcard("240x160/13_240~1.PGM", FULL_UPDATE);
 	}
 }
 
@@ -209,21 +212,20 @@ void measure_vcom()
 
 	u8 meas_value[MEAS_COUNT][2], status_reg[MEAS_COUNT];
 	int i;
-	u8 *return_value;
 
 	u8 status = 	spi_read_command_1param(0x15);
-	fprintf(stderr, "Status Register = %x\n", status);
+	printf("Status Register = %x\n", status);
 
 	UC8156_HVs_on();
 
 	status = 	spi_read_command_1param(0x15);
-	fprintf(stderr, "Status Register = %x\n", status);
+	printf("Status Register = %x\n", status);
 
-	fprintf(stderr,"Reg[19h]=0x%2x\n\n", ((MEAS_TIME * 50 / 24)<<2) | 0x01);
+	printf("Reg[19h]=0x%2x\n\n", ((MEAS_TIME * 50 / 24)<<2) | 0x01);
 	spi_write_command_1param(0x19, ((MEAS_TIME * 50 / 24)<<2) | 0x01);
 
 	status = 	spi_read_command_1param(0x15);
-	fprintf(stderr, "Status Register = %x\n", status);
+	printf("Status Register = %x\n", status);
 
 	for (i=0; i<MEAS_COUNT; i++)
 	{
@@ -240,8 +242,8 @@ void measure_vcom()
 	for (i=0; i<MEAS_COUNT; i++)
 	{
 		if (meas_value[i][0]!=0)
-//			fprintf(stderr, "Vkb[%dms] = %3d - %f\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03);
-			fprintf(stderr, "Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
+//			printf("Vkb[%dms] = %3d - %f\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03);
+			printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
 	}
 }
 
@@ -254,11 +256,10 @@ void measure_vcom_new(int meas_time)
 
 	u8 meas_value[MEAS_COUNT][2], status_reg[MEAS_COUNT];
 	int i;
-	u8 *return_value;
 
 	UC8156_HVs_on();
 
-	fprintf(stderr,"Reg[19h]=0x%2x\n\n", ((meas_time * 50 / 24)<<2) | 0x01);
+	printf("Reg[19h]=0x%2x\n\n", ((meas_time * 50 / 24)<<2) | 0x01);
 	spi_write_command_1param(0x19, ((meas_time * 50 / 24)<<2) | 0x01);
 
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
@@ -274,8 +275,8 @@ void measure_vcom_new(int meas_time)
 	UC8156_HVs_off();
 
 	for (i=0; i<MEAS_COUNT; i++)
-//		fprintf(stderr, "Vkb[%dms] = %d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03, status_reg[i]);
-		fprintf(stderr, "Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
+//		printf("Vkb[%dms] = %d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03, status_reg[i]);
+		printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
 }
 
 void WF_type2_update_verification()
@@ -314,9 +315,7 @@ void RAM_window_test_180x100()
 
 	UC8156_send_image_data(image_data);
 
-	UC8156_HVs_on();
-	UC8156_update_display_full();
-	UC8156_HVs_off();
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 
 	x_s=50;
 	y_s=50;
@@ -327,9 +326,7 @@ void RAM_window_test_180x100()
 
 	  UC8156_send_image_data(image_data);
 
-	  UC8156_HVs_on();
-	  UC8156_update_display_full();
-	  UC8156_HVs_off();
+	  UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 
 		x_s=90;
 		y_s=70;
@@ -374,17 +371,17 @@ void print_characters_312x74()
 
 	col_start = 70, col_size = 8;
 	row_start = 10, row_size = 8;
-	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE);
+	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE, NORMAL_4GL);
 	UC8156_send_image_data_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size);
 
 	col_start = 80, col_size = 8;
 	row_start = 10, row_size = 8;
-	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE);
+	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE, NORMAL_4GL);
 	UC8156_send_image_data_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size);
 
 	col_start = 90, col_size = 8;
 	row_start = 10, row_size = 8;
-	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE);
+	UC8156_show_image_area(image_8x8_scrambled_A, col_start, col_size, row_start, row_size, PARTIAL_UPDATE, NORMAL_4GL);
 }
 
 void drive_active_border_black()
@@ -392,7 +389,7 @@ void drive_active_border_black()
 	spi_write_command_1param(0x1d, 0x47);
 
 	UC8156_HVs_on();
-	UC8156_update_display(FULL_UPDATE);
+	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
 	UC8156_HVs_off();
 
 	spi_write_command_1param(0x1d, 0x04);
@@ -408,7 +405,7 @@ void verify_Area_Update_mode()
 
 	UC8156_HVs_on();
 //	UC8156_update_display(FULL_UPDATE | 0x20);
-	UC8156_update_display(FULL_UPDATE);
+	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
     UC8156_HVs_off();
 
 }
@@ -425,5 +422,5 @@ void verify_sleep_mode()
 
 void read_and_print_temperature_sensor()
 {
-	fprintf(stderr, "temperature (R08h) = %dd\n", spi_read_command_1param(0x08));
+	printf("temperature (R08h) = %dd\n", spi_read_command_1param(0x08));
 }
