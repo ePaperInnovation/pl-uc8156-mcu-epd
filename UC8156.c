@@ -10,7 +10,7 @@
 #include "UC8156.h"
 #include "msp430/msp430-spi.h"
 #include "msp430/msp430-gpio.h"
-#include "register_overwrites.h"
+#include "types.h"
 
 //global variables
 u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
