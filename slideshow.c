@@ -6,11 +6,11 @@
 #include "UC8156.h"
 #include "utils.h"
 #include "display_functions.h"
-#include "config.h"
 
 /* FatFS only supports 8.3 filenames, and we work from the current directory so
    paths should be short... */
 #define MAX_PATH_LEN 64
+extern char PATH[64]; //global variable
 
 /** Slideshow, calling show_image for each pgm-file found in a directory */
 void slideshow_run(int mode, u16 delay_ms)

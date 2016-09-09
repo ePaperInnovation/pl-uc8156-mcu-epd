@@ -8,8 +8,8 @@
 #ifndef FLOWS_H_
 #define FLOWS_H_
 
-	void main_eval_kit_flow(void);
-	void main_debug_flow(void);
-	void main_basic_flow(void);
+	void eval_kit_flow(void);
+	void debug_flow(void);
+	void basic_flow(void);
 
 #endif /* FLOWS_H_ */

@@ -10,11 +10,13 @@
 #include "UC8156.h"
 #include "msp430/msp430-spi.h"
 #include "msp430/msp430-gpio.h"
-#include "config.h"
 #include "register_overwrites.h"
 
 //global variables
 u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
+extern u16 PIXEL_COUNT; //global variable
+extern regSetting_t *REG_SETTINGS; //global variable
+extern u8 NUMBER_OF_REGISTER_OVERWRITES; //global variable
 
 // UC8156 hardware reset
 void UC8156_hardware_reset()
@@ -83,8 +85,10 @@ void UC8156_init_registers()
 {
 	int i;
 
-	for (i=0; i<sizeof(reg_settings)/sizeof(regSetting_t); i++) {
-		spi_write_command(reg_settings[i].addr, reg_settings[i].val, reg_settings[i].valCount);
+	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
+	{
+		spi_write_command(REG_SETTINGS->addr, REG_SETTINGS->val, REG_SETTINGS->valCount);
+		REG_SETTINGS++;
 	}
 }
 
@@ -259,9 +263,7 @@ bool UC8156_check_RevID()
 {
 	u8 revID = UC8156_read_RevID();
 
-	#if DEBUG_PRINTOUTS
-	printf("RevID = %x\n", revID);
-	#endif
+//	printf("RevID = %x\n", revID);
 
 	if (revID != 0x56)
 	{

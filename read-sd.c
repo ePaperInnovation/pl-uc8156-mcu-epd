@@ -7,11 +7,13 @@
 #include "pnm-utils.h"
 #include "utils.h"
 #include "UC8156.h"
-#include "config.h"
 
 #define BUFFER_LENGTH 1024
 
 #define LOG(msg) fprintf(stderr,"%s\n", msg);
+
+extern u16 SOURCE_LINES, GATE_LINES;
+extern char PATH[64]; //global variable
 
 // global file system information used by FatFs
 static FATFS Sd_Card;
@@ -163,7 +165,7 @@ static int read_image_data(FIL *f, u8 *image)
 
 	return 0;
 }
-
+/*
 // reads image data from PMG image file - part of load_image function
 static int read_image_data_line_sharing(FIL *f, u8 *image)
 {
@@ -216,7 +218,7 @@ static int read_image_data_SOO_0(FIL *f, u8 *image)
 
 	return 0;
 }
-
+*/
 /* Reads an image from SD Card */
 void sdcard_load_image(char *image_name, u8 *image_data)
 {

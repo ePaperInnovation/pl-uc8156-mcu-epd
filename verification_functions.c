@@ -13,9 +13,11 @@
 #include "UC8156.h"
 #include "UC8156_MTP.h"
 #include "waveform.h"
-#include "config.h"
 #include "image.h"
 #include "display_functions.h"
+
+extern u16 SOURCE_LINES, GATE_LINES, PIXEL_COUNT;
+extern u8 *image_data;
 
 void register_dump()
 {
@@ -139,7 +141,7 @@ void drift_test(u8 *waveform_p)
 
 void send_drift_test_image()
 {
-	  u8 image_data[PIXEL_COUNT/4];
+//	  u8 image_data[PIXEL_COUNT/4];
 	  int i;
 
 	  for(i=0;i<PIXEL_COUNT/4/2;i++)

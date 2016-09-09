@@ -14,6 +14,7 @@
 
 #include "types.h"
 #include "flows.h"
+#include "config_display_type.h"
 
 #define DEBUG_PRINTOUTS 0
 
@@ -24,11 +25,11 @@ void MSP430_HBZ9_3V3_enable();
 void MSP430_spi_init();
 void MSP430_gpio_init();
 
-extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
-
 int main(void)
 {
- 	MSP430_clock_init(); // set MSP430 clock to 20MHz
+//	sdcard_init(); // initialize SD-card using FatFS
+
+	MSP430_clock_init(); // set MSP430 clock to 20MHz
 
 	MSP430_spi_init(0,16); // initialize SPI interface towards the display
 
@@ -36,9 +37,11 @@ int main(void)
 
 	MSP430_HBZ9_3V3_enable(); // switch on 3.3V power supply for the UC8156 on the HB_Z9 board
 
-	main_eval_kit_flow();
-//	main_debug_flow();
-//	main_basic_flow();
+	set_display_type(S014_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display.h
+
+	eval_kit_flow();
+//	debug_flow();
+//	basic_flow();
 }
 
 int _system_pre_init(void) {

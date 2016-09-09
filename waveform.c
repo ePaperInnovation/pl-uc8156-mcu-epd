@@ -10,7 +10,6 @@
 
 #include "waveform.h"
 #include "types.h"
-#include "config.h"
 #include "UC8156.h"
 
 u8 waveform_debug[WAVEFORM_LENGTH]= { \

@@ -83,7 +83,7 @@ typedef union {
 	struct {
 		u16 msw;
 		u16 lsw;
-	};
+	} dummy;
 } param32;
 
 

@@ -8,12 +8,14 @@
 #include "msp430/msp430-spi.h"
 
 #include "UC8156.h"
-#include "config.h"
 #include "display_functions.h"
+
+extern u16 SOURCE_LINES, GATE_LINES, PIXEL_COUNT;
+extern u8 *image_data;
 
 void walking_source_line()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 	int data, i;
 
@@ -51,7 +53,7 @@ void walking_source_line()
 
 void diagonale()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
@@ -76,7 +78,7 @@ void diagonale()
 
 void alt_source_SOO_0()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
@@ -91,7 +93,7 @@ void alt_source_SOO_0()
 
 void checkerboard_SOO_0()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	for (gate_p=0; gate_p<GATE_LINES; gate_p+=2)
@@ -112,7 +114,7 @@ void checkerboard_SOO_0()
 
 void alt_source_debug(u8 data)
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
@@ -134,7 +136,7 @@ void inv_alt_source()
 
 void checkerboard_debug(u8 data, u8 s_start, u8 s_end)
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	for (gate_p=0; gate_p<GATE_LINES; gate_p++)
@@ -197,7 +199,7 @@ void solid_update(u8 value)
 
 void alt_gate()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	spi_write_command_2params(0x0e, 0x00, 0x00); //set SRAM start location
@@ -220,7 +222,7 @@ void alt_gate()
 
 void alt_gate_SOO_0()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	for (gate_p=0; gate_p<GATE_LINES; gate_p+=2)
@@ -242,7 +244,7 @@ void alt_gate_SOO_0()
 
 void alt_source_4er()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0;
 
 	spi_write_command_2params(0x0e, 0x00, 0x00); //set SRAM start location
@@ -299,7 +301,7 @@ void pattern_sequence()
 
 void pixel_00_update()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0, i;
 
 //	spi_write_command_2params(0x0e, 0x00, 0x00); //set SRAM start location
@@ -347,7 +349,7 @@ void pixel_00_update_windowed()
 
 void checkerboard_20x20()
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[PIXEL_COUNT/4];
 	int gate_p=0, source_p=0, x=0, y=0;
 	u8 data, data_org=0xff;
 

@@ -11,10 +11,11 @@
 #include "display_functions.h"
 #include "read-sd.h"
 #include "UC8156_MTP.h"
+#include "waveform.h"
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 
-void main_debug_flow(void)
+void debug_flow(void)
 {
 	sdcard_init(); // initialize SD-card using FatFS
 
@@ -32,7 +33,7 @@ void main_debug_flow(void)
 	if (UC8156_check_status_register(0x00) == false)
 			exit(EXIT_FAILURE);
 
-#if 1	//MTP program - should be used by Plastic Logic only
+#if 0	//MTP program - should be used by Plastic Logic only
 {
 //		write_single_waveform_table_to_MTP("Type31/waveforms/S031_V7D035_2xGL_V1.23.0.uc8156_lut");
 		write_complete_waveform_library_to_MTP_from_file("/waveforms_for_MTP_program/S011_V1.0_VJW003_V2.uc8156");
@@ -74,12 +75,11 @@ void main_debug_flow(void)
 	UC8156_init_registers();
 */
 
-//	UC8156_send_waveform(waveform_default);
-//	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+	UC8156_send_waveform(waveform_default);
+	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+	UC8156_set_Vcom(4000);
 
 	clear_display();
-
-//	playground();
 
 //	WF_type2_update_verification();
 
@@ -120,6 +120,7 @@ void main_debug_flow(void)
 //	solid_update(0x55);
 
 	checkerboard();
+//	alt_source();
 
 	solid_update(0xAA);
 

@@ -7,9 +7,11 @@
 
 #include "msp430/msp430-spi.h"
 #include "UC8156.h"
-#include "config.h"
 #include "read-sd.h"
 #include "utils.h"
+
+extern u16 PIXEL_COUNT;
+extern u8 *image_data;
 
 void clear_display()
 {
@@ -30,7 +32,7 @@ void clear_display()
 // loads image form SD-card and updates it on the display using a 4GL FULL update
 void show_image_from_SDcard(char *image, int mode)
 {
-	u8 image_data[PIXEL_COUNT/4];
+//	u8 image_data[(const int) (PIXEL_COUNT/4)];
 
 	sdcard_load_image(image, image_data);
 

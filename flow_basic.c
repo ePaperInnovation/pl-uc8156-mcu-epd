@@ -11,7 +11,7 @@
 #include "image.h"
 #include "display_functions.h"
 
-void main_basic_flow(void)
+void basic_flow(void)
 {
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 

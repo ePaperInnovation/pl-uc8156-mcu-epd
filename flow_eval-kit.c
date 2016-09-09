@@ -11,14 +11,14 @@
 #include "types.h"
 #include "UC8156.h"
 #include "FatFs/ff.h"
-#include "config.h"
 #include "display_functions.h"
 #include "read-sd.h"
 #include "slideshow.h"
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
+extern char PATH[64]; //global variable
 
-void main_eval_kit_flow(void)
+void eval_kit_flow(void)
 {
 	sdcard_init(); // initialize SD-card using FatFS
 
