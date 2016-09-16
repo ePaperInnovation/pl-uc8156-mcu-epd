@@ -141,7 +141,6 @@ void drift_test(u8 *waveform_p)
 
 void send_drift_test_image()
 {
-//	  u8 image_data[PIXEL_COUNT/4];
 	  int i;
 
 	  for(i=0;i<PIXEL_COUNT/4/2;i++)

@@ -38,47 +38,30 @@ void UC8156_hardware_reset()
  	return counter;
 }
 
-// waits for BUSY getting inactive = 1 (BUSY pin is low-active)
-void UC8156_wait_for_BUSY_inactive_debug()
-{
-	printf("BUSY loop counter = %d\n", UC8156_wait_for_BUSY_inactive());
-}
+ // waits for BUSY getting inactive = 1 (BUSY pin is low-active)
+ void UC8156_wait_for_BUSY_inactive_debug()
+ {
+ 	printf("BUSY loop counter = %d\n", UC8156_wait_for_BUSY_inactive());
+ }
 
 // waits for Power_ON RDY
+unsigned long UC8156_wait_for_PowerON_ready()
+ {
+ 	unsigned long counter=0;
+ 	while (spi_read_command_1param(0x15)!=4)
+ 	{
+  		mdelay(1);
+ 		counter++; // BUSY loop
+  	}
+ 	return(counter);
+ }
+
+// waits for Power_ON RDY -> print-out counter
 void UC8156_wait_for_PowerON_ready_debug()
-{
-	unsigned long counter=0;
-	while (spi_read_command_1param(0x15)!=4)
-	{
- 		mdelay(1);
-		counter++; // BUSY loop
- 	}
-	printf("PowerOn loop counter = %d\n", counter);
-}
-
-// waits for Power_ON RDY
-void UC8156_wait_for_PowerON_ready_printOUT()
-{
-#define MEAS_RESOLUTION 1 // in ms
-#define MEAS_COUNT 100
-
-	u8 status_reg[MEAS_COUNT];
-	unsigned int i;
-
-	for (i=0; i<MEAS_COUNT; i++)
-	{
-		spi_read_command(0x15, &status_reg[i], 1);
-
-		mdelay(MEAS_RESOLUTION);
-	}
-
-	for (i=0; i<MEAS_COUNT; i++)
-		if (status_reg[i]==4)
-		{
-			printf("%dms= %x\n", i, status_reg[i]);
-			break;
-		}
-}
+ {
+	unsigned long counter = UC8156_wait_for_PowerON_ready();
+ 	printf("PowerOn loop counter = %d\n", counter);
+ }
 
 // UC8156 change registers which need values different from power-up values
 void UC8156_init_registers()
@@ -95,19 +78,17 @@ void UC8156_init_registers()
 // UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)
 void UC8156_HVs_on()
 {
-	u8 reg_value = spi_read_command_1param (0x03); //read power control setting register
+	u8 reg_value = spi_read_command_1param(0x03); //read power control setting register
 	reg_value |= 0x11; //switch on CLKEN+PWRON bits
 	spi_write_command_1param (0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
-	//UC8156_wait_for_PowerON_ready_debug();
-	//UC8156_wait_for_PowerON_ready_printOUT();
-	UC8156_wait_for_BUSY_inactive();
- 	while (spi_read_command_1param(0x15)!=4); // BUSY loop
+	UC8156_wait_for_PowerON_ready();
+//	UC8156_wait_for_PowerON_ready_debug();
 }
 
 // UC8156 power-off sequence
 void UC8156_HVs_off()
 {
-	u8 reg_value = spi_read_command_1param (0x03); //read power control setting register
+	u8 reg_value = spi_read_command_1param(0x03); //read power control setting register
 	reg_value &= ~0x01; //switch off PWRON bit
 	spi_write_command_1param (0x03, reg_value); //write power control setting register
 	UC8156_wait_for_BUSY_inactive();

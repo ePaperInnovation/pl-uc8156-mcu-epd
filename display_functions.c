@@ -32,8 +32,6 @@ void clear_display()
 // loads image form SD-card and updates it on the display using a 4GL FULL update
 void show_image_from_SDcard(char *image, int mode)
 {
-//	u8 image_data[(const int) (PIXEL_COUNT/4)];
-
 	sdcard_load_image(image, image_data);
 
    	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);

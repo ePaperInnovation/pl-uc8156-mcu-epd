@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "config_display_type.h"
+#include "utils.h"
 
 char display_type_charact[] = "S031_T1_1";
 
@@ -111,5 +112,4 @@ void set_display_type(int display_type)
 
 	PIXEL_COUNT = GATE_LINES * SOURCE_LINES;
 	image_data = (u8 *) malloc(PIXEL_COUNT/4);
-//	image_data = (u8 *) malloc(1000);
 }
