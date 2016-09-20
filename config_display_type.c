@@ -98,12 +98,16 @@ void set_display_type(int display_type)
 			GATE_LINES = 148;
 			SOURCE_LINES = 156;
 			REG_SETTINGS = reg_settings_S031_T1_1;
+			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S031_T1_1)/sizeof(regSetting_t);
+			strcpy(PATH, "S031_T1.1");
 
 			break;
 		case S011_T1_1:
 			GATE_LINES = 70;
 			SOURCE_LINES = 148;
 			REG_SETTINGS = reg_settings_S011_T1_1;
+			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S011_T1_1)/sizeof(regSetting_t);
+			strcpy(PATH, "S011_T1.1");
 
 			break;
 		default:

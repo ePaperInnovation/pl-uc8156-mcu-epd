@@ -40,8 +40,8 @@ void UC8156_update_display(u8 update_mode, u8 waveform_mode);
 void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode);
 void UC8156_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode);
 void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, u8 update_mode, u8 waveform_mode);
-bool UC8156_check_status_register(u8 expected_value);
-bool UC8156_check_RevID();
+void UC8156_check_status_register(u8 expected_value);
+void UC8156_check_RevID();
 
 void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t size);
 

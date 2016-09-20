@@ -17,21 +17,17 @@ extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 
 void debug_flow(void)
 {
-	sdcard_init(); // initialize SD-card using FatFS
-
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
 	mdelay(5);
 	UC8156_hardware_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
-	if (UC8156_check_RevID() == false)
-			exit(EXIT_FAILURE);
+	UC8156_check_RevID();
 
 	UC8156_init_registers();
 
-	if (UC8156_check_status_register(0x00) == false)
-			exit(EXIT_FAILURE);
+	UC8156_check_status_register(0x00);
 
 #if 0	//MTP program - should be used by Plastic Logic only
 {

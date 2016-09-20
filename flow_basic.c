@@ -21,14 +21,12 @@ void basic_flow(void)
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 	// optional -> verifies successful power-up
-	if (UC8156_check_RevID() == false)
-			exit(EXIT_FAILURE);
+	UC8156_check_RevID();
 
 	UC8156_init_registers(); // over-writes some register values with display-specific values
 
 	// optional -> check for possible problems
-	if (UC8156_check_status_register(0x00) == false)
-			exit(EXIT_FAILURE);
+	UC8156_check_status_register(0x00);
 
 	clear_display();
 

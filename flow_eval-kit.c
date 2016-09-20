@@ -20,9 +20,9 @@ extern char PATH[64]; //global variable
 
 void eval_kit_flow(void)
 {
-	sdcard_init(); // initialize SD-card using FatFS
-
-//	read_config_file("display-config.txt");
+	// read display-type from SD-Card
+	int display_type = sdcard_read_display_type("display-type.txt");
+	set_display_type(display_type); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display.h
 
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
@@ -32,14 +32,12 @@ void eval_kit_flow(void)
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 	// optional -> verifies successful power-up
-	if (UC8156_check_RevID() == false)
-			exit(EXIT_FAILURE);
+	UC8156_check_RevID();
 
 	UC8156_init_registers(); // over-writes some register values with display-specific values
 
 	// optional -> check for possible problems
-	if (UC8156_check_status_register(0x00) == false)
-			exit(EXIT_FAILURE);
+	UC8156_check_status_register(0x00);
 
 	//set Vcom from SD card data -> if "/[display_type]/display/vcom.txt" exist
 	int vcom_mv_value;

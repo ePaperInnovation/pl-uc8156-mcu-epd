@@ -7,6 +7,7 @@
 #include "pnm-utils.h"
 #include "utils.h"
 #include "UC8156.h"
+#include "config_display_type.h"
 
 #define BUFFER_LENGTH 1024
 
@@ -270,6 +271,30 @@ void read_directory_list(const char *path)
 	}
 }
 
+int sdcard_read_display_type(const char *config_file_name)
+{
+	FIL fp;
+	char display_type_string[81];
+
+	if (f_open(&fp, config_file_name, FA_READ) != FR_OK)
+		abort_now("Could not open config-file");
+
+	parser_read_config_file_line(&fp, display_type_string, sizeof(display_type_string));
+	printf("%s\n", display_type_string);
+
+	f_close(&fp);
+
+	if (strcmp(display_type_string, "S014_T1.1") == 0)
+		return S014_T1_1;
+	else if (strcmp(display_type_string, "S031_T1.1") == 0)
+		return S031_T1_1;
+	else if (strcmp(display_type_string, "S011_T1.1") == 0)
+		return S011_T1_1;
+	else
+		abort_now("Error: read-sd.c -> sdcard_read_display_type -> display-type unknown");
+}
+
+
 static const char SEP[] = ", ";
 
 static void param_source_lines(int value);
@@ -347,14 +372,14 @@ void read_config_file(const char *config_file_name)
 
 }
 
-extern int DO_PROGRAM_MTP;
+int DO_PROGRAM_MTP;
 void param_mtp_program(int value)
 {
 	printf("param_mtp_program - %d\n", value);
 	DO_PROGRAM_MTP = value;
 }
 
-extern int MTP_ALREADY_PROGRAMMED;
+int MTP_ALREADY_PROGRAMMED;
 void param_mtp_already_programmed(int value)
 {
 	printf("param_mtp_alread_programmed - %d\n", value);

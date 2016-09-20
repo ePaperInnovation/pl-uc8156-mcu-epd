@@ -11,6 +11,7 @@
 #include "msp430/msp430-spi.h"
 #include "msp430/msp430-gpio.h"
 #include "types.h"
+#include "utils.h"
 
 //global variables
 u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
@@ -223,8 +224,10 @@ void print_current_VCOM()
 	printf("Vcom read from Reg[1Bh] = 0x%x = %.3fV\n", return_value, return_value*0.03);
 }
 
-bool UC8156_check_status_register(u8 expected_value)
+void UC8156_check_status_register(u8 expected_value)
 {
+	char error_message[30];
+
 	u8 status_reg_value = spi_read_command_1param(0x15);
 
 	#if DEBUG_PRINTOUTS
@@ -233,23 +236,21 @@ bool UC8156_check_status_register(u8 expected_value)
 
 	if (status_reg_value != expected_value) //check Status Register
 	{
-			printf("Status Register not %x but %x.\n", expected_value, status_reg_value);
-			return(false);
+		sprintf(error_message, "Status Register not %x but %x.\n", expected_value, status_reg_value);
+		abort_now(error_message);
 	}
-
-	return(true);
 }
 
-bool UC8156_check_RevID()
+void UC8156_check_RevID()
 {
+	char error_message[30];
 	u8 revID = UC8156_read_RevID();
 
 //	printf("RevID = %x\n", revID);
 
 	if (revID != 0x56)
 	{
-		printf("RevID 0x56 not read correctly (%x).\n", revID);
-		return(false);
+		sprintf(error_message, "RevID 0x56 not read correctly (%x).\n", revID);
+		abort_now(error_message);
 	}
-	return(true);
 }

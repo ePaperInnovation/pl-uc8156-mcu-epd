@@ -15,10 +15,10 @@
 #include "types.h"
 #include "flows.h"
 #include "config_display_type.h"
+#include "read-sd.h"
 
 #define DEBUG_PRINTOUTS 0
 
-void clear_display();
 int _system_pre_init();
 static void MSP430_clock_init();
 void MSP430_HBZ9_3V3_enable();
@@ -27,7 +27,7 @@ void MSP430_gpio_init();
 
 int main(void)
 {
-//	sdcard_init(); // initialize SD-card using FatFS
+	sdcard_init(); // initialize SD-card using FatFS
 
 	MSP430_clock_init(); // set MSP430 clock to 20MHz
 
@@ -37,7 +37,7 @@ int main(void)
 
 	MSP430_HBZ9_3V3_enable(); // switch on 3.3V power supply for the UC8156 on the HB_Z9 board
 
-	set_display_type(S014_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display.h
+//	set_display_type(S011_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display.h
 
 	eval_kit_flow();
 //	debug_flow();
