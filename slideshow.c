@@ -25,7 +25,7 @@ void slideshow_run(int mode, u16 delay_ms)
 
 
 	if (f_opendir(&dir, path) != FR_OK)
-		abort_now("Fatal error in: slideshow.c -> slideshow_run -> f_opendir");
+		abort_now("Fatal error in: slideshow.c -> slideshow_run -> f_opendir", ABORT_SD_CARD);
 
 	do {
 		if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)

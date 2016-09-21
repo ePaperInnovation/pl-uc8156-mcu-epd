@@ -52,6 +52,7 @@ enum PinDefs {
 #define PIN_3V3_ENABLE 	GPIO(1,7) 	// 3V3_Enable pin
 
 #define PIN_RUDDOCK_5V_ENABLE 	GPIO(5,1) 	// if Parrot board is used on Ruddock board BB_SHUTDOWN needs to be high in order to enable the 5V Vmain
+#define	PIN_ERROR_LED  GPIO(7,7) // Parrot board "User" LED1
 
 
 void gpio_init(void);

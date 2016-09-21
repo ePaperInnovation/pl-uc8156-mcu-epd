@@ -228,22 +228,22 @@ void sdcard_load_image(char *image_name, u8 *image_data)
 
 	if (f_open(&image_file, image_name, FA_READ) != FR_OK)
 	{
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open");
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open", ABORT_SD_CARD);
 	}
 
 	if (pnm_read_header(&image_file, &hdr) < 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header");
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
 
-#ifdef WORKAROUND_FOR_SOO=1_BUG
+#ifdef WORKAROUND_FOR_SOO_1_BUG
 	if (read_image_data_SOO_0(&image_file, image_data) != 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_SOO_0");
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_SOO_0", ABORT_SD_CARD);
 #else
 	#ifdef LINE_SHARING
 	if (read_image_data_line_sharing(&image_file, image_data) != 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_line_sharing");
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_line_sharing", ABORT_SD_CARD);
 	#else
 	if (read_image_data(&image_file, image_data) != 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data");
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data", ABORT_SD_CARD);
 	#endif
 #endif
 
@@ -277,7 +277,7 @@ int sdcard_read_display_type(const char *config_file_name)
 	char display_type_string[81];
 
 	if (f_open(&fp, config_file_name, FA_READ) != FR_OK)
-		abort_now("Could not open config-file");
+		abort_now("Could not open config-file", ABORT_DISP_INFO);
 
 	parser_read_config_file_line(&fp, display_type_string, sizeof(display_type_string));
 	printf("%s\n", display_type_string);
@@ -291,10 +291,12 @@ int sdcard_read_display_type(const char *config_file_name)
 	else if (strcmp(display_type_string, "S011_T1.1") == 0)
 		return S011_T1_1;
 	else
-		abort_now("Error: read-sd.c -> sdcard_read_display_type -> display-type unknown");
+		abort_now("Error: read-sd.c -> sdcard_read_display_type -> display-type unknown", ABORT_DISP_INFO);
+
+	return false;
 }
 
-
+/*
 static const char SEP[] = ", ";
 
 static void param_source_lines(int value);
@@ -332,10 +334,10 @@ void read_config_file(const char *config_file_name)
 		exit(EXIT_FAILURE);
 	}
 
-/*	printf("%s\n", line);
+	printf("%s\n", line);
 	sscanf(line,"%[^,] %d", string, &value);
 	printf("%s - %d\n", string, value);
-*/
+
 	do
 	{
 		stat = parser_read_config_file_line(&fp, line, sizeof(line));
@@ -385,3 +387,4 @@ void param_mtp_already_programmed(int value)
 	printf("param_mtp_alread_programmed - %d\n", value);
 	MTP_ALREADY_PROGRAMMED = value;
 }
+*/

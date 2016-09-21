@@ -195,6 +195,7 @@ void gpio_init()
 	gpio_request(PIN_BUSY, PIN_GPIO | PIN_INPUT);
 
 	gpio_request(PIN_RUDDOCK_5V_ENABLE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
+	gpio_request(PIN_ERROR_LED, PIN_GPIO | PIN_OUTPUT | PIN_INIT_LOW);
 }
 
 #if GPIO_CHECK_PARAMETERS

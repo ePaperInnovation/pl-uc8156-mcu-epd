@@ -237,7 +237,7 @@ void UC8156_check_status_register(u8 expected_value)
 	if (status_reg_value != expected_value) //check Status Register
 	{
 		sprintf(error_message, "Status Register not %x but %x.\n", expected_value, status_reg_value);
-		abort_now(error_message);
+		abort_now(error_message, ABORT_UC8156_INIT);
 	}
 }
 
@@ -251,6 +251,6 @@ void UC8156_check_RevID()
 	if (revID != 0x56)
 	{
 		sprintf(error_message, "RevID 0x56 not read correctly (%x).\n", revID);
-		abort_now(error_message);
+		abort_now(error_message, ABORT_UC8156_INIT);
 	}
 }

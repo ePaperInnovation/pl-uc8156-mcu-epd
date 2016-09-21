@@ -14,6 +14,7 @@
 #include "display_functions.h"
 #include "read-sd.h"
 #include "slideshow.h"
+#include "config_display_type.h"
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable

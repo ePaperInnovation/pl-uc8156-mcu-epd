@@ -30,7 +30,6 @@
 #include "FatFs/ff.h"
 #include "msp430-gpio.h"
 #include "pnm-utils.h"
-#include "assert.h"
 #include "utils.h"
 
 u16 __bswap_16(u16 x)
@@ -179,22 +178,8 @@ int parser_read_file_line(FIL *f, char *buffer, int max_length)
 }
 
 /* ----------------------------------------------------------------------------
- * Debug utilies
+ * Debug utilities
  */
-
-/* Defined in main-msp430.c */
-extern void assert_test(int expr, const char *abort_msg);
-
-//void do_abort_msg(const char *file, unsigned line,
-//		  enum abort_error error, const char *message)
-//{
-	//static const char *error_str[] = {
-	//	"Fatal error\n", "Assertion failed\n", "Check failed\n",
-	//};
-
-//	printf("%s, line %u: %s\n", file, line, message);
-	//assert_test(0, error_str[error]);
-//}
 
 void dump_hex(const void *data, uint16_t len)
 {
@@ -256,11 +241,25 @@ void pack_2bpp(u8 *in, u8 *out, int in_count)
 	}
 }
 
-void abort_now(const char *error_string)
+void abort_now(const char *error_string, enum led_error_code error_code)
 {
 	printf(error_string);
 	printf("\n\n");
-	exit(EXIT_FAILURE);
+
+	for (;;)
+	{
+		int i;
+		mdelay(1500);
+		for (i = 0; i < error_code; i++)
+		{
+			gpio_set_value_hi(PIN_ERROR_LED);
+			mdelay(250);
+			gpio_set_value_lo(PIN_ERROR_LED);
+			mdelay(250);
+		}
+	}
+
+//	exit(EXIT_FAILURE);
 }
 
 int join_path(char *path, size_t n, const char *dir, const char *file)

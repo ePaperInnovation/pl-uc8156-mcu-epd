@@ -24,6 +24,26 @@
 #include "FatFs/ff.h"
 #include <stdint.h>
 
+/* Defines how error will be signaled on status LED */
+enum led_error_code {
+	ABORT_UNDEFINED = 0,     /* Undefined error */
+	ABORT_MSP430_INIT,	 	 /* General initialising MSP430 */
+	ABORT_UC8156_INIT, 		 /* Error initialising UC8156 (e.g. Read_RevID or Read_StatReg) */
+	ABORT_UC8156_MTP,         /* Error reading or writing the MTP memory */
+	ABORT_DISP_INFO,         /* Error reading display information. Could
+	                          * be many errors (comms error, content error
+	                          * missing or invalid file, etc).
+	                          * Also depends on preprocessor settings */
+	ABORT_HV_INIT,	        /* Error initialising HVs */
+	ABORT_APPLICATION,       /* Failed while running application. Multiple
+	                          * causes for this, depending on application
+	                          * that is running. Most likely failures are
+	                          * due to missing/invalid files or hardware
+	                          * problems such as POK or comms failure */
+	ABORT_SD_CARD,			/* Failed to read SD card */
+	ABORT_MISC
+};
+
 #ifdef LOG_TAG
 #define LOG(msg, ...) \
 	do { printf("%-8s: "msg"\n", LOG_TAG, ##__VA_ARGS__); } while (0)
@@ -70,6 +90,6 @@ extern void dump_hex(const void *data, uint16_t len);
 void pack_2bpp(u8 *in, u8 *out, int in_count);
 
 /* aborts the program in case of a fatal error and prints an error message */
-void abort_now(const char *error_string);
+void abort_now(const char *error_string, enum led_error_code error_code);
 
 #endif /* INCLUDE_UTIL_H */

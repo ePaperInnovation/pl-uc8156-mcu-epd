@@ -128,7 +128,7 @@ void write_Vcom_to_MTP(u16 Vcom_mv_value)
 #endif
 
 	if (read_value != Vcom_register_value)
-		abort_now("Fatal error in: UC8156_MTP.c -> write_Vcom_to_MTP");
+		abort_now("Fatal error in: UC8156_MTP.c -> write_Vcom_to_MTP", ABORT_UC8156_MTP);
 }
 
 void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_offset_pgrs, int wf_type)

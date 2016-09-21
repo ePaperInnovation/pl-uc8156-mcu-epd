@@ -11,8 +11,6 @@
 #include "config_display_type.h"
 #include "utils.h"
 
-char display_type_charact[] = "S031_T1_1";
-
 u16 GATE_LINES; //global variable
 u16 SOURCE_LINES; //global variable
 u16 PIXEL_COUNT; //global variable
@@ -70,18 +68,6 @@ regSetting_t reg_settings_S011_T1_1[] =
 		{0x44, 1, {0x60}}
 };
 
-/*
-void read_display_type(char *display_type_char)
-{
-	if (strcmp("S014_T1_1", display_type_char) == 0)
-		set_display_type(S014_T1_1);
-	else if (strcmp(display_type_char, "S031_T1_1") == 0)
-				display_type = S031_T1_1;
-	else if (strcmp(display_type_char, "S011_T1_1") == 0)
-					display_type = S011_T1_1;
-}
-*/
-
 void set_display_type(int display_type)
 {
 	switch (display_type)
@@ -111,7 +97,7 @@ void set_display_type(int display_type)
 
 			break;
 		default:
-			abort_now("Fatal error in: config_display_type.c -> set_display_type -> display_type unknown.");
+			abort_now("Fatal error in: config_display_type.c -> set_display_type -> display_type unknown.", ABORT_DISP_INFO);
 	}
 
 	PIXEL_COUNT = GATE_LINES * SOURCE_LINES;
