@@ -21,9 +21,21 @@ extern char PATH[64]; //global variable
 
 void eval_kit_flow(void)
 {
-	// read display-type from SD-Card
-	int display_type = sdcard_read_display_type("display-type.txt");
-	set_display_type(display_type); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display.h
+	enum DISPLAY_TYPE display_type;
+
+	// read display-type from MTP
+	display_type=read_display_type_from_MTP();
+	if (display_type != UNKNOWN)
+		set_display_type(display_type);
+	else
+	{
+		// read display-type from SD-Card
+		display_type = sdcard_read_display_type("display-type.txt");
+		if (display_type != UNKNOWN)
+			set_display_type(display_type);
+		else
+			set_display_type(S014_T1_1);
+	}
 
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
@@ -63,7 +75,7 @@ void eval_kit_flow(void)
 
 	while(1)
 	{
-		slideshow_run(FULL_UPDATE, 1000);
+		slideshow_run(FULL_UPDATE, 2000);
 	}
 }
 

@@ -14,6 +14,7 @@
 #include "UC8156_MTP.h"
 #include "read-sd.h"
 #include "utils.h"
+#include "config_display_type.h"
 
 #define WF_LIBRARY_LENGTH 2560
 #define WF_1TYPEonly_LENGTH 0x4b9 //=1209d
@@ -291,3 +292,49 @@ void print_SerialNo_read_from_MTP()
 	spi_write_command_1param(0x40, backup_reg40h);
 }
 
+enum DISPLAY_TYPE read_display_type_from_MTP()
+{
+	char display_type_string[10];
+	u16 start_address = 0x4d0;
+	int i;
+
+	u8 backup_reg40h = spi_read_command_1param(0x40);
+
+	// switch to "type2" MTP area
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+
+	for (i=0; i<9; i++)
+		display_type_string[i] = read_MTP_address(start_address + i);
+	display_type_string[9]='\0';
+
+	printf("Display Type: %s\n", display_type_string);
+
+	// restore Reg[40h] value
+	spi_write_command_1param(0x40, backup_reg40h);
+
+	if (strcmp(display_type_string, "S014_T1.1") == 0)
+		return S014_T1_1;
+	else if (strcmp(display_type_string, "S031_T1.1") == 0)
+		return S031_T1_1;
+	else if (strcmp(display_type_string, "S011_T1.1") == 0)
+		return S011_T1_1;
+
+	return UNKNOWN;
+}
+
+void program_display_type_into_MTP(const char *display_type)
+{
+	u16 start_address = 0x4d0;
+	int i;
+
+	u8 backup_reg40h = spi_read_command_1param(0x40);
+
+	// switch to "type2" MTP area
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+
+	for (i=0; i<9; i++)
+		one_Byte_MTP_program(start_address + i, display_type[i]);
+
+	// restore Reg[40h] value
+	spi_write_command_1param(0x40, backup_reg40h);
+}

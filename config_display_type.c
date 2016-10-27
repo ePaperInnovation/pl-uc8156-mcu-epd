@@ -20,7 +20,7 @@ u8 NUMBER_OF_REGISTER_OVERWRITES; //global variable
 u8 *image_data; //global variable
 char PATH[64]; //global variable
 
-regSetting_t reg_settings_S014_T1_1[12] =
+regSetting_t reg_settings_S014_T1_1[] =
 {
 		{0x01, 1, {0x12}},
 		{0x02, 2, {0x25, 0xff}},
@@ -102,4 +102,6 @@ void set_display_type(int display_type)
 
 	PIXEL_COUNT = GATE_LINES * SOURCE_LINES;
 	image_data = (u8 *) malloc(PIXEL_COUNT/4);
+	if (image_data == NULL)
+		abort_now("Fatal error in: config_display_type.c -> set_display_type -> malloc for image_data failed.", ABORT_DISP_INFO);
 }

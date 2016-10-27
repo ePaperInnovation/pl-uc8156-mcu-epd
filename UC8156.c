@@ -82,6 +82,7 @@ void UC8156_HVs_on()
 	u8 reg_value = spi_read_command_1param(0x03); //read power control setting register
 	reg_value |= 0x11; //switch on CLKEN+PWRON bits
 	spi_write_command_1param (0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
+
 	UC8156_wait_for_PowerON_ready();
 //	UC8156_wait_for_PowerON_ready_debug();
 }

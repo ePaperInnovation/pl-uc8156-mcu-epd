@@ -8,7 +8,7 @@
 #ifndef CONFIG_DISPLAY_TYPE_H_
 #define CONFIG_DISPLAY_TYPE_H_
 
-enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1};
+enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1, UNKNOWN};
 
 void set_display_type(int display_type);
 
