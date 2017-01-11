@@ -23,19 +23,18 @@ void eval_kit_flow(void)
 {
 	enum DISPLAY_TYPE display_type;
 
-	// read display-type from MTP
+	// 1st try to read display-type from MTP
 	display_type=read_display_type_from_MTP();
-	if (display_type != UNKNOWN)
-		set_display_type(display_type);
-	else
+	if (display_type == UNKNOWN)
 	{
-		// read display-type from SD-Card
+		// 2nd try to read display-type from SD-Card
 		display_type = sdcard_read_display_type("display-type.txt");
-		if (display_type != UNKNOWN)
-			set_display_type(display_type);
-		else
-			set_display_type(S014_T1_1);
+		if (display_type == UNKNOWN)
+			// finally: set display-type to default (1.38'')
+			display_type = S014_T1_1;
+
 	}
+	set_display_type(display_type);
 
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 

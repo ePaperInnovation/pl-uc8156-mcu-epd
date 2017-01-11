@@ -10,12 +10,12 @@
 #include "config_display_type.h"
 #include "read-sd.h"
 
-#define BUFFER_LENGTH 1024
-
 #define LOG(msg) fprintf(stderr,"%s\n", msg);
 
+ //global variables
 extern u16 SOURCE_LINES, GATE_LINES;
-extern char PATH[64]; //global variable
+extern char PATH[64];
+extern bool LINE_SHARING;
 
 // global file system information used by FatFs
 static FATFS Sd_Card;
@@ -149,10 +149,12 @@ bool sdcard_load_vcom(int *value)
 	return true;
 }
 
+#define BUFFER_LENGTH 256 //1024
+
 // reads image data from PMG image file - part of load_image function
 static int read_image_data(FIL *f, u8 *image)
 {
-	u8 data[BUFFER_LENGTH];
+	static u8 data[BUFFER_LENGTH];
 	size_t count;
 
 	do {
@@ -167,22 +169,27 @@ static int read_image_data(FIL *f, u8 *image)
 
 	return 0;
 }
-/*
+
+
+
 // reads image data from PMG image file - part of load_image function
-static int read_image_data_line_sharing(FIL *f, u8 *image)
+#define BUFFER_LENGTH_S031_T1 148
+static int read_image_data_line_S031_T1(FIL *f, u8 *image)
 {
-	u8 data[SOURCE_LINES];
-	u8 data_scrambled[SOURCE_LINES];
+
+
+	u8 data[BUFFER_LENGTH_S031_T1];
+	u8 data_scrambled[BUFFER_LENGTH_S031_T1];
 	size_t count;
 	int i;
 
 	do {
-		if (f_read(f, data, SOURCE_LINES, &count) != FR_OK)
+		if (f_read(f, data, BUFFER_LENGTH_S031_T1, &count) != FR_OK)
 			return -1;
 
-		for(i=0; i<SOURCE_LINES/2; i++)
+		for(i=0; i<BUFFER_LENGTH_S031_T1/2; i++)
 		{
-			data_scrambled[i*2]   = data[SOURCE_LINES/2+i];
+			data_scrambled[i*2]   = data[BUFFER_LENGTH_S031_T1/2+i];
 			data_scrambled[i*2+1] = data[i];
 		}
 
@@ -195,6 +202,7 @@ static int read_image_data_line_sharing(FIL *f, u8 *image)
 	return 0;
 }
 
+/*
 // reads image data from PMG image file - part of load_image function
 static int read_image_data_SOO_0(FIL *f, u8 *image)
 {
@@ -235,18 +243,16 @@ void sdcard_load_image(char *image_name, u8 *image_data)
 	if (pnm_read_header(&image_file, &hdr) < 0)
 		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
 
-#ifdef WORKAROUND_FOR_SOO_1_BUG
-	if (read_image_data_SOO_0(&image_file, image_data) != 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_SOO_0", ABORT_SD_CARD);
-#else
-	#ifdef LINE_SHARING
-	if (read_image_data_line_sharing(&image_file, image_data) != 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_line_sharing", ABORT_SD_CARD);
-	#else
-	if (read_image_data(&image_file, image_data) != 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data", ABORT_SD_CARD);
-	#endif
-#endif
+	if (LINE_SHARING == true)
+	{
+		if (read_image_data_line_S031_T1(&image_file, image_data) != 0)
+			abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_line_sharing", ABORT_SD_CARD);
+	}
+	else
+	{
+		if (read_image_data(&image_file, image_data) != 0)
+			abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data", ABORT_SD_CARD);
+	}
 
 	f_close(&image_file);
 }

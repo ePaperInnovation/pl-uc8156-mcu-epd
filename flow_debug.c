@@ -46,7 +46,7 @@ void debug_flow(void)
 #if 1	//set Vcom from SD card data -> if "/700xxx/display/vcom.txt" exist
 {
 	int vcom_mv_value;
-	if (sdcard_load_vcom(&vcom_mv_value)==0)
+	if (sdcard_load_vcom(&vcom_mv_value)==true)
 		UC8156_set_Vcom(vcom_mv_value);
 }
 #endif
@@ -56,7 +56,7 @@ void debug_flow(void)
 	print_current_VCOM(); // for debug purposes only
 #endif
 
-#if 1 	//write waveform from SD card data to LUT -> if "/700xxx/display/waveform.bin" exist
+#if 0 	//write waveform from SD card data to LUT -> if "/700xxx/display/waveform.bin" exist
 	u8 waveform_from_file[WAVEFORM_LENGTH];
 //	if (sdcard_load_waveform("waveform.bin", waveform_from_file, WAVEFORM_LENGTH)==0)
 //	if (sdcard_load_waveform("S011_V1.0_VJW003_V1_WfId3_T23.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH)==0)
@@ -75,9 +75,11 @@ void debug_flow(void)
 //	program_display_type_into_MTP("S011_T1.1");
 	read_display_type_from_MTP();
 
+#if 0 	//write waveform from header-file
 	UC8156_send_waveform(waveform_default);
 	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
 	UC8156_set_Vcom(4000);
+#endif
 
 	clear_display();
 

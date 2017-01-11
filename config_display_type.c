@@ -17,8 +17,10 @@ u16 PIXEL_COUNT; //global variable
 regSetting_t *REG_SETTINGS; //global variable
 u8 NUMBER_OF_REGISTER_OVERWRITES; //global variable
 
+//u8 *image_data[4500]; //global variable
 u8 *image_data; //global variable
 char PATH[64]; //global variable
+bool LINE_SHARING = false; //global variable
 
 regSetting_t reg_settings_S014_T1_1[] =
 {
@@ -86,6 +88,7 @@ void set_display_type(int display_type)
 			REG_SETTINGS = reg_settings_S031_T1_1;
 			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S031_T1_1)/sizeof(regSetting_t);
 			strcpy(PATH, "S031_T1.1");
+			LINE_SHARING = true;
 
 			break;
 		case S011_T1_1:
