@@ -70,10 +70,7 @@ void UC8156_init_registers()
 	int i;
 
 	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
-	{
-		spi_write_command(REG_SETTINGS->addr, REG_SETTINGS->val, REG_SETTINGS->valCount);
-		REG_SETTINGS++;
-	}
+	    spi_write_command((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->val, (REG_SETTINGS+i)->valCount);
 }
 
 // UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)

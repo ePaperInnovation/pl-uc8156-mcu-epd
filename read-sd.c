@@ -17,6 +17,8 @@ extern u16 SOURCE_LINES, GATE_LINES;
 extern char PATH[64];
 extern bool LINE_SHARING;
 
+int (* read_image_data_from_file) (FIL *f, u8 *image_buffer); //global definition
+
 // global file system information used by FatFs
 static FATFS Sd_Card;
 
@@ -152,7 +154,7 @@ bool sdcard_load_vcom(int *value)
 #define BUFFER_LENGTH 256 //1024
 
 // reads image data from PMG image file - part of load_image function
-static int read_image_data(FIL *f, u8 *image)
+int read_image_data_from_file_default(FIL *f, u8 *image_buffer)
 {
 	static u8 data[BUFFER_LENGTH];
 	size_t count;
@@ -161,9 +163,9 @@ static int read_image_data(FIL *f, u8 *image)
 		if (f_read(f, data, BUFFER_LENGTH, &count) != FR_OK)
 			return -1;
 
-		pack_2bpp(data, image, count);
+		pack_2bpp(data, image_buffer, count);
 
-		image+=count/4;
+		image_buffer+=count/4;
 
 	} while (count);
 
@@ -174,10 +176,8 @@ static int read_image_data(FIL *f, u8 *image)
 
 // reads image data from PMG image file - part of load_image function
 #define BUFFER_LENGTH_S031_T1 148
-static int read_image_data_line_S031_T1(FIL *f, u8 *image)
+int read_image_data_from_file_S031_T1(FIL *f, u8 *image_buffer)
 {
-
-
 	u8 data[BUFFER_LENGTH_S031_T1];
 	u8 data_scrambled[BUFFER_LENGTH_S031_T1];
 	size_t count;
@@ -193,11 +193,10 @@ static int read_image_data_line_S031_T1(FIL *f, u8 *image)
 			data_scrambled[i*2+1] = data[i];
 		}
 
-		pack_2bpp(data_scrambled, image, count);
+		pack_2bpp(data_scrambled, image_buffer, count);
 
-		image+=count/4;
+		image_buffer+=count/4;
 	} while (count);
-
 
 	return 0;
 }
@@ -229,6 +228,35 @@ static int read_image_data_SOO_0(FIL *f, u8 *image)
 	return 0;
 }
 */
+// reads image data from PMG image file - part of load_image function
+#define BUFFER_LENGTH_S021_T1 240
+int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
+{
+    u8 image_file_data[BUFFER_LENGTH_S021_T1];
+    u8 data_scrambled[240];
+    u8 data_scrambled_and_packed[240/4];
+    size_t count;
+    int i,j;
+
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S021_T1, &count) != FR_OK)
+            return -1;
+
+        for(i=0; i<BUFFER_LENGTH_S021_T1/2; i++)
+        {
+            data_scrambled[239-i] = image_file_data[i];
+            data_scrambled[i] = image_file_data[i+BUFFER_LENGTH_S021_T1/2];
+        }
+
+        pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
+    }
+
+//    UC8156_send_image_data(image_buffer);
+
+    return 0;
+}
+
 /* Reads an image from SD Card */
 void sdcard_load_image(char *image_name, u8 *image_data)
 {
@@ -236,23 +264,13 @@ void sdcard_load_image(char *image_name, u8 *image_data)
 	struct pnm_header hdr;
 
 	if (f_open(&image_file, image_name, FA_READ) != FR_OK)
-	{
 		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open", ABORT_SD_CARD);
-	}
 
 	if (pnm_read_header(&image_file, &hdr) < 0)
 		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
 
-	if (LINE_SHARING == true)
-	{
-		if (read_image_data_line_S031_T1(&image_file, image_data) != 0)
-			abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data_line_sharing", ABORT_SD_CARD);
-	}
-	else
-	{
-		if (read_image_data(&image_file, image_data) != 0)
-			abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data", ABORT_SD_CARD);
-	}
+	if (read_image_data_from_file(&image_file, image_data) != 0)
+		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data", ABORT_SD_CARD);
 
 	f_close(&image_file);
 }

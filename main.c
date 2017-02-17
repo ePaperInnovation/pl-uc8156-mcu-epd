@@ -39,9 +39,9 @@ int main(void)
 
 	eval_kit_flow();
 
-//	set_display_type(S031_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+	set_display_type(S031_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
 
-//	debug_flow();
+	debug_flow();
 
 //	basic_flow();
 }

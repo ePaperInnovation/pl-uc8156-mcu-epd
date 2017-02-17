@@ -23,7 +23,7 @@ void debug_flow(void)
 	UC8156_hardware_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
-	UC8156_check_RevID();
+//	UC8156_check_RevID();
 
 	UC8156_init_registers();
 
@@ -75,7 +75,7 @@ void debug_flow(void)
 //	program_display_type_into_MTP("S011_T1.1");
 	read_display_type_from_MTP();
 
-#if 0 	//write waveform from header-file
+#if 1 	//write waveform from header-file
 	UC8156_send_waveform(waveform_default);
 	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
 	UC8156_set_Vcom(4000);
@@ -83,7 +83,10 @@ void debug_flow(void)
 
 	clear_display();
 
-//	WF_type2_update_verification();
+	show_image_from_SDcard("/S021_T1.1/img/First_display.pgm", FULL_UPDATE);
+
+
+	//	WF_type2_update_verification();
 
 //	RAM_window_test_180x100();
 //	verify_Area_Update_mode();
