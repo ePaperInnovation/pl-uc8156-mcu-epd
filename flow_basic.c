@@ -30,7 +30,7 @@ void basic_flow(void)
 
 	clear_display();
 
-	UC8156_show_image(visa_180x100, FULL_UPDATE, NORMAL_4GL);
+//	UC8156_show_image(visa_180x100, FULL_UPDATE, NORMAL_4GL);
 }
 
 

@@ -37,13 +37,13 @@ int main(void)
 
 	MSP430_HBZ9_3V3_enable(); // switch on 3.3V power supply for the UC8156 on the HB_Z9 board
 
-	eval_kit_flow();
+//	eval_kit_flow();
 
-	set_display_type(S031_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+	set_display_type(S021_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
 
-	debug_flow();
+//	debug_flow();
 
-//	basic_flow();
+	basic_flow();
 }
 
 int _system_pre_init(void) {
