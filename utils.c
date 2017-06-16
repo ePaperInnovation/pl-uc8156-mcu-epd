@@ -259,7 +259,7 @@ void abort_now(const char *error_string, enum led_error_code error_code)
 		}
 	}
 
-//	exit(EXIT_FAILURE);
+	exit(EXIT_FAILURE);
 }
 
 int join_path(char *path, size_t n, const char *dir, const char *file)

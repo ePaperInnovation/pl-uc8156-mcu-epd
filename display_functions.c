@@ -22,8 +22,6 @@ void clear_display()
 	spi_write_command_1param(0x0f, reg0fh_value&(~0x10)); //
 	UC8156_send_repeated_image_data(0xff); // 0xff is white
 
-//	spi_write_command_2params(0x04, 0x32, 0x27); //
-//	print_register_value(0x04, 2);
 	UC8156_HVs_on();
 	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
 	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);

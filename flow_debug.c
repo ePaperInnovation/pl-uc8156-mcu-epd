@@ -23,7 +23,7 @@ void debug_flow(void)
 	UC8156_hardware_reset(); // UC8156 hardware reset
 	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
-//	UC8156_check_RevID();
+	UC8156_check_RevID();
 
 	UC8156_init_registers();
 
@@ -83,8 +83,23 @@ void debug_flow(void)
 
 	clear_display();
 
-	show_image_from_SDcard("/S021_T1.1/img/First_display.pgm", FULL_UPDATE);
+	// Debug ActiveBorder
+	spi_write_command_1param(0x1d, 0x37); // enable ActiveBorder update towards white
+	black_update();
+	spi_write_command_1param(0x1d, 0xc7); // enable ActiveBorder update towards black
+	white_update();
+	spi_write_command_1param(0x1d, 0x37); // enable ActiveBorder update towards white
+	black_update();
+//	spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
+//	black_update();
+//	spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
+//	white_update();
+	spi_write_command_1param(0x1d, 0x04); // switch ActiveBorder update off
 
+//	show_image_from_SDcard("/S021_T1.1/img/First_display.pgm", FULL_UPDATE);
+	show_image_from_SDcard("/S011_T1.1/img/a_PL_148x70pxl_display.pgm", FULL_UPDATE);
+
+	exit(EXIT_SUCCESS);
 
 	//	WF_type2_update_verification();
 
@@ -129,9 +144,16 @@ void debug_flow(void)
 
 	solid_update(0xAA);
 
+	spi_write_command_1param (0x1d, 0x30); //switch Active Border
 	white_update();
 
-//	checkerboard_20x20();
+	spi_write_command_1param (0x1d, 0x3f); //switch Active Border
+	white_update();
+
+	spi_write_command_1param (0x1d, 0x30); //switch Active Border
+	white_update();
+
+	//	checkerboard_20x20();
 
 	while(1)
 	{

@@ -35,6 +35,7 @@ void UC8156_hardware_reset()
  	{
  		mdelay(1);
 		counter++; // BUSY loop
+		if (counter>1000) abort_now("Busy-Loop Timeout", 0);
  	}
  	return counter;
 }
