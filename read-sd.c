@@ -316,6 +316,8 @@ enum DISPLAY_TYPE sdcard_read_display_type(const char *config_file_name)
 		return S031_T1_1;
 	else if (strcmp(display_type_string, "S011_T1.1") == 0)
 		return S011_T1_1;
+	else if (strcmp(display_type_string, "S021_T1.1") == 0)
+		return S021_T1_1;
 
 	return UNKNOWN;
 }
