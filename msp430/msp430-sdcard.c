@@ -1,7 +1,7 @@
 /*
   Plastic Logic EPD project on MSP430
 
-  Copyright (C) 2013 Plastic Logic Limited
+  Copyright (C) 2013 - 2017 Plastic Logic
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@
 
 #define CONFIG_PLAT_RUDDOCK2	1
 
-#if CONFIG_PLAT_RUDDOCK2
 #define USCI_UNIT	B
 #define USCI_CHAN	0
 // Pins from MSP430 connected to the SD Card
@@ -40,9 +39,6 @@
 #define	SD_SOMI			GPIO(3,2)
 #define	SD_CLK			GPIO(3,3)
 
-#else
-
-#endif
 
 void SDCard_uDelay(u16 usecs)
 {

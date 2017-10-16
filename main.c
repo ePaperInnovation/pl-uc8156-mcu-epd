@@ -1,4 +1,22 @@
 /*
+  Plastic Logic EPD project on MSP430
+
+  Copyright (C) 2013 - 2017 Plastic Logic
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/*
  * main.c
  *
  *  Created on: 15.01.2014
@@ -39,8 +57,8 @@ int main(void)
 
 	eval_kit_flow();
 
-//	set_display_type(S021_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
-	set_display_type(S011_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+	set_display_type(S031_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+//	set_display_type(S011_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
 	debug_flow();
 
 	basic_flow();
