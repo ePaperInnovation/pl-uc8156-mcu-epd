@@ -54,6 +54,9 @@ void debug_flow(void)
 #if 1
 	print_SerialNo_read_from_MTP(); // for debug purposes only
 	print_current_VCOM(); // for debug purposes only
+	print_WfVersion_read_from_MTP();
+	print_Display_Type_read_from_MTP();
+	print_MagicWord_read_from_MTP();
 #endif
 
 #if 0 	//write waveform from SD card data to LUT -> if "/700xxx/display/waveform.bin" exist
@@ -71,33 +74,62 @@ void debug_flow(void)
 	UC8156_init_registers();
 */
 
-//	read_display_type_from_MTP();
-//	program_display_type_into_MTP("S011_T1.1");
+#if 1	//write display type into MTP
 	read_display_type_from_MTP();
+	program_display_type_into_MTP("S011_T1.1");
+	read_display_type_from_MTP();
+#endif
 
-#if 1 	//write waveform from header-file
+#if 0 	//write waveform from header-file
 	UC8156_send_waveform(waveform_default);
 	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
-	UC8156_set_Vcom(4000);
+//	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
+//	UC8156_set_Vcom(4000);
 #endif
 
 	clear_display();
 
-	// Debug ActiveBorder
+//	black_update();
+
+#if 0	//measure VCOM
+	//print_measured_VCOM();
+	measure_Vcom();
+#endif
+
+#if 0	//steps for measuring current consumption
+	UC8156_HVs_on();
+	UC8156_HVs_off();
+	verify_sleep_mode(); //toggle breakpoint in this routine
+#endif
+
+
+#if 1	// Debug ActiveBorder
 	spi_write_command_1param(0x1d, 0x37); // enable ActiveBorder update towards white
 	black_update();
 	spi_write_command_1param(0x1d, 0xc7); // enable ActiveBorder update towards black
 	white_update();
 	spi_write_command_1param(0x1d, 0x37); // enable ActiveBorder update towards white
 	black_update();
-//	spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
-//	black_update();
-//	spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
-//	white_update();
+	//spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
+	//black_update();
+	//spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
+	//white_update();
 	spi_write_command_1param(0x1d, 0x04); // switch ActiveBorder update off
+#endif
 
 //	show_image_from_SDcard("/S021_T1.1/img/First_display.pgm", FULL_UPDATE);
+	show_image_from_SDcard("/S011_T1.1/img/tt.pgm", FULL_UPDATE);
 	show_image_from_SDcard("/S011_T1.1/img/a_PL_148x70pxl_display.pgm", FULL_UPDATE);
+	show_image_from_SDcard("/S011_T1.1/img/VerticalGreyScale.pgm", FULL_UPDATE);
+#if 0	//scroll text on 1.38
+	show_image_from_SDcard("/S014_T1.1/img_Employee-ID/Employee-ID_3.pgm", FULL_UPDATE);
+	while(1)
+	{
+	show_image_from_SDcard_V2("/S014_T1.1/img_Employee-ID/Employee-ID_3-2.pgm", PARTIAL_UPDATE, FAST_2GL);
+	show_image_from_SDcard_V2("/S014_T1.1/img_Employee-ID/Employee-ID_3-3.pgm", PARTIAL_UPDATE, FAST_2GL);
+	show_image_from_SDcard_V2("/S014_T1.1/img_Employee-ID/Employee-ID_3.pgm", PARTIAL_UPDATE, FAST_2GL);
+	}
+#endif
 
 	exit(EXIT_SUCCESS);
 

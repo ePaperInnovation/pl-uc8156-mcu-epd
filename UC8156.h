@@ -45,4 +45,7 @@ void UC8156_check_RevID();
 
 void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t size);
 
+float UC8156_measure_VCOM();
+void print_measured_VCOM();
+
 #endif /* SOLOMON_H_ */

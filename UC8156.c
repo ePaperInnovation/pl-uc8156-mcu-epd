@@ -58,6 +58,24 @@ unsigned long UC8156_wait_for_PowerON_ready()
  	return(counter);
  }
 
+// waits for Power_ON RDY
+/*unsigned long UC8156_wait_for_PowerON_ready()
+ {
+ 	unsigned long counter=0;
+ 	do
+ 	{
+  		mdelay(1);
+ 		counter++; // BUSY loop
+  	}
+ 	while (spi_read_command_1param(0x15)!=4 && counter < 1000);
+ 	if (counter >= 1000)
+ 	{
+		sprintf(error_message, "HV not enabled.\n");
+		abort_now(error_message, ABORT_UC8156_INIT);
+ 	}
+ 	return(counter);
+ }*/
+
 // waits for Power_ON RDY -> print-out counter
 void UC8156_wait_for_PowerON_ready_debug()
  {
@@ -139,6 +157,7 @@ void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t siz
 void UC8156_send_repeated_image_data(u8 image_data)
 {
 	spi_write_command_byte_repeat(0x10, image_data, PIXEL_COUNT/4);
+
 }
 
 //update display using full update mode and wait for BUSY-pin low
@@ -154,6 +173,8 @@ void UC8156_update_display(u8 update_mode, u8 waveform_mode)
 	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
 	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
 	//spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | 0x20); // test area update mode
+	//spi_write_command_1param(0x13, 0x1F ); //test initial update
+	//spi_write_command_1param(0x14, 0x11 ); //test initial update
 	UC8156_wait_for_BUSY_inactive();
 	//UC8156_wait_for_BUSY_inactive_debug();
 }
@@ -191,23 +212,45 @@ void measure_Vcom()
 	return_value = 	spi_read_command_1param(0x15);
 	printf("R15h after HV_on = %x\n", return_value);
 	//spi_write_command_1param(0x19, 0x29); //trigger Vcom sensing with waiting time 5sec
-	spi_write_command_1param(0x19, 0x81); //trigger Vcom sensing with waiting time 5sec
+	spi_write_command_1param(0x19, 0x81); //trigger Vcom sensing with waiting time 15sec
+	//spi_write_command_1param(0x19, 0xfd); //trigger Vcom sensing with max waiting time ~30sec
 
 
 	int i;
-	u8 value[60][2];
-	for (i=0;i<60;i++)
+	const int NUM=200;
+	const int TIME=125;
+	u8 value[1600][2];
+	for (i=0;i<1600;i++)
 	{
-		spi_read_command_2params1(0x1a, &value[i][0]);
-		mdelay(250);
+		value[i][0]=0;
+		value[i][1]=0;
 	}
 
-	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+	/*for (i=0;i<NUM;i++)
+	{
+		spi_read_command_2params1(0x1a, &value[i][0]);
+		//mdelay(250);
+		mdelay(TIME);
+	}*/
+
+	//UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+	unsigned long counter=0;
+	const int DIVIDER=25;
+	do
+	{
+		mdelay(1);
+		if (counter % DIVIDER == 0)
+			spi_read_command_2params1(0x1a, &value[counter/DIVIDER][0]);
+		counter++;
+	} while (gpio_get_value(PIN_BUSY)==0); // BUSY loop
+
 	UC8156_HVs_off();
 
-	for (i=0;i<60;i++)
+	for (i=0;i<(int)(counter/DIVIDER)+1;i++)
 	{
-		printf("%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
+		//printf("%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
+		if (value[i][0]>0)
+			printf("%f sec = %f V\n", i*DIVIDER/1000.0, value[i][0] * 0.03);
 	}
 }
 
@@ -252,4 +295,23 @@ void UC8156_check_RevID()
 		sprintf(error_message, "RevID 0x56 not read correctly (%x).\n", revID);
 		abort_now(error_message, ABORT_UC8156_INIT);
 	}
+}
+
+float UC8156_measure_VCOM()
+{
+	u8 values[2];
+	int sign=1;
+	spi_write_command_1param(0x19,0x14 | 0x01);
+	//mdelay(10000);
+	UC8156_wait_for_BUSY_inactive();
+	spi_read_command_2params1(0x1a,values);
+	spi_write_command_1param(0x19,0x14);
+	if (values[1]==2)
+		sign=-1;
+	return sign*values[0]*30/1000;
+}
+
+void print_measured_VCOM()
+{
+	printf("Vcom measured = %.3fV\n", UC8156_measure_VCOM());
 }

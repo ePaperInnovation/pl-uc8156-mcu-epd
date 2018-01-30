@@ -19,5 +19,10 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 void write_complete_waveform_library_to_MTP_from_file(char *filename);
 
 void print_SerialNo_read_from_MTP();
+void print_WfVersion_read_from_MTP();
+void print_Display_Type_read_from_MTP();
+void print_MagicWord_read_from_MTP();
+
+enum DISPLAY_TYPE convert_string_to_DISPLAY_TYPE(const char *display_type_string);
 
 #endif /* UC8156_MTP_H_ */

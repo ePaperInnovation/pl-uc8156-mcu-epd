@@ -274,7 +274,7 @@ void one_Byte_MTP_program(u16 address, u8 data)
 void print_SerialNo_read_from_MTP()
 {
 	char display_serial_no[19];
-	u16 start_address = 0x4b9+3;
+	u16 start_address = 0x4bc;
 	int i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);
@@ -292,9 +292,9 @@ void print_SerialNo_read_from_MTP()
 	spi_write_command_1param(0x40, backup_reg40h);
 }
 
-enum DISPLAY_TYPE read_display_type_from_MTP()
+void print_WfVersion_read_from_MTP()
 {
-	char display_type_string[10];
+	char display_serial_no[32];
 	u16 start_address = 0x4d0;
 	int i;
 
@@ -303,28 +303,122 @@ enum DISPLAY_TYPE read_display_type_from_MTP()
 	// switch to "type2" MTP area
 	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
 
-	for (i=0; i<9; i++)
+	for (i=0; i<32; i++)
+		display_serial_no[i] = read_MTP_address(start_address + i);
+	display_serial_no[31]='\0';
+
+	printf("Wf Version: %s\n", display_serial_no);
+
+	// restore Reg[40h] value
+	spi_write_command_1param(0x40, backup_reg40h);
+}
+
+void print_Display_Type_read_from_MTP()
+{
+	char display_type_string[16];
+	u16 start_address = 0x4f0;
+	int i;
+
+	u8 backup_reg40h = spi_read_command_1param(0x40);
+
+	// switch to "type2" MTP area
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+
+	for (i=0; i<16; i++)
 		display_type_string[i] = read_MTP_address(start_address + i);
-	display_type_string[9]='\0';
+	display_type_string[15]='\0';
+
+	printf("Display Type: %s\n", display_type_string);
+
+	// restore Reg[40h] value
+	spi_write_command_1param(0x40, backup_reg40h);
+}
+
+void print_MagicWord_read_from_MTP()
+{
+	char display_type_string[3];
+	u16 start_address = 0x4b9;
+	int i;
+
+	u8 backup_reg40h = spi_read_command_1param(0x40);
+
+	// switch to "type2" MTP area
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+
+	for (i=0; i<3; i++)
+		display_type_string[i] = read_MTP_address(start_address + i);
+	display_type_string[2]='\0';
+
+	printf("Magic Word: %s\n", display_type_string);
+
+	// restore Reg[40h] value
+	spi_write_command_1param(0x40, backup_reg40h);
+}
+
+enum DISPLAY_TYPE read_display_type_from_MTP()
+{
+	char display_type_string[10];
+	enum DISPLAY_TYPE display_type_enum = UNKNOWN;
+	u16 start_address = 0x4f0;
+	int i;
+
+	u8 backup_reg40h = spi_read_command_1param(0x40);
+
+	// switch to "type2" MTP area
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+
+	//first try to read display type directly
+	for (i=0; i<9; i++)
+			display_type_string[i] = read_MTP_address(start_address + i);
+		display_type_string[9]='\0';
+	display_type_enum = convert_string_to_DISPLAY_TYPE(display_type_string);
+
+	//if not successful, read from MTP using waveform filename
+	if (display_type_enum == UNKNOWN)
+	{
+		start_address = 0x4d0;
+		for (i=0; i<9; i++)
+			display_type_string[i] = read_MTP_address(start_address + i);
+		display_type_string[9]='\0';
+		display_type_enum = convert_string_to_DISPLAY_TYPE(display_type_string);
+	}
 
 	printf("Display Type: %s\n", display_type_string);
 
 	// restore Reg[40h] value
 	spi_write_command_1param(0x40, backup_reg40h);
 
+	/*
 	if (strcmp(display_type_string, "S014_T1.1") == 0)
 		return S014_T1_1;
 	else if (strcmp(display_type_string, "S031_T1.1") == 0)
 		return S031_T1_1;
 	else if (strcmp(display_type_string, "S011_T1.1") == 0)
 		return S011_T1_1;
+	else if (strcmp(display_type_string, "S021_T1.1") == 0)
+			return S021_T1_1;
 
-	return UNKNOWN;
+	return UNKNOWN;*/
+	return display_type_enum;
+}
+
+enum DISPLAY_TYPE convert_string_to_DISPLAY_TYPE(const char *display_type_string)
+{
+	if (strcmp(display_type_string, "S014_T1.1") == 0)
+			return S014_T1_1;
+		else if (strcmp(display_type_string, "S031_T1.1") == 0)
+			return S031_T1_1;
+		else if (strcmp(display_type_string, "S011_T1.1") == 0)
+			return S011_T1_1;
+		else if (strcmp(display_type_string, "S021_T1.1") == 0)
+				return S021_T1_1;
+
+		return UNKNOWN;
 }
 
 void program_display_type_into_MTP(const char *display_type)
 {
-	u16 start_address = 0x4d0;
+	u16 start_address = 0x4f0;
 	int i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);

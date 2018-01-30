@@ -22,6 +22,7 @@
 int _system_pre_init();
 static void MSP430_clock_init();
 void MSP430_HBZ9_3V3_enable();
+void MSP430_HBZ9_3V3_disable();
 void MSP430_spi_init();
 void MSP430_gpio_init();
 
@@ -41,9 +42,11 @@ int main(void)
 
 //	set_display_type(S021_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
 	set_display_type(S011_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+//	set_display_type(S031_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+//	set_display_type(S014_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
 	debug_flow();
 
-	basic_flow();
+//	basic_flow();
 }
 
 int _system_pre_init(void) {
@@ -101,5 +104,12 @@ void MSP430_HBZ9_3V3_enable()
 	gpio_set_value_hi(PIN_3V3_ENABLE);
 	mdelay(5);
 	gpio_set_value_hi(PIN_RESET);
+}
+
+// disable the 3.3V on the HB_Z9
+void MSP430_HBZ9_3V3_disable()
+{
+	gpio_set_value_lo(PIN_3V3_ENABLE);
+	mdelay(5);
 }
 
