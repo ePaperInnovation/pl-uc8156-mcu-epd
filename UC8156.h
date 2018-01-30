@@ -42,6 +42,8 @@ enum WAVEFORM_MODES {WAVEFORM_FROM_LUT=0x00, WAVEFORM_FROM_MTP=0x02}; // Reg[14h
 void UC8156_reset();
 void UC8156_hardware_reset();
 unsigned int UC8156_wait_for_BUSY_inactive();
+unsigned long UC8156_wait_for_PowerON_ready();
+unsigned long UC8156_wait_for_PowerON_ready_timeout();
 void UC8156_init_registers();
 void UC8156_HVs_on();
 void UC8156_HVs_off();
@@ -65,5 +67,6 @@ void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t siz
 
 float UC8156_measure_VCOM();
 void print_measured_VCOM();
+void UC8156_measure_Vcom_curve();
 
 #endif /* SOLOMON_H_ */

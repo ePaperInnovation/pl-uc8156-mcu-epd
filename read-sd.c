@@ -253,7 +253,7 @@ int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
 {
     u8 image_file_data[BUFFER_LENGTH_S021_T1];
     u8 data_scrambled[240];
-    u8 data_scrambled_and_packed[240/4];
+
     size_t count;
     int i,j;
 

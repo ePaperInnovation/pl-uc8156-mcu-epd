@@ -27,6 +27,7 @@
 #define UC8156_MTP_H_
 
 #include "types.h"
+#include "config_display_type.h"
 
 void write_Vcom_to_MTP(u16 value);
 u8 read_MTP_address(const u16 address);

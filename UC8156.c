@@ -53,7 +53,7 @@ void UC8156_hardware_reset()
  	{
  		mdelay(1);
 		counter++; // BUSY loop
-		if (counter>1000) abort_now("Busy-Loop Timeout", 0);
+		if (counter>1000) abort_now("Busy-Loop Timeout", ABORT_UNDEFINED);
  	}
  	return counter;
 }
@@ -76,8 +76,8 @@ unsigned long UC8156_wait_for_PowerON_ready()
  	return(counter);
  }
 
-// waits for Power_ON RDY
-/*unsigned long UC8156_wait_for_PowerON_ready()
+// waits for Power_ON RDY with timeout
+unsigned long UC8156_wait_for_PowerON_ready_timeout()
  {
  	unsigned long counter=0;
  	do
@@ -87,12 +87,9 @@ unsigned long UC8156_wait_for_PowerON_ready()
   	}
  	while (spi_read_command_1param(0x15)!=4 && counter < 1000);
  	if (counter >= 1000)
- 	{
-		sprintf(error_message, "HV not enabled.\n");
-		abort_now(error_message, ABORT_UC8156_INIT);
- 	}
+		abort_now("HV not enabled.\n", ABORT_UC8156_INIT);
  	return(counter);
- }*/
+ }
 
 // waits for Power_ON RDY -> print-out counter
 void UC8156_wait_for_PowerON_ready_debug()
@@ -175,7 +172,6 @@ void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t siz
 void UC8156_send_repeated_image_data(u8 image_data)
 {
 	spi_write_command_byte_repeat(0x10, image_data, PIXEL_COUNT/4);
-
 }
 
 //update display using full update mode and wait for BUSY-pin low
@@ -191,8 +187,6 @@ void UC8156_update_display(u8 update_mode, u8 waveform_mode)
 	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
 	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
 	//spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | 0x20); // test area update mode
-	//spi_write_command_1param(0x13, 0x1F ); //test initial update
-	//spi_write_command_1param(0x14, 0x11 ); //test initial update
 	UC8156_wait_for_BUSY_inactive();
 	//UC8156_wait_for_BUSY_inactive_debug();
 }
@@ -220,7 +214,8 @@ void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row
       UC8156_HVs_off();
 }
 
-void measure_Vcom()
+//measure Vcom with continuous readout
+void UC8156_measure_Vcom_curve()
 {
 	u8 return_value;
 
@@ -233,23 +228,13 @@ void measure_Vcom()
 	spi_write_command_1param(0x19, 0x81); //trigger Vcom sensing with waiting time 15sec
 	//spi_write_command_1param(0x19, 0xfd); //trigger Vcom sensing with max waiting time ~30sec
 
-
 	int i;
-	const int NUM=200;
-	const int TIME=125;
 	u8 value[1600][2];
 	for (i=0;i<1600;i++)
 	{
 		value[i][0]=0;
 		value[i][1]=0;
 	}
-
-	/*for (i=0;i<NUM;i++)
-	{
-		spi_read_command_2params1(0x1a, &value[i][0]);
-		//mdelay(250);
-		mdelay(TIME);
-	}*/
 
 	//UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 	unsigned long counter=0;
@@ -315,12 +300,12 @@ void UC8156_check_RevID()
 	}
 }
 
+//measure Vcom and give back only last readout (final value)
 float UC8156_measure_VCOM()
 {
 	u8 values[2];
 	int sign=1;
 	spi_write_command_1param(0x19,0x14 | 0x01);
-	//mdelay(10000);
 	UC8156_wait_for_BUSY_inactive();
 	spi_read_command_2params1(0x1a,values);
 	spi_write_command_1param(0x19,0x14);

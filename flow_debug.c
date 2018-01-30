@@ -23,6 +23,7 @@
  *      Author: andreas.meier
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "types.h"
 #include "UC8156.h"
@@ -32,9 +33,35 @@
 #include "waveform.h"
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
+extern char PATH[64]; //global variable
 
 void debug_flow(void)
 {
+	//set display type manually OR from MTP
+//	set_display_type(S011_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+//	set_display_type(S014_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+//	set_display_type(S021_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+//	set_display_type(S031_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
+
+#if 1	//set display type from MTP
+{
+	enum DISPLAY_TYPE display_type;
+
+	// 1st try to read display-type from MTP
+	display_type = read_display_type_from_MTP();
+	if (display_type == UNKNOWN)
+	{
+		// 2nd try to read display-type from SD-Card
+		display_type = sdcard_read_display_type("display-type.txt");
+		if (display_type == UNKNOWN)
+			// finally: set display-type to default (1.38'')
+			display_type = S014_T1_1;
+
+	}
+	set_display_type(display_type);
+}
+#endif
+
 	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
 	mdelay(5);
@@ -72,9 +99,9 @@ void debug_flow(void)
 #if 1
 	print_SerialNo_read_from_MTP(); // for debug purposes only
 	print_current_VCOM(); // for debug purposes only
-	print_WfVersion_read_from_MTP();
-	print_Display_Type_read_from_MTP();
-	print_MagicWord_read_from_MTP();
+	print_WfVersion_read_from_MTP(); // for debug purposes only
+	print_Display_Type_read_from_MTP(); // for debug purposes only
+	print_MagicWord_read_from_MTP(); // for debug purposes only
 #endif
 
 #if 0 	//write waveform from SD card data to LUT -> if "/700xxx/display/waveform.bin" exist
@@ -92,7 +119,7 @@ void debug_flow(void)
 	UC8156_init_registers();
 */
 
-#if 1	//write display type into MTP
+#if 0	//write display type into MTP
 	read_display_type_from_MTP();
 	program_display_type_into_MTP("S011_T1.1");
 	read_display_type_from_MTP();
@@ -107,38 +134,41 @@ void debug_flow(void)
 
 	clear_display();
 
-//	black_update();
-
 #if 0	//measure VCOM
 	//print_measured_VCOM();
-	measure_Vcom();
+	UC8156_measure_Vcom_curve();
 #endif
 
-#if 0	//steps for measuring current consumption
-	UC8156_HVs_on();
-	UC8156_HVs_off();
-	verify_sleep_mode(); //toggle breakpoint in this routine
+#if 1	//steps for measuring current consumption
+	clear_display();
+	UC8156_HVs_on();	//measure standby HV On
+	UC8156_HVs_off();	//measure standby HV Off
+	verify_sleep_mode(); //toggle breakpoint in this routine, measure sleep current after breakpoint
+	clear_display();
+	white_update();	//measure typical current during update
+	char path[64];
+	sprintf(path, "/%s/%s", PATH, "img_power/1by1Checker_Inv.pgm");
+	show_image_from_SDcard(path, FULL_UPDATE);
+	sprintf(path, "/%s/%s", PATH, "img_power/1by1Checker.pgm");
+	show_image_from_SDcard(path, FULL_UPDATE);	//measure worst case 1 during update
+	clear_display();
+	sprintf(path, "/%s/%s", PATH, "img_power/AltGates.pgm");
+	show_image_from_SDcard(path, FULL_UPDATE);	//measure worst case 2 during update
 #endif
 
 
-#if 1	// Debug ActiveBorder
+#if 0	// Debug ActiveBorder
 	spi_write_command_1param(0x1d, 0x37); // enable ActiveBorder update towards white
 	black_update();
 	spi_write_command_1param(0x1d, 0xc7); // enable ActiveBorder update towards black
 	white_update();
 	spi_write_command_1param(0x1d, 0x37); // enable ActiveBorder update towards white
 	black_update();
-	//spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
-	//black_update();
-	//spi_write_command_1param(0x1d, 0x35); // enable ActiveBorder update towards white
-	//white_update();
 	spi_write_command_1param(0x1d, 0x04); // switch ActiveBorder update off
 #endif
 
-//	show_image_from_SDcard("/S021_T1.1/img/First_display.pgm", FULL_UPDATE);
-	show_image_from_SDcard("/S011_T1.1/img/tt.pgm", FULL_UPDATE);
 	show_image_from_SDcard("/S011_T1.1/img/a_PL_148x70pxl_display.pgm", FULL_UPDATE);
-	show_image_from_SDcard("/S011_T1.1/img/VerticalGreyScale.pgm", FULL_UPDATE);
+
 #if 0	//scroll text on 1.38
 	show_image_from_SDcard("/S014_T1.1/img_Employee-ID/Employee-ID_3.pgm", FULL_UPDATE);
 	while(1)

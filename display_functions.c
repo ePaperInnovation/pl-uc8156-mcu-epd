@@ -47,7 +47,7 @@ void clear_display()
 	UC8156_HVs_off();
 }
 
-// loads image form SD-card and updates it on the display using a 4GL FULL update
+// loads image from SD-card and updates it on the display using a 4GL FULL update
 void show_image_from_SDcard(char *image, int mode)
 {
 	sdcard_load_image(image, image_data);
@@ -55,7 +55,7 @@ void show_image_from_SDcard(char *image, int mode)
    	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
-// loads image form SD-card and updates it on the display using given update mode and waveform table
+// loads image from SD-card and updates it on the display using given update mode and waveform table
 void show_image_from_SDcard_V2(char *image, int mode, int waveform_table)
 {
 	sdcard_load_image(image, image_data);

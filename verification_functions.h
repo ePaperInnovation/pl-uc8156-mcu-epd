@@ -32,5 +32,6 @@ void check_temperature_sensor();
 u8* read_waveform_LUT();
 void read_and_print_MTP();
 void send_drift_test_image();
+void verify_sleep_mode();
 
 #endif /* VERIFICATION_FUNCTIONS_H_ */

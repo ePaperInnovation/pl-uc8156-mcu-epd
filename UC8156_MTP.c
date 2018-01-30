@@ -406,17 +406,6 @@ enum DISPLAY_TYPE read_display_type_from_MTP()
 	// restore Reg[40h] value
 	spi_write_command_1param(0x40, backup_reg40h);
 
-	/*
-	if (strcmp(display_type_string, "S014_T1.1") == 0)
-		return S014_T1_1;
-	else if (strcmp(display_type_string, "S031_T1.1") == 0)
-		return S031_T1_1;
-	else if (strcmp(display_type_string, "S011_T1.1") == 0)
-		return S011_T1_1;
-	else if (strcmp(display_type_string, "S021_T1.1") == 0)
-			return S021_T1_1;
-
-	return UNKNOWN;*/
 	return display_type_enum;
 }
 

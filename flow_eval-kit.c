@@ -42,7 +42,7 @@ void eval_kit_flow(void)
 	enum DISPLAY_TYPE display_type;
 
 	// 1st try to read display-type from MTP
-	display_type=read_display_type_from_MTP();
+	display_type = read_display_type_from_MTP();
 	if (display_type == UNKNOWN)
 	{
 		// 2nd try to read display-type from SD-Card

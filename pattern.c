@@ -310,7 +310,8 @@ void pattern_sequence()
 
 void pixel_00_update()
 {
-	int gate_p=0, source_p=0, i;
+	//int gate_p=0, source_p=0;
+	int i;
 
 //	spi_write_command_2params(0x0e, 0x00, 0x00); //set SRAM start location
 
