@@ -32,6 +32,7 @@
 #include "UC8156_MTP.h"
 #include "waveform.h"
 #include "image.h"
+#include "pattern.h"
 #include "display_functions.h"
 
 extern u16 SOURCE_LINES, GATE_LINES, PIXEL_COUNT;

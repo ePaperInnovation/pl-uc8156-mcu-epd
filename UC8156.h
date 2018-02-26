@@ -57,6 +57,7 @@ void UC8156_send_image_data(u8 *image_data);
 void UC8156_send_image_data_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size);
 void UC8156_send_repeated_image_data(u8 image_data);
 void UC8156_update_display(u8 update_mode, u8 waveform_mode);
+void UC8156_update_display_full();
 void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode);
 void UC8156_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode);
 void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, u8 update_mode, u8 waveform_mode);

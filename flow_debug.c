@@ -28,9 +28,13 @@
 #include "types.h"
 #include "UC8156.h"
 #include "display_functions.h"
+#include "verification_functions.h"
 #include "read-sd.h"
 #include "UC8156_MTP.h"
+#include "pattern.h"
 #include "waveform.h"
+#include "slideshow.h"
+#include <msp430-spi.h>
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable
@@ -48,7 +52,7 @@ void debug_flow(void)
 	enum DISPLAY_TYPE display_type;
 
 	// 1st try to read display-type from MTP
-	display_type = read_display_type_from_MTP();
+	display_type = (enum DISPLAY_TYPE) read_display_type_from_MTP();
 	if (display_type == UNKNOWN)
 	{
 		// 2nd try to read display-type from SD-Card

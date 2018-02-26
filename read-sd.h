@@ -21,6 +21,7 @@
 #define READ_SD_H_
 
 #include "FatFs/ff.h"
+#include "types.h"
 
 int sdcard_init(void);
 void sdcard_load_image(char *image_name, u8 *image_data);

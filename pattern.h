@@ -36,7 +36,11 @@ void checkerboard();
 void inv_checkerboard();
 void alt_source_debug(u8 data);
 void alt_source();
+void solid_update(u8 value);
 void inv_alt_source();
 void alt_source_4er();
+void alt_source_SOO_0();
+void alt_gate_SOO_0();
+void checkerboard_SOO_0();
 
 #endif /* PATTERN_H_ */

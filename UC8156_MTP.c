@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "msp430/msp430-spi.h"
 #include "UC8156.h"
