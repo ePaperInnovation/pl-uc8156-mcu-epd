@@ -91,7 +91,7 @@
 #include "ff.h"                 /* FatFs configurations and declarations */
 #include "diskio.h"             /* Declarations of low level disk I/O functions */
 
-
+#pragma diag_suppress 112
 /*--------------------------------------------------------------------------
  *
  * Module Private Definitions

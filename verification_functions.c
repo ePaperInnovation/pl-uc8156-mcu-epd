@@ -272,6 +272,7 @@ void measure_vcom_new(int meas_time)
 //#define MEAS_TIME 10 //in seconds
 #define MEAS_RESOLUTION 4 // in ms
 //#define MEAS_COUNT MEAS_TIME * 1000 / MEAS_RESOLUTION + 10
+#undef MEAS_COUNT
 #define MEAS_COUNT 1
 
 	u8 meas_value[MEAS_COUNT][2], status_reg[MEAS_COUNT];
@@ -361,7 +362,7 @@ void RAM_window_test_180x100()
 		  UC8156_update_display_full();
 		  UC8156_HVs_off();
 }
-
+#if 0
 void RAM_window_test_312x74()
 {
 	int col_start, col_size, row_start, row_size;
@@ -382,7 +383,7 @@ void RAM_window_test_312x74()
 
 	//show_image(image_74x312_1card, FULL_UPDATE);
 }
-
+#endif
 void print_characters_312x74()
 {
 	int col_start, col_size, row_start, row_size;
