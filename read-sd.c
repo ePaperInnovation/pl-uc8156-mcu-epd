@@ -220,33 +220,48 @@ int read_image_data_from_file_S031_T1(FIL *f, u8 *image_buffer)
 	return 0;
 }
 
-/*
-// reads image data from PMG image file - part of load_image function
-static int read_image_data_SOO_0(FIL *f, u8 *image)
+#define BUFFER_LENGTH_D011_T1 232
+int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer)
 {
-	u8 data[SOURCE_LINES];
-	u8 data_scrambled[SOURCE_LINES];
+	u8 image_file_data[BUFFER_LENGTH_D011_T1];
+	u8 data_scrambled[240];
 	size_t count;
 	int i,j;
 
-	for(j=0; j<GATE_LINES; j++)
+	for (j=0; j<GATE_LINES; j++)
 	{
-		if (f_read(f, data, SOURCE_LINES, &count) != FR_OK)
+		if (f_read(f, image_file_data, BUFFER_LENGTH_D011_T1, &count) != FR_OK)
 			return -1;
 
-		for(i=0; i<SOURCE_LINES/2; i++)
+		for(i=0; i<BUFFER_LENGTH_D011_T1; i++)
+			if (image_file_data[i] > 128)
+				(image_file_data[i] = 255);
+		for(i=0; i<BUFFER_LENGTH_D011_T1/2; i++)
 		{
-			data_scrambled[i] = data[i*2];
-			data_scrambled[SOURCE_LINES/2+i]=data[i*2+1];
+			data_scrambled[115-i] = image_file_data[i];
+			data_scrambled[i+120] = image_file_data[i+BUFFER_LENGTH_D011_T1/2];
 		}
-
-		pack_2bpp(data_scrambled, image, count);
-		image+=count/4;
+		pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
 	}
-
+	UC8156_send_image_data(image_buffer);
+	for (j=GATE_LINES-1; j>=0; j--)
+	{
+		if (f_read(f, image_file_data, BUFFER_LENGTH_D011_T1, &count) != FR_OK)
+			return -1;
+		for(i=0; i<BUFFER_LENGTH_D011_T1; i++)
+			if (image_file_data[i] > 128)
+				(image_file_data[i] = 255);
+		for(i=0; i<BUFFER_LENGTH_D011_T1/2; i++)
+		{
+			data_scrambled[235-i] = image_file_data[i];
+			data_scrambled[i] = image_file_data[i+BUFFER_LENGTH_D011_T1/2];
+		}
+		pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
+	}
+	UC8156_send_image_data_slave(image_buffer);
 	return 0;
 }
-*/
+
 // reads image data from PMG image file - part of load_image function
 #define BUFFER_LENGTH_S021_T1 240
 int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
@@ -337,7 +352,8 @@ enum DISPLAY_TYPE sdcard_read_display_type(const char *config_file_name)
 		return S011_T1_1;
 	else if (strcmp(display_type_string, "S021_T1.1") == 0)
 		return S021_T1_1;
-
+	else if (strcmp(display_type_string, "D011_T1.1") == 0)
+		return D011_T1_1;
 	return UNKNOWN;
 }
 

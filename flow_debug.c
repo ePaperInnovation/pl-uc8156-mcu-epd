@@ -35,17 +35,13 @@
 #include "waveform.h"
 #include "slideshow.h"
 #include <msp430-spi.h>
+#include <msp430-gpio.h>
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable
 
 void debug_flow(void)
 {
-	//set display type manually OR from MTP
-//	set_display_type(S011_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
-//	set_display_type(S014_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
-//	set_display_type(S021_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
-//	set_display_type(S031_T1_1); //enum DISPLAY_TYPE {S014_T1_1, S031_T1_1, S011_T1_1}; --> see config_display_type.c/h
 
 #if 1	//set display type from MTP
 {
@@ -65,17 +61,33 @@ void debug_flow(void)
 	set_display_type(display_type);
 }
 #endif
+	if(single_display){
+		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
-	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+		mdelay(5);
+		UC8156_hardware_reset(); // UC8156 hardware reset
+		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
-	mdelay(5);
-	UC8156_hardware_reset(); // UC8156 hardware reset
-	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+		UC8156_check_RevID();
 
-	UC8156_check_RevID();
+		UC8156_init_registers();
+	}else{
+		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+		UC8156_wait_for_BUSY_inactive_slave(); // wait for power-up completed
 
-	UC8156_init_registers();
+	 	mdelay(5);
+	 	UC8156_hardware_reset(); // UC8156 hardware reset
 
+		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+		UC8156_wait_for_BUSY_inactive_slave(); // wait for power-up completed
+
+	 	UC8156_init_registers();
+		UC8156_init_registers_slave();
+
+		UC8156_check_RevID();
+		UC8156_check_RevID_slave();
+
+	}
 	UC8156_check_status_register(0x00);
 
 #if 0	//MTP program - should be used by Plastic Logic only

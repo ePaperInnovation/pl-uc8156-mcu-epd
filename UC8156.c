@@ -24,7 +24,7 @@
 
 #include <msp430.h>
 #include <stdio.h>
-
+#include <stdlib.h>
 #include "UC8156.h"
 #include "msp430/msp430-spi.h"
 #include "msp430/msp430-gpio.h"
@@ -46,7 +46,19 @@ void UC8156_hardware_reset()
 }
 
 // waits for BUSY getting inactive = 1 (BUSY pin is low-active)
- unsigned int UC8156_wait_for_BUSY_inactive()
+unsigned int UC8156_wait_for_BUSY_inactive_slave()
+{
+ 	unsigned long counter=0;
+  	while (gpio_get_value(PIN_BUSY_SLAVE)==0) // BUSY loop
+  	{
+  		mdelay(1);
+ 		counter++; // BUSY loop
+ 		if (counter>1000) abort_now("Busy-Loop Timeout", ABORT_UNDEFINED);
+  	}
+  	return counter;
+}
+
+unsigned int UC8156_wait_for_BUSY_inactive()
 {
 	unsigned long counter=0;
  	while (gpio_get_value(PIN_BUSY)==0) // BUSY loop
@@ -68,7 +80,7 @@ void UC8156_hardware_reset()
 unsigned long UC8156_wait_for_PowerON_ready()
  {
  	unsigned long counter=0;
- 	while (spi_read_command_1param(0x15)!=4)
+ 	while (spi_read_command_1param(0x15)!=4 && counter<1000)
  	{
   		mdelay(1);
  		counter++; // BUSY loop
@@ -91,6 +103,21 @@ unsigned long UC8156_wait_for_PowerON_ready_timeout()
  	return(counter);
  }
 
+// waits for Power_ON RDY with timeout
+unsigned long UC8156_wait_for_PowerON_ready_slave()
+ {
+ 	unsigned long counter=0;
+ 	do
+ 	{
+  		mdelay(1);
+ 		counter++; // BUSY loop
+  	}
+ 	while (spi_read_command_1param_slave(0x15)!=4 && counter < 1000);
+ 	if (counter >= 1000)
+		abort_now("HV not enabled.\n", ABORT_UC8156_INIT);
+ 	return(counter);
+ }
+
 // waits for Power_ON RDY -> print-out counter
 void UC8156_wait_for_PowerON_ready_debug()
  {
@@ -107,6 +134,64 @@ void UC8156_init_registers()
 	    spi_write_command((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->val, (REG_SETTINGS+i)->valCount);
 }
 
+void UC8156_print_registers()
+{
+	int i;
+
+	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
+		print_spi_read_command((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->valCount);
+}
+
+// UC8156 change registers which need values different from power-up values
+void UC8156_init_registers_slave()
+{
+	int i;
+
+	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
+		spi_write_command_slave((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->val, (REG_SETTINGS+i)->valCount);
+}
+
+void UC8156_print_registers_slave()
+{
+	int i;
+
+	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
+		print_spi_read_command_slave((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->valCount);
+}
+
+// waits for Power_OFF RDY
+unsigned long UC8156_wait_for_PowerOFF_ready()
+ {
+ 	unsigned long counter=0;
+
+ 	while ((spi_read_command_1param(0x15)&4) && counter<1000)
+ 	{
+  		mdelay(1);
+ 		counter++;
+  	}
+
+// 	printf("Power-Off Counter=%d\n", counter);
+
+ 	return(counter);
+ }
+
+// waits for Power_OFF RDY
+unsigned long UC8156_wait_for_PowerOFF_ready_slave()
+ {
+ 	unsigned long counter=0;
+
+ 	while ((spi_read_command_1param_slave(0x15)&4) && counter<1000)
+ 	{
+  		mdelay(1);
+ 		counter++;
+  	}
+
+// 	printf("Power-Off Counter=%d\n", counter);
+
+ 	return(counter);
+ }
+
+
 // UC8156 HV power-on (enable charge pumps, execute power-on sequence for outputs)
 void UC8156_HVs_on()
 {
@@ -116,6 +201,30 @@ void UC8156_HVs_on()
 
 	UC8156_wait_for_PowerON_ready();
 //	UC8156_wait_for_PowerON_ready_debug();
+}
+
+void UC8156_HVs_on_slave()
+{
+	u8 reg_value = spi_read_command_1param_slave(0x03); //read power control setting register
+//	reg_value |= 0x01; //switch on CLKEN+PWRON bits
+	reg_value |= 0x07; //switch on CLKEN+PWRON bits
+	spi_write_command_1param_slave(0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
+
+	UC8156_wait_for_PowerON_ready_slave();
+}
+
+void UC8156_HVs_on_dual()
+{
+	u8 reg_value_master = spi_read_command_1param(0x03); //read power control setting register
+	u8 reg_value_slave  = spi_read_command_1param_slave(0x03); //read power control setting register
+	reg_value_master |= 0x01; //switch on CLKEN+PWRON bits
+
+	reg_value_slave |= 0x07; //switch on CLKEN+PWRON bits
+	spi_write_command_1param(0x03, reg_value_master); //write power control setting register --> switch on CLKEN+PWRON bits
+	spi_write_command_1param_slave(0x03, reg_value_slave); //write power control setting register --> switch on CLKEN+PWRON bits
+
+	UC8156_wait_for_PowerON_ready(); // BUSY loop -> wait for BUSY inactive
+
 }
 
 // UC8156 power-off sequence
@@ -129,9 +238,39 @@ void UC8156_HVs_off()
 	spi_write_command_1param (0x03, reg_value);
 }
 
+void UC8156_HVs_off_slave(int pin)
+{
+	u8 reg_value = spi_read_command_1param_slave(0x03); //read power control setting register
+	reg_value &= ~0x01; //switch off PWRON bit
+	spi_write_command_1param_slave(0x03, reg_value); //write power control setting register
+	UC8156_wait_for_PowerOFF_ready_slave();
+	UC8156_wait_for_BUSY_inactive_slave();
+}
+
+// UC8156 power-off sequence
+void UC8156_HVs_off_dual()
+{
+	u8 reg_value_master = spi_read_command_1param(0x03); //read power control setting register
+	u8 reg_value_slave  = spi_read_command_1param_slave(0x03); //read power control setting register
+	reg_value_master &= ~0x01; // reset PWRON bit
+	reg_value_slave &= ~0x01; //reset PWRON bit
+	spi_write_command_1param(0x03, reg_value_master); //write power control setting register --> switch on PWRON bit
+	spi_write_command_1param_slave(0x03, reg_value_slave); //write power control setting register --> switch on PWRON bit
+
+	UC8156_wait_for_PowerOFF_ready();
+	UC8156_wait_for_PowerOFF_ready_slave();
+ 	UC8156_wait_for_BUSY_inactive();
+	UC8156_wait_for_BUSY_inactive_slave();
+}
+
 u8 UC8156_read_RevID()
 {
 	return spi_read_command_1param(0x00);
+}
+
+u8 UC8156_read_RevID_slave()
+{
+	return spi_read_command_1param_slave(0x00);
 }
 
 // send Vcom value (in mV) to UC8156
@@ -141,16 +280,57 @@ void UC8156_set_Vcom(int Vcom_mv_value)
 	spi_write_command_2params(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
 }
 
+// send Vcom value (in mV) to UC8156
+void UC8156_set_Vcom_slave(int Vcom_mv_value)
+{
+	u16 Vcom_register_value = (float)Vcom_mv_value/(float)30.0;
+	spi_write_command_2params_slave(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
+}
+
+
 // send waveform to UC8156
 void UC8156_send_waveform(u8 *waveform)
 {
 	spi_write_command_and_bulk_data(0x1C, waveform, WAVEFORM_LENGTH);
 }
 
+// send waveform to UC8156
+void UC8156_send_waveform_slave(u8 *waveform)
+{
+	spi_write_command_and_bulk_data_slave(0x1C, waveform, WAVEFORM_LENGTH);
+}
+
+void UC8156_print_waveform()
+{
+	u8 *buffer;
+	buffer = (u8*) malloc(WAVEFORM_LENGTH * sizeof(u8));
+	spi_read_command_and_bulk_data(0x1C, buffer, WAVEFORM_LENGTH);
+	int i;
+	for (i=0;i<WAVEFORM_LENGTH;i++)
+		printf("0x%02x ", *(buffer+i));
+	printf("\n");
+}
+
+void UC8156_print_waveform_slave()
+{
+	u8 *buffer;
+	buffer = (u8*) malloc(WAVEFORM_LENGTH * sizeof(u8));
+	spi_read_command_and_bulk_data_slave(0x1C, buffer, WAVEFORM_LENGTH);
+	int i;
+	for (i=0;i<WAVEFORM_LENGTH;i++)
+		printf("0x%02x ", *(buffer+i));
+	printf("\n");
+}
+
 //send an image to UC8156 image data memory
 void UC8156_send_image_data(u8 *image_data)
 {
 	spi_write_command_and_bulk_data(0x10, image_data, PIXEL_COUNT/4);
+}
+
+void UC8156_send_image_data_slave(u8 *image_data)
+{
+	spi_write_command_and_bulk_data_slave(0x10, image_data, PIXEL_COUNT/4);
 }
 
 //send an image to UC8156 image data memory
@@ -174,6 +354,12 @@ void UC8156_send_repeated_image_data(u8 image_data)
 	spi_write_command_byte_repeat(0x10, image_data, PIXEL_COUNT/4);
 }
 
+//send an repeated byte to the image buffer --> used to create a solid image like all white
+void UC8156_send_repeated_image_data_slave(u8 image_data)
+{
+	spi_write_command_byte_repeat_slave(0x10, image_data, PIXEL_COUNT/4);
+}
+
 //update display using full update mode and wait for BUSY-pin low
 void UC8156_update_display_full()
 {
@@ -191,6 +377,27 @@ void UC8156_update_display(u8 update_mode, u8 waveform_mode)
 	//UC8156_wait_for_BUSY_inactive_debug();
 }
 
+//update display and wait for BUSY-pin low
+void UC8156_update_display_slave_only(u8 update_mode, u8 waveform_mode)
+{
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
+	spi_write_command_1param_slave(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
+
+	UC8156_wait_for_BUSY_inactive();
+
+}
+
+//update display and wait for BUSY-pin low
+void UC8156_update_display_dual(u8 update_mode, u8 waveform_mode)
+{
+	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
+	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
+	spi_write_command_1param_slave(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
+
+	UC8156_wait_for_BUSY_inactive();
+	UC8156_wait_for_BUSY_inactive_slave();
+}
+
 void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode)
 {
 	  UC8156_HVs_on();
@@ -198,11 +405,25 @@ void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode)
       UC8156_HVs_off();
 }
 
+void UC8156_update_display_with_power_on_off_dual(u8 update_mode, u8 waveform_mode)
+{
+	  UC8156_HVs_on_dual();
+	  UC8156_update_display_dual(update_mode, waveform_mode);
+      UC8156_HVs_off_dual();
+}
+
 void UC8156_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode)
 {
 	  UC8156_send_image_data(image_data);
 
 	  UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
+}
+
+void UC8156_show_image_dual(u8 *image_data, u8 update_mode, u8 waveform_mode)
+{
+	//UC8156_send_image_data(image_data);
+	// No need to send data, because data is already sent to the controllers by the read_sd-function
+	UC8156_update_display_with_power_on_off_dual(update_mode, waveform_mode);
 }
 
 void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, u8 update_mode, u8 waveform_mode)
@@ -292,6 +513,21 @@ void UC8156_check_RevID()
 	u8 revID = UC8156_read_RevID();
 
 	printf("RevID = %x\n", revID);
+
+	if (revID != 0x56)
+	{
+		sprintf(error_message, "RevID 0x56 not read correctly (%x).\n", revID);
+		abort_now(error_message, ABORT_UC8156_INIT);
+	}
+}
+
+void UC8156_check_RevID_slave()
+{
+
+	char error_message[30];
+	u8 revID = UC8156_read_RevID_slave();
+
+	printf("Slave: RevID = %x\n", revID);
 
 	if (revID != 0x56)
 	{

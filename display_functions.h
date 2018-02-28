@@ -29,6 +29,6 @@
 void clear_display();
 int show_image_from_SDcard(const char *image, int mode);
 int show_image_from_SDcard_V2(const char *image, int mode, int waveform_table);
-
+void show_image_from_SDcard_dual(char *image, int mode);
 
 #endif /* DISPLAY_FUNCTIONS_H_ */

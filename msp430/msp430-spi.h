@@ -30,6 +30,20 @@
 #include <types.h>
 #include <stdint.h>
 
+#define USCI_UNIT	A
+#define USCI_CHAN	0
+// Pin definitions for this unit
+#define	SPI_SIMO		GPIO(3,4)
+#define	SPI_SOMI		GPIO(3,5)
+#define	SPI_CLK			GPIO(3,0)
+#define SPI_CS GPIO(3,6)
+#define SPI_CS_SLAVE	GPIO(1,6)
+
+#define SPI_MODE_0 (UCCKPH)                            /* CPOL=0 CPHA=0 */
+#define SPI_MODE_1 (0)                         /* CPOL=0 CPHA=1 */
+#define SPI_MODE_2 (UCCKPL | UCCKPH)    /* CPOL=1 CPHA=0 */
+#define SPI_MODE_3 (UCCKPL)                            /* CPOL=1 CPHA=1 */
+#define SPI_MODE_MASK (UCCKPL | UCCKPH)
 // function prototypes
 int spi_init(u8 spi_channel, u16 divisor);
 
@@ -53,5 +67,16 @@ void spi_read_command_and_bulk_data(u8 command, u8 *buffer, size_t size);
 
 void spi_write_command_byte_repeat(u8 command, u8 value, size_t size);
 void print_spi_read_command(u8 command, int count);
+
+// Function prototypes for dual controller displays - second display
+void spi_write_command_1param_slave(u8 command, u8 param1);
+void spi_write_command_2params_slave(u8 command, u8 param1, u8 param2);
+void spi_write_command_slave(u8 command, u8 *params, int count);
+u8 spi_read_command_1param_slave(u8 command);
+void print_spi_read_command(u8 command, int count);
+void print_spi_read_command_slave(u8 command, int count);
+void spi_write_command_and_bulk_data_slave(u8 command, u8 *buffer, size_t size);
+void spi_read_command_and_bulk_data_slave(u8 command, u8 *buffer, size_t size);
+void spi_write_command_byte_repeat_slave(u8 command, u8 data, size_t size);
 
 #endif /* MSP430_SPI_H_ */

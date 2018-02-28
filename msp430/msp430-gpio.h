@@ -32,23 +32,24 @@ enum PinDefs {
 	PIN_GPIO = BIT0,			// pin is GPIO pin
 	PIN_SPECIAL = BIT1,			// pin is special purpose (eg SPI)
 	PIN_OUTPUT = BIT2,			// pin is output
-		PIN_FULL_DRIVE = BIT3,		// pin (output) full drive strength
-	  	PIN_REDUCED_DRIVE = BIT4,	// pin (output) reduced drive strength
-	  	PIN_INIT_HIGH = BITB,		// pin (output) initialise high
-	  	PIN_INIT_LOW = BITC,		// pin (output) initialise low
+	PIN_FULL_DRIVE = BIT3,		// pin (output) full drive strength
+	PIN_REDUCED_DRIVE = BIT4,	// pin (output) reduced drive strength
+	PIN_INIT_HIGH = BITB,		// pin (output) initialise high
+	PIN_INIT_LOW = BITC,		// pin (output) initialise low
 	PIN_INPUT = BIT5,			// pin is input
-		PIN_PULL_UP = BIT6,			// pin (input) is pulled up
-		PIN_PULL_DOWN = BIT7,		// pin (input) is pulled down
-		PIN_FALLING_EDGE = BIT8,	// pin (input) interrupt on falling edge
-		PIN_RISING_EDGE = BIT9,		// pin (input) interrupt on rising edge
-		PIN_INTERRUPT = BITA,		// pin (input) enable interrupt
-		PIN_REDEFINE = BITD		// redefine existing pin
+	PIN_PULL_UP = BIT6,			// pin (input) is pulled up
+	PIN_PULL_DOWN = BIT7,		// pin (input) is pulled down
+	PIN_FALLING_EDGE = BIT8,	// pin (input) interrupt on falling edge
+	PIN_RISING_EDGE = BIT9,		// pin (input) interrupt on rising edge
+	PIN_INTERRUPT = BITA,		// pin (input) enable interrupt
+	PIN_REDEFINE = BITD		// redefine existing pin
 };
 
 #define GPIO(port, pin)	(((port)-1) << 8 | (1 << (pin)))
 
 #define PIN_RESET		GPIO(5,0)	// RESET# pin
 #define PIN_BUSY 		GPIO(2,6) 	// BUSY_N pin
+#define PIN_BUSY_SLAVE	GPIO(2,5) 	// BUSY_N_2 pin
 #define PIN_3V3_ENABLE 	GPIO(1,7) 	// 3V3_Enable pin
 
 #define PIN_RUDDOCK_5V_ENABLE 	GPIO(5,1) 	// if Parrot board is used on Ruddock board BB_SHUTDOWN needs to be high in order to enable the 5V Vmain

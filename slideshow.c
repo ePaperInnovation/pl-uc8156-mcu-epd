@@ -26,6 +26,7 @@
 #include "UC8156.h"
 #include "utils.h"
 #include "display_functions.h"
+#include "config_display_type.h"
 
 /* FatFS only supports 8.3 filenames, and we work from the current directory so
    paths should be short... */
@@ -60,9 +61,12 @@ void slideshow_run(int mode, u16 delay_ms)
 			continue;
 
 		sprintf(full_path, "%s/%s", path, fno.fname);
-
-		show_image_from_SDcard(full_path, mode);
-        mdelay(delay_ms);
+		if(single_display){
+			show_image_from_SDcard(full_path, mode);
+		}else{
+			show_image_from_SDcard_dual(full_path, mode);
+		}
+		mdelay(delay_ms);
 
 	} while (result >= 0);
 }

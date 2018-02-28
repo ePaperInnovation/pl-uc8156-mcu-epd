@@ -41,7 +41,8 @@ extern char PATH[64]; //global variable
 void eval_kit_flow(void)
 {
 	enum DISPLAY_TYPE display_type;
-
+	u8 waveform_from_file[WAVEFORM_LENGTH];
+	char path[64];
 	// 1st try to read display-type from MTP
 	display_type = read_display_type_from_MTP();
 	if (display_type == UNKNOWN)
@@ -54,40 +55,87 @@ void eval_kit_flow(void)
 
 	}
 	set_display_type(display_type);
+	if(single_display){
 
-	UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
-	// optional: additional hardware reset after 5ms delay
-	mdelay(5);
-	UC8156_hardware_reset(); // UC8156 hardware reset
-	UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+		// optional: additional hardware reset after 5ms delay
+		mdelay(5);
+		UC8156_hardware_reset(); // UC8156 hardware reset
+		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
-	// optional -> verifies successful power-up
-	UC8156_check_RevID();
+		// optional -> verifies successful power-up
+		UC8156_check_RevID();
 
-	UC8156_init_registers(); // over-writes some register values with display-specific values
+		UC8156_init_registers(); // over-writes some register values with display-specific values
 
-	// optional -> check for possible problems
-	UC8156_check_status_register(0x00);
+		// optional -> check for possible problems
+		UC8156_check_status_register(0x00);
 
-	//set Vcom from SD card data -> if "/[display_type]/display/vcom.txt" exist
-	int vcom_mv_value;
-	if (sdcard_load_vcom(&vcom_mv_value))
-		UC8156_set_Vcom(vcom_mv_value);
+		//set Vcom from SD card data -> if "/[display_type]/display/vcom.txt" exist
+		int vcom_mv_value;
+		if (sdcard_load_vcom(&vcom_mv_value))
+			UC8156_set_Vcom(vcom_mv_value);
 
-	//write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
-{
-	u8 waveform_from_file[WAVEFORM_LENGTH];
-	char path[64];
+		//write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
 
-	sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
+		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
 
-	if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
-	{
-		UC8156_send_waveform(waveform_from_file);
+		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
+		{
+			UC8156_send_waveform(waveform_from_file);
+			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+		}
+
+	}else{
+		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+		UC8156_wait_for_BUSY_inactive_slave(); // wait for power-up completed
+
+		// over-writes some register values with display-specific values
+		UC8156_init_registers();
+		UC8156_init_registers_slave();
+
+		// optional -> verifies successful power-up
+	 	UC8156_check_RevID();
+		UC8156_check_RevID_slave();
+
+		// optional -> check for possible problems
+		UC8156_check_status_register(0x00);
+			//default settings
+		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
+
+			if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
+			{
+				UC8156_send_waveform(waveform_from_file);
+				UC8156_send_waveform_slave(waveform_from_file);
+				UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+			}
+
 		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+		UC8156_set_Vcom(4000);
+		UC8156_set_Vcom_slave(4000);
+
+		//set Vcom from SD card data -> if "/[display_type]/display/vcom.txt" exist
+		int vcom_mv_value;
+		if (sdcard_load_vcom(&vcom_mv_value))
+		{
+			UC8156_set_Vcom(vcom_mv_value);
+			UC8156_set_Vcom_slave(vcom_mv_value);
+		}
+
+		 //write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
+
+		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
+
+
+		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
+		{
+			UC8156_send_waveform(waveform_from_file);
+			UC8156_send_waveform_slave(waveform_from_file);
+			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+		}
+
 	}
-}
 
 	clear_display();
 

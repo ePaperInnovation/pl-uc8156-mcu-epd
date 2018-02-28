@@ -66,6 +66,21 @@ void UC8156_check_RevID();
 
 void UC8156_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t size);
 
+// Function prototypes for dual controller displays - second display
+unsigned int UC8156_wait_for_BUSY_inactive_slave();
+void UC8156_init_registers_slave();
+void UC8156_HVs_on_dual();
+void UC8156_HVs_off_dual();
+void UC8156_send_waveform_slave(u8 *waveform);
+void UC8156_print_waveform();
+void UC8156_print_waveform_slave();
+void UC8156_set_Vcom_slave(int Vcom_mv_value);
+void UC8156_send_image_data_slave(u8 *image_data);
+void UC8156_send_repeated_image_data_slave(u8 image_data);
+void UC8156_update_display_dual(u8 update_mode, u8 waveform_mode);
+void UC8156_show_image_dual(u8 *image_data, u8 update_mode, u8 waveform_mode);
+void UC8156_check_RevID_slave();
+
 float UC8156_measure_VCOM();
 void print_measured_VCOM();
 void UC8156_measure_Vcom_curve();
