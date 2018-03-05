@@ -34,6 +34,7 @@
 #include "flows.h"
 #include "config_display_type.h"
 #include "read-sd.h"
+#include "utils.h"
 
 #define DEBUG_PRINTOUTS 0
 
@@ -104,12 +105,17 @@ static void MSP430_clock_init(void)
 
 void MSP430_spi_init() // initialize SPI interface towards the display
 {
-	spi_init(0,16);
+	if(spi_init(0,16)){
+		abort_now("Fatal error in MSP430_spi_init()", ABORT_MSP430_INIT);
+	}
 }
 
 void MSP430_gpio_init() // initialize GPIO's used for display communication
 {
-	gpio_init();
+	if(gpio_init()){
+		abort_now("Fatal error in MSP430_gpio_init()", ABORT_MSP430_INIT);
+	}
+	gpio_set_value_hi(PIN_ERROR_LED);
 }
 
 // enable the 3.3V on the HB_Z9 -> switch enable pin on the 5V->3.3V voltage regulator sitting on the HB_Z9 board

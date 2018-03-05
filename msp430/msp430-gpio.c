@@ -186,17 +186,19 @@ static int gpio_pin_number(u16 pinmask)
 }
 #endif
 
-void gpio_init()
+int gpio_init()
 {
-	//gpio_request(PIN_3V3_ENABLE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
-	//gpio_request(PIN_RESET, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
-	gpio_request(PIN_3V3_ENABLE, PIN_GPIO | PIN_OUTPUT);
-	gpio_request(PIN_RESET, PIN_GPIO | PIN_OUTPUT);
-	gpio_request(PIN_BUSY, PIN_GPIO | PIN_INPUT);
-	gpio_request(PIN_BUSY_SLAVE, PIN_GPIO | PIN_INPUT);
+	int stat = 0;
+	//stat |= gpio_request(PIN_3V3_ENABLE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
+	//stat |= gpio_request(PIN_RESET, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
+	stat |= gpio_request(PIN_3V3_ENABLE, PIN_GPIO | PIN_OUTPUT);
+	stat |= gpio_request(PIN_RESET, PIN_GPIO | PIN_OUTPUT);
+	stat |= gpio_request(PIN_BUSY, PIN_GPIO | PIN_INPUT);
+	stat |= gpio_request(PIN_BUSY_SLAVE, PIN_GPIO | PIN_INPUT);
 
-	gpio_request(PIN_RUDDOCK_5V_ENABLE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
-	gpio_request(PIN_ERROR_LED, PIN_GPIO | PIN_OUTPUT | PIN_INIT_LOW);
+	stat |= gpio_request(PIN_RUDDOCK_5V_ENABLE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
+	stat |= gpio_request(PIN_ERROR_LED, PIN_GPIO | PIN_OUTPUT | PIN_INIT_LOW);
+	return stat;
 }
 
 #if GPIO_CHECK_PARAMETERS

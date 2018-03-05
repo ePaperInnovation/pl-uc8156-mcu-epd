@@ -243,7 +243,7 @@ void print_spi_read_command(u8 command, int count)
 
 	read_values_p = (u8*) malloc(count * sizeof(u8));
 	if (read_values_p==0)
-		abort_now("Fatal error in msp430-spi.c - print_spi_read_command: malloc not successful", ABORT_MISC);
+		abort_now("Fatal error in msp430-spi.c - print_spi_read_command: malloc not successful", ABORT_MSP430_COMMS_INIT);
 
 	ret = spi_read_command(command, read_values_p, count);
 
@@ -262,7 +262,7 @@ void print_spi_read_command_slave(u8 command, int count)
 
 	read_values_p = (u8*) malloc(count * sizeof(u8));
 	if (read_values_p==0)
-		abort_now("Fatal error in msp430-spi.c - print_spi_read_command: malloc not successful", ABORT_MISC);
+		abort_now("Fatal error in msp430-spi.c - print_spi_read_command: malloc not successful", ABORT_MSP430_COMMS_INIT);
 
 	ret = spi_read_command_slave(command, read_values_p, count);
 

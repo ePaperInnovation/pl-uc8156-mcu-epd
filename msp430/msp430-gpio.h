@@ -56,7 +56,7 @@ enum PinDefs {
 #define	PIN_ERROR_LED  GPIO(7,7) // Parrot board "User" LED1
 
 
-void gpio_init(void);
+int gpio_init(void);
 void gpio_mark_busy(int gpio);
 int gpio_request(int gpio, u16 flags);
 void gpio_set_value(int gpio, int state);

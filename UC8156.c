@@ -53,7 +53,7 @@ unsigned int UC8156_wait_for_BUSY_inactive_slave()
   	{
   		mdelay(1);
  		counter++; // BUSY loop
- 		if (counter>1000) abort_now("Busy-Loop Timeout", ABORT_UNDEFINED);
+ 		if (counter>1000) abort_now("Busy-Loop Timeout", ABORT_UC8156_INIT);
   	}
   	return counter;
 }
@@ -65,7 +65,7 @@ unsigned int UC8156_wait_for_BUSY_inactive()
  	{
  		mdelay(1);
 		counter++; // BUSY loop
-		if (counter>1000) abort_now("Busy-Loop Timeout", ABORT_UNDEFINED);
+		if (counter>1000) abort_now("Busy-Loop Timeout", ABORT_UC8156_INIT);
  	}
  	return counter;
 }

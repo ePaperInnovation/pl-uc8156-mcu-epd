@@ -25,23 +25,54 @@
 #include <stdint.h>
 
 /* Defines how error will be signaled on status LED */
+#if 0
+enum abort_error {
+	ABORT_UNDEFINED = 0,     /* Undefined error */
+	ABORT_MSP430_GPIO_INIT,	 /* General error initialising GPIO */
+	ABORT_MSP430_COMMS_INIT, /* Error initialising MSP430 comms */
+	ABORT_HWINFO,            /* Error reading HWINFO EEPROM. Could be
+	                          * comms error or content error */
+	ABORT_I2C_INIT,          /* Error initialising I2C (Epson) */
+	ABORT_DISP_INFO,         /* Error reading display information. Could
+	                          * be many errors (comms error, content error
+	                          * missing or invalid file, etc).
+	                          * Also depends on preprocessor settings */
+	ABORT_HVPSU_INIT,        /* Error initialising HVPSU. Most likely to
+	                          * be a comms error, but could indicate a
+	                          * failed PMIC */
+	ABORT_EPDC_INIT,         /* Error initialising EPDC. Could be many
+	                          * errors (comms error, EPDC failure, failed
+	                          * to load init code, failed on one of several
+	                          * commands needed to initialise the EPDC,
+	                          * failed to load waveform, etc) */
+	ABORT_APPLICATION,       /* Failed while running application. Multiple
+	                          * causes for this, depending on application
+	                          * that is running. Most likely failures are
+	                          * due to missing/invalid files or hardware
+	                          * problems such as POK or comms failure */
+	ABORT_ASSERT,            /* Failed assert statement (debug use only) */
+	ABORT_CONFIG,			 /* Failed to read config file */
+};
+#endif
 enum led_error_code {
 	ABORT_UNDEFINED = 0,     /* Undefined error */
 	ABORT_MSP430_INIT,	 	 /* General initialising MSP430 */
-	ABORT_UC8156_INIT, 		 /* Error initialising UC8156 (e.g. Read_RevID or Read_StatReg) */
+	ABORT_MSP430_COMMS_INIT,
 	ABORT_UC8156_MTP,         /* Error reading or writing the MTP memory */
+	ABORT_UNUSED,
 	ABORT_DISP_INFO,         /* Error reading display information. Could
 	                          * be many errors (comms error, content error
 	                          * missing or invalid file, etc).
 	                          * Also depends on preprocessor settings */
 	ABORT_HV_INIT,	        /* Error initialising HVs */
+	ABORT_UC8156_INIT, 		 /* Error initialising UC8156 (e.g. Read_RevID or Read_StatReg) */
 	ABORT_APPLICATION,       /* Failed while running application. Multiple
 	                          * causes for this, depending on application
 	                          * that is running. Most likely failures are
 	                          * due to missing/invalid files or hardware
 	                          * problems such as POK or comms failure */
 	ABORT_SD_CARD,			/* Failed to read SD card */
-	ABORT_MISC
+	ABORT_CONFIG
 };
 
 #ifdef LOG_TAG
