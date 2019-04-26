@@ -41,6 +41,38 @@ char PATH[64]; //global variable
 bool LINE_SHARING = false; //global variable
 volatile int single_display = 1;
 
+regSetting_t reg_settings_S011_T1_1[] =
+{
+		{0x01, 1, {0x12}},
+		{0x02, 2, {0x25, 0xff}},
+		{0x06, 2, {0x67, 0x55}},
+		{0x07, 1, {0x0a}},
+		{0x0c, 4, {0x00, 0xef, 0x00, 0x9f}}, // {0, 240-1, 0, 160-1}
+		{0x0d, 4, {0x00, 0x45, 0x00, 0x93}}, // {0, 70-1, 0, 148-1}
+		{0x0e, 2, {0x00, 0x93}},             // {0, 148-1}
+		{0x0f, 1, {0x02}},
+		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},
+		{0x1d, 1, {0x04}},
+		{0x1f, 3, {0x00, 0x00, 0x00}},
+		{0x44, 1, {0x60}}
+};
+
+regSetting_t reg_settings_S011_T1_2[] =
+{
+		{0x01, 1, {0x12}},
+		{0x02, 2, {0x70, 0xaa}},			// set Vgate to +17V/-25V
+		{0x06, 2, {0xff, 0x55}},			// set timing to LAT=105, S2G+G2S=5
+		{0x07, 1, {0x0a}},
+		{0x0c, 4, {0x00, 0x45, 0x00, 0x93}}, // physical 240x160 panel resolution setting
+		{0x0d, 4, {0x00, 0x45, 0x00, 0x93}}, // {0, 70-1, 0, 148-1}
+		{0x0e, 2, {0x00, 0x93}},             // {0, 148-1}
+		{0x0f, 1, {0x02}},
+		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},
+		{0x1d, 1, {0x04}},
+		{0x1f, 3, {0x00, 0x00, 0x00}},
+		{0x44, 1, {0x60}}
+};
+
 regSetting_t reg_settings_S014_T1_1[] =
 {
 		{0x01, 1, {0x12}},
@@ -48,6 +80,22 @@ regSetting_t reg_settings_S014_T1_1[] =
 		{0x06, 2, {0x67, 0x55}},
 		{0x07, 1, {0x0a}},
 		{0x0c, 4, {0, 0xef, 0, 0x9f}},         // {0, 240-1, 0, 160-1}
+		{0x0d, 4, {0, 0xb3, 0x3c, 0x9f}},      // {0, 180-1, 60, 160-1}
+		{0x0e, 2, {0, 0x9f}},                  // {0, 60}
+		{0x0f, 1, {0x02}},
+		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},
+		{0x1d, 1, {0x04}},
+		{0x1f, 3, {0x00, 0x00, 0x00}},
+		{0x44, 1, {0x60}}
+};
+
+regSetting_t reg_settings_S014_T1_2[] =
+{
+		{0x01, 1, {0x12}},
+		{0x02, 2, {0x70, 0xaa}},				// set Vgate to +17V/-25V
+		{0x06, 2, {0xff, 0x55}},				// set timing to LAT=105, S2G+G2S=5
+		{0x07, 1, {0x0a}},
+		{0x0c, 4, {0, 0xb3, 0x3c, 0x9f}},       // physical 240x160 panel resolution setting
 		{0x0d, 4, {0, 0xb3, 0x3c, 0x9f}},      // {0, 180-1, 60, 160-1}
 		{0x0e, 2, {0, 0x9f}},                  // {0, 60}
 		{0x0f, 1, {0x02}},
@@ -89,22 +137,6 @@ regSetting_t reg_settings_S031_T1_1[] =
 		{0x44, 1, {0x60}}
 };
 
-regSetting_t reg_settings_S011_T1_1[] =
-{
-		{0x01, 1, {0x12}},
-		{0x02, 2, {0x25, 0xff}},
-		{0x06, 2, {0x67, 0x55}},
-		{0x07, 1, {0x0a}},
-		{0x0c, 4, {0x00, 0xef, 0x00, 0x9f}}, // {0, 240-1, 0, 160-1}
-		{0x0d, 4, {0x00, 0x45, 0x00, 0x93}}, // {0, 70-1, 0, 148-1}
-		{0x0e, 2, {0x00, 0x93}},             // {0, 148-1}
-		{0x0f, 1, {0x02}},
-		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},
-		{0x1d, 1, {0x04}},
-		{0x1f, 3, {0x00, 0x00, 0x00}},
-		{0x44, 1, {0x60}}
-};
-
 regSetting_t reg_settings_D011_T1_1[] =
 {
 		{0x01, 1, {0x10}}, //GVS=01b (gate active = VGL), SOO=0
@@ -126,12 +158,39 @@ void set_display_type(int display_type)
 {
 	switch (display_type)
 	{
+		case S011_T1_1:
+			GATE_LINES = 70;
+			SOURCE_LINES = 148;
+			REG_SETTINGS = reg_settings_S011_T1_1;
+			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S011_T1_1)/sizeof(regSetting_t);
+			strcpy(PATH, "S011_T1.1");
+			read_image_data_from_file = read_image_data_from_file_default;
+
+			break;
+		case S011_T1_2:
+			GATE_LINES = 70;
+			SOURCE_LINES = 148;
+			REG_SETTINGS = reg_settings_S011_T1_2;
+			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S011_T1_2)/sizeof(regSetting_t);
+			strcpy(PATH, "S011_T1.2");
+			read_image_data_from_file = read_image_data_from_file_default;
+
+			break;
 		case S014_T1_1:
 			GATE_LINES = 180;
 			SOURCE_LINES = 100;
 			REG_SETTINGS = reg_settings_S014_T1_1;
 			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S014_T1_1)/sizeof(regSetting_t);
 			strcpy(PATH, "S014_T1.1");
+			read_image_data_from_file = read_image_data_from_file_default;
+
+			break;
+		case S014_T1_2:
+			GATE_LINES = 180;
+			SOURCE_LINES = 100;
+			REG_SETTINGS = reg_settings_S014_T1_2;
+			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S014_T1_2)/sizeof(regSetting_t);
+			strcpy(PATH, "S014_T1.2");
 			read_image_data_from_file = read_image_data_from_file_default;
 
 			break;
@@ -152,15 +211,6 @@ void set_display_type(int display_type)
 			strcpy(PATH, "S031_T1.1");
 			LINE_SHARING = true;
 			read_image_data_from_file = read_image_data_from_file_S031_T1;
-
-			break;
-		case S011_T1_1:
-			GATE_LINES = 70;
-			SOURCE_LINES = 148;
-			REG_SETTINGS = reg_settings_S011_T1_1;
-			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S011_T1_1)/sizeof(regSetting_t);
-			strcpy(PATH, "S011_T1.1");
-			read_image_data_from_file = read_image_data_from_file_default;
 
 			break;
 		case D011_T1_1:

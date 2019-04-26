@@ -57,6 +57,8 @@ int main(void)
 
 	MSP430_HBZ9_3V3_enable(); // switch on 3.3V power supply for the UC8156 on the HB_Z9 board
 
+	mdelay(100);
+
 	eval_kit_flow();
 
 	debug_flow();

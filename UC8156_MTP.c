@@ -412,16 +412,26 @@ enum DISPLAY_TYPE read_display_type_from_MTP()
 
 enum DISPLAY_TYPE convert_string_to_DISPLAY_TYPE(const char *display_type_string)
 {
-	if (strcmp(display_type_string, "S014_T1.1") == 0)
-			return S014_T1_1;
-		else if (strcmp(display_type_string, "S031_T1.1") == 0)
-			return S031_T1_1;
-		else if (strcmp(display_type_string, "S011_T1.1") == 0)
-			return S011_T1_1;
-		else if (strcmp(display_type_string, "S021_T1.1") == 0)
-				return S021_T1_1;
+	int u;
+	u = 1;
+	u = u+1;
 
-		return UNKNOWN;
+	if (strcmp(display_type_string, "S011_T1.1") == 0)
+		{return S011_T1_1;}
+	if (strcmp(display_type_string, "S011_T1.2") == 0)
+		{return S011_T1_2;}
+	if (strcmp(display_type_string, "S014_T1.1") == 0)
+		{return S014_T1_1;}
+	if (strcmp(display_type_string, "S014_T1.2") == 0)
+		{return S014_T1_2;}
+	if (strcmp(display_type_string, "S021_T1.1") == 0)
+		{return S021_T1_1;}
+	if (strcmp(display_type_string, "S031_T1.1") == 0)
+		{return S031_T1_1;}
+	if (strcmp(display_type_string, "D011_T1.1") == 0)
+		{return D011_T1_1;}
+
+	return UNKNOWN;
 }
 
 void program_display_type_into_MTP(const char *display_type)
