@@ -121,6 +121,22 @@ regSetting_t reg_settings_S021_T1_1[] =
 		{0x44, 1, {0x60}}
 };
 
+regSetting_t reg_settings_S025_T1_1[] =
+{
+        {0x01, 1, {0x12}},
+        {0x02, 2, {0x70, 0xff}},
+        {0x06, 2, {0x67, 0x55}},
+        {0x07, 1, {0x0a}},
+        {0x0c, 4, {0, 0xef, 0, 0x9f}},
+        {0x0d, 4, {0, 0xef, 0x00, 0x9f}},
+        {0x0e, 2, {0, 0}},
+        {0x0f, 1, {0x00}},
+        {0x18, 4, {0x00, 0x00, 0x24, 0x07}},
+        {0x1d, 1, {0x04}},
+        {0x1f, 3, {0x00, 0x00, 0x00}},
+        {0x44, 1, {0x60}}
+};
+
 regSetting_t reg_settings_S031_T1_1[] =
 {
 		{0x01, 1, {0x12}},
@@ -203,6 +219,15 @@ void set_display_type(int display_type)
 			read_image_data_from_file = read_image_data_from_file_S021_T1;
 
 			break;
+		case S025_T1_1:
+            GATE_LINES = 160;
+            SOURCE_LINES = 240;
+            REG_SETTINGS = reg_settings_S025_T1_1;
+            NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S025_T1_1)/sizeof(regSetting_t);
+            strcpy(PATH, "S025_T1.1");
+            read_image_data_from_file = read_image_data_from_file_default;
+
+            break;
 		case S031_T1_1:
 			GATE_LINES = 148;
 			SOURCE_LINES = 156;
