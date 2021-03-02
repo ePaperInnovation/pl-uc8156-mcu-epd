@@ -35,7 +35,9 @@
 enum UPDATE_MODES {FULL_UPDATE=0x00, PARTIAL_UPDATE=0x04, INIT_UPDATE=0x10}; // Reg[14h]
 enum WAVEFORM_TYPES {NORMAL_4GL=0x00, FAST_2GL=0x02}; // Reg[40h]
 enum WAVEFORM_MODES {WAVEFORM_FROM_LUT=0x00, WAVEFORM_FROM_MTP=0x02}; // Reg[14h]
-
+enum TRANSPARENCY_KEY_VALUE { TRANSPARENCY_GS0 = 0x00,  TRANSPARENCY_GS1 = 0x40, TRANSPARENCY_GS2 = 0x80,TRANSPARENCY_GS3 = 0xc0 }; // Reg[14h]
+enum TRANSPARENCY_DISPLAY_ENABLE {  TRANSPARENCY_DISPLAY_ENABLE_OFF = 0x00,  TRANSPARENCY_DISPLAY_ENABLE_ON = 0x08 };  // Reg[14h]
+enum DISPLAY_MODE_SELECT {FULL_DISPLAY_UPDATE = 0x00, INITIAL_UPDATE = 0x10, AREA_DISPLAY_UPDATE = 0x20, AREA_DISPLAY_UPDATE_DISABLE_NON_SELECT_GATE_LINE = 0x30};
 #define WAVEFORM_LENGTH 120
 #define TS_LENGTH 10
 
@@ -49,17 +51,20 @@ void UC8156_HVs_on();
 void UC8156_HVs_off();
 
 u8 UC8156_read_RevID();
-void print_current_VCOM();
+u8 print_current_VCOM();
 
 void UC8156_send_waveform(u8 *waveform);
 void UC8156_set_Vcom(int VCOM_mv_value);
 void UC8156_send_image_data(u8 *image_data);
+void UC8156_send_image_data_inv(u8 *image_data);
 void UC8156_send_image_data_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size);
 void UC8156_send_repeated_image_data(u8 image_data);
 void UC8156_update_display(u8 update_mode, u8 waveform_mode);
 void UC8156_update_display_full();
 void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode);
 void UC8156_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode);
+void UC8156_show_image_inv(u8 *image_data, u8 update_mode, u8 waveform_mode);
+
 void UC8156_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, u8 update_mode, u8 waveform_mode);
 void UC8156_check_status_register(u8 expected_value);
 void UC8156_check_RevID();
@@ -84,5 +89,15 @@ void UC8156_check_RevID_slave();
 float UC8156_measure_VCOM();
 void print_measured_VCOM();
 void UC8156_measure_Vcom_curve();
+void tcom_timing_setting(u8 vg_lv, u8 vs_lv);
+void drive_voltage_setting(u8 gap, u8 s2g);
 
+
+void UC8156_send_image_data_GL0(u8 *image_data);
+void UC8156_send_image_data_GL4(u8 *image_data);
+void UC8156_send_image_data_GL15(u8 *image_data);
+
+void UC8156_show_image_GL(u8 *image_data, u8 update_mode, u8 waveform_mode, int GL_name);
+void UC8156_update_display_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select);
+void UC8156_show_image_all_set(u8 *image_data, u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_enable);
 #endif /* SOLOMON_H_ */

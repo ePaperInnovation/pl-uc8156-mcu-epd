@@ -122,7 +122,7 @@ unsigned long UC8156_wait_for_PowerON_ready_slave()
 void UC8156_wait_for_PowerON_ready_debug()
  {
 	unsigned long counter = UC8156_wait_for_PowerON_ready();
- 	printf("PowerOn loop counter = %d\n", counter);
+ 	//printf("PowerOn loop counter = %d\n", counter);
  }
 
 // UC8156 change registers which need values different from power-up values
@@ -328,6 +328,33 @@ void UC8156_send_image_data(u8 *image_data)
 	spi_write_command_and_bulk_data(0x10, image_data, PIXEL_COUNT/4);
 }
 
+
+void UC8156_send_image_data_inv(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_inv(0x10, image_data, PIXEL_COUNT/4);
+}
+
+
+void UC8156_send_image_data_GL0(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL0(0x10, image_data, PIXEL_COUNT/4);
+}
+
+
+void UC8156_send_image_data_GL4(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL4(0x10, image_data, PIXEL_COUNT/4);
+}
+
+
+void UC8156_send_image_data_GL15(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL15(0x10, image_data, PIXEL_COUNT/4);
+}
+
+
+
+
 void UC8156_send_image_data_slave(u8 *image_data)
 {
 	spi_write_command_and_bulk_data_slave(0x10, image_data, PIXEL_COUNT/4);
@@ -377,6 +404,16 @@ void UC8156_update_display(u8 update_mode, u8 waveform_mode)
 	//UC8156_wait_for_BUSY_inactive_debug();
 }
 
+void UC8156_update_display_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select)
+{
+    spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
+
+    spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select); // 0x20 for area update
+    UC8156_wait_for_BUSY_inactive();
+
+}
+
+
 //update display and wait for BUSY-pin low
 void UC8156_update_display_slave_only(u8 update_mode, u8 waveform_mode)
 {
@@ -405,6 +442,16 @@ void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode)
       UC8156_HVs_off();
 }
 
+
+void UC8156_update_display_with_power_on_off_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select)
+{
+      UC8156_HVs_on();
+      UC8156_update_display_all_set(update_mode, waveform_mode, transparency_key_value, transparency_display_enable, display_mode_select);
+      UC8156_HVs_off();
+}
+
+
+
 void UC8156_update_display_with_power_on_off_dual(u8 update_mode, u8 waveform_mode)
 {
 	  UC8156_HVs_on_dual();
@@ -417,6 +464,51 @@ void UC8156_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode)
 	  UC8156_send_image_data(image_data);
 
 	  UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
+}
+
+
+void UC8156_show_image_inv(u8 *image_data, u8 update_mode, u8 waveform_mode)
+{
+      UC8156_send_image_data_inv(image_data);
+
+      UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
+}
+
+
+
+void UC8156_show_image_all_set(u8 *image_data, u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_enable)
+{
+    if(inv_enable)
+    {
+        UC8156_send_image_data_inv(image_data);
+    }
+    else if (!inv_enable)
+    {
+        UC8156_send_image_data(image_data);
+    }
+      UC8156_update_display_with_power_on_off_all_set(update_mode,  waveform_mode, transparency_key_value, transparency_display_enable,  display_mode_select);
+}
+
+
+
+
+void UC8156_show_image_GL(u8 *image_data, u8 update_mode, u8 waveform_mode, int GL_name)
+{
+        if (GL_name == 0)
+        {
+            UC8156_send_image_data_GL0(image_data);
+        }
+        else if (GL_name == 4)
+        {
+            UC8156_send_image_data_GL4(image_data);
+        }
+        else if (GL_name == 15)
+        {
+            UC8156_send_image_data_GL15(image_data);
+        }
+
+
+      UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
 }
 
 void UC8156_show_image_dual(u8 *image_data, u8 update_mode, u8 waveform_mode)
@@ -473,8 +565,8 @@ void UC8156_measure_Vcom_curve()
 	for (i=0;i<(int)(counter/DIVIDER)+1;i++)
 	{
 		//printf("%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
-		if (value[i][0]>0)
-			printf("%f sec = %f V\n", i*DIVIDER/1000.0, value[i][0] * 0.03);
+//		if (value[i][0]>0)
+//			printf("%f sec = %f V\n", i*DIVIDER/1000.0, value[i][0] * 0.03);
 	}
 }
 
@@ -484,10 +576,11 @@ void print_temperature_sensor_value()
 	printf("Temperatur sensor value read from Reg[08h] = 0x%x\n", return_value);
 }
 
-void print_current_VCOM()
+u8 print_current_VCOM()
 {
 	u8 return_value = spi_read_command_1param(0x1b);
-	printf("Vcom read from Reg[1Bh] = 0x%x = %.3fV\n", return_value, return_value*0.03);
+	return return_value;
+//	printf("Vcom read from Reg[1Bh] = 0x%x = %.3fV\n", return_value, return_value*0.03);
 }
 
 void UC8156_check_status_register(u8 expected_value)
@@ -552,5 +645,22 @@ float UC8156_measure_VCOM()
 
 void print_measured_VCOM()
 {
-	printf("Vcom measured = %.3fV\n", UC8156_measure_VCOM());
+//	printf("Vcom measured = %.3fV\n", UC8156_measure_VCOM());
 }
+
+
+void drive_voltage_setting(u8 vg_lv, u8 vs_lv)
+{
+    spi_write_command_2params(0x02, vg_lv, vs_lv);
+}
+
+
+void tcom_timing_setting(u8 gap, u8 s2g)
+{
+    spi_write_command_2params(0x06, gap, s2g);
+}
+
+
+
+
+

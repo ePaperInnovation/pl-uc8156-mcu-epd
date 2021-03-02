@@ -261,9 +261,9 @@ void measure_vcom()
 
 	for (i=0; i<MEAS_COUNT; i++)
 	{
-		if (meas_value[i][0]!=0)
+	//	if (meas_value[i][0]!=0)
 //			printf("Vkb[%dms] = %3d - %f\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03);
-			printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
+//			printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
 	}
 }
 
@@ -295,9 +295,9 @@ void measure_vcom_new(int meas_time)
 
 	UC8156_HVs_off();
 
-	for (i=0; i<MEAS_COUNT; i++)
+//	for (i=0; i<MEAS_COUNT; i++)
 //		printf("Vkb[%dms] = %d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03, status_reg[i]);
-		printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
+//		printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
 }
 
 void WF_type2_update_verification()

@@ -35,6 +35,7 @@
 #include "config_display_type.h"
 #include "UC8156_MTP.h"
 
+
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable
 
@@ -79,7 +80,7 @@ void eval_kit_flow(void)
 
 		//write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
 
-		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
+		sprintf(path, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type1");
 
 		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
 		{

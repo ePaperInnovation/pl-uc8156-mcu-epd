@@ -27,8 +27,13 @@
 #define DISPLAY_FUNCTIONS_H_
 
 void clear_display();
-int show_image_from_SDcard(const char *image, int mode);
-int show_image_from_SDcard_V2(const char *image, int mode, int waveform_table);
+void tri_color_display();
+int show_image_from_SDcard(char *image, int mode);
+int show_image_from_SDcard_inv(char *image, int mode, bool inv_bool);
+int show_image_from_SDcard_V2(char *image, int mode, int waveform_table);
 void show_image_from_SDcard_dual(char *image, int mode);
 
+void show_image_from_SDcard_GL(char *image, int mode, int GL_name);
+void show_image_from_SDcard_bg(char *image, int mode);
+void show_image_from_SDcard_all_set(char *image, int mode,  u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_bool);
 #endif /* DISPLAY_FUNCTIONS_H_ */

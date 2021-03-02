@@ -35,6 +35,8 @@
 #include "config_display_type.h"
 #include "read-sd.h"
 #include "utils.h"
+#include "flow_basis.h"
+
 
 #define DEBUG_PRINTOUTS 0
 
@@ -59,11 +61,13 @@ int main(void)
 
 	mdelay(100);
 
-	eval_kit_flow();
+	//eval_kit_flow();
 
-	debug_flow();
+// main function
 
-	basic_flow();
+	basic_flow(1);    //0: for yellow; 1: for red
+
+
 }
 
 int _system_pre_init(void) {

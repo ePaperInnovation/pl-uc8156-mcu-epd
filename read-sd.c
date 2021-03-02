@@ -138,6 +138,9 @@ bool sdcard_load_waveform(char *path, u8 *waveform_data, UINT length)
 	FIL file;
 	UINT count=0;
 
+
+
+
 	if (f_open(&file, path, FA_READ))
 		return false;
 
@@ -271,6 +274,13 @@ int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
 
     size_t count;
     int i,j;
+
+
+
+
+
+
+
 
     for (j=0; j<GATE_LINES; j++)
     {
