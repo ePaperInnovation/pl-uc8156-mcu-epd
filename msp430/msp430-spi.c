@@ -52,6 +52,7 @@ int spi_init(u8 spi_channel, u16 divisor)
 	gpio_request(SPI_SOMI, 	PIN_SPECIAL | PIN_INPUT);
 	gpio_request(SPI_CLK, 	PIN_SPECIAL | PIN_OUTPUT);
 	gpio_request(SPI_CS, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
+    gpio_request(SPI_CD, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
 	gpio_request(SPI_CS_SLAVE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
 
 	// SPI setting, MSb first, 8bit, Master Mode, 3 pin SPI, Synch Mode
@@ -81,7 +82,57 @@ u8 spi_write_read_byte(u8 byte)
     return UCxnRXBUF;                                      // Dummy read to empty RX buffer
 }
 
+u8 UC8179_spi_read_parameter()
+{   u8 read_parameter;
+    gpio_set_value_lo(SPI_CS);
+    read_parameter =  spi_write_read_byte(0xff);
+    gpio_set_value_hi(SPI_CS);
+    return read_parameter;
+}
 
+void UC8179_spi_write_parameter(u8 byte)           // UC8179
+{
+
+    gpio_set_value_lo(SPI_CS);
+    UC8179_spi_write_byte(byte);
+    gpio_set_value_hi(SPI_CS);
+
+}
+
+
+void UC8179_spi_write_command(u8 byte)           // UC8179
+{
+
+    gpio_set_value_lo(SPI_CS);
+    gpio_set_value_lo(SPI_CD);
+    spi_write_read_byte(byte);
+
+    gpio_set_value_hi(SPI_CD);
+    gpio_set_value_hi(SPI_CS);
+
+}
+
+
+void UC8179_spi_write_byte(u8 byte)           // UC8179
+{
+      while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
+      UCxnTXBUF = byte;
+}
+
+
+u8 UC8179_spi_read_byte()           // UC8179
+{
+
+    while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
+         UCxnTXBUF = 0x00;
+    u8 count = 8;
+    while (count > 0) ;                     // Wait for all TX/RX to finish
+      {
+          UCxnTXBUF = 0x00;
+          count--;
+      }
+      return UCxnRXBUF;
+}
 
 u8 spi_write_read_byte_GL0()
 {
@@ -101,6 +152,17 @@ u8 spi_write_read_byte_GL4()
     return UCxnRXBUF;                                      // Dummy read to empty RX buffer
 }
 
+u8 spi_write_read_byte_GL11()
+{
+    while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
+    UCxnTXBUF = 0xAA;                        // Write byte
+    while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
+
+    return UCxnRXBUF;                                      // Dummy read to empty RX buffer
+}
+
+
+
 u8 spi_write_read_byte_GL15()
 {
     while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
@@ -113,7 +175,7 @@ u8 spi_write_read_byte_GL15()
 u8 spi_write_read_byte_inv(u8 byte)
 {
     while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
-    UCxnTXBUF = 255 -  byte;                        // Write byte
+    UCxnTXBUF = ~byte;                        // Write byte
     while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
 
     return UCxnRXBUF;                                      // Dummy read to empty RX buffer
@@ -132,6 +194,21 @@ void spi_write_command(u8 command, u8 *params, int count)
 		spi_write_read_byte(*(params+i));
 	gpio_set_value_hi(SPI_CS);
 }
+
+
+void spi_write_only_command(u8 command)
+{
+    gpio_set_value_lo(SPI_CS);
+    command &= ~0x80;
+    spi_write_read_byte(command);
+    gpio_set_value_hi(SPI_CS);
+}
+
+
+
+
+
+
 
 void spi_write_command_slave(u8 command, u8 *params, int count)
 {
@@ -205,6 +282,20 @@ void spi_write_command_4params(u8 command, u8 param1, u8 param2, u8 param3, u8 p
 	spi_write_read_byte(param4);
 	gpio_set_value_hi(SPI_CS);
 }
+
+void spi_write_command_5params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5)
+{
+    gpio_set_value_lo(SPI_CS);
+    command &= ~0x80;
+    spi_write_read_byte(command);
+    spi_write_read_byte(param1);
+    spi_write_read_byte(param2);
+    spi_write_read_byte(param3);
+    spi_write_read_byte(param4);
+    spi_write_read_byte(param5);
+    gpio_set_value_hi(SPI_CS);
+}
+
 
 u8 spi_read_command_1param(u8 command)
 {
@@ -341,6 +432,22 @@ u8* spi_read_command_4params(u8 command)
 	return return_value;
 }
 
+u8 spi_read_uc8179_Revision()
+{
+    u8 return_value;
+
+    UC8179_spi_write_command(0x70);
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    return_value =  UC8179_spi_read_parameter();
+
+    return return_value;
+}
+
 u8 spi_read_command_1param_1dummy(u8 command)
 {
 	gpio_set_value_lo(SPI_CS);
@@ -388,6 +495,20 @@ void spi_write_command_and_bulk_data_GL4(u8 command, u8 *buffer, size_t size)
 
     while (size--) {
         spi_write_read_byte_GL4();
+        buffer++;
+    }
+    gpio_set_value_hi(SPI_CS);
+}
+
+
+void spi_write_command_and_bulk_data_GL11(u8 command, u8 *buffer, size_t size)
+{
+    gpio_set_value_lo(SPI_CS);
+    command &= ~0x80;
+    spi_write_read_byte(command);
+
+    while (size--) {
+        spi_write_read_byte_GL11();
         buffer++;
     }
     gpio_set_value_hi(SPI_CS);

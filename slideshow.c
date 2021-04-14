@@ -20,10 +20,10 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <UC8179.h>
 
 #include "types.h"
 #include "FatFs/ff.h"
-#include "UC8156.h"
 #include "utils.h"
 #include "display_functions.h"
 #include "config_display_type.h"

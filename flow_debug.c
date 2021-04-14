@@ -26,16 +26,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "types.h"
-#include "UC8156.h"
 #include "display_functions.h"
 #include "verification_functions.h"
 #include "read-sd.h"
-#include "UC8156_MTP.h"
 #include "pattern.h"
 #include "waveform.h"
 #include "slideshow.h"
 #include <msp430-spi.h>
 #include <msp430-gpio.h>
+#include <UC8179.h>
+#include <UC8179_MTP.h>
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable
@@ -62,45 +62,45 @@ void debug_flow(void)
 }
 #endif
 	if(single_display){
-		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+		UC8179_wait_for_BUSY_inactive(); // wait for power-up completed
 
 		mdelay(5);
-		UC8156_hardware_reset(); // UC8156 hardware reset
-		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+		UC8179_hardware_reset(); // UC8179 hardware reset
+		UC8179_wait_for_BUSY_inactive(); // wait for RESET completed
 
-		UC8156_check_RevID();
+		UC8179_check_RevID();
 
-		UC8156_init_registers();
+		UC8179_init_registers();
 	}else{
-		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
-		UC8156_wait_for_BUSY_inactive_slave(); // wait for power-up completed
+		UC8179_wait_for_BUSY_inactive(); // wait for power-up completed
+		UC8179_wait_for_BUSY_inactive_slave(); // wait for power-up completed
 
 	 	mdelay(5);
-	 	UC8156_hardware_reset(); // UC8156 hardware reset
+	 	UC8179_hardware_reset(); // UC8179 hardware reset
 
-		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
-		UC8156_wait_for_BUSY_inactive_slave(); // wait for power-up completed
+		UC8179_wait_for_BUSY_inactive(); // wait for power-up completed
+		UC8179_wait_for_BUSY_inactive_slave(); // wait for power-up completed
 
-	 	UC8156_init_registers();
-		UC8156_init_registers_slave();
+	 	UC8179_init_registers();
+		UC8179_init_registers_slave();
 
-		UC8156_check_RevID();
-		UC8156_check_RevID_slave();
+		UC8179_check_RevID();
+		UC8179_check_RevID_slave();
 
 	}
-	UC8156_check_status_register(0x00);
+	UC8179_check_status_register(0x00);
 
 #if 0	//MTP program - should be used by Plastic Logic only
 {
-//		write_single_waveform_table_to_MTP("Type31/waveforms/S031_V7D035_2xGL_V1.23.0.uc8156_lut");
-		write_complete_waveform_library_to_MTP_from_file("/waveforms_for_MTP_program/S011_V1.0_VJW003_V2.uc8156");
+//		write_single_waveform_table_to_MTP("Type31/waveforms/S031_V7D035_2xGL_V1.23.0.uc8179_lut");
+		write_complete_waveform_library_to_MTP_from_file("/waveforms_for_MTP_program/S011_V1.0_VJW003_V2.uc8179");
 //		write_complete_waveform_library_to_MTP(waveform_MTP_array);
 
 		write_Vcom_to_MTP(4000);
 
-		UC8156_hardware_reset(); // UC8156 hardware reset
-		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
-		UC8156_init_registers();
+		UC8179_hardware_reset(); // UC8179 hardware reset
+		UC8179_wait_for_BUSY_inactive(); // wait for RESET completed
+		UC8179_init_registers();
 }
 #endif
 
@@ -108,7 +108,7 @@ void debug_flow(void)
 {
 	int vcom_mv_value;
 	if (sdcard_load_vcom(&vcom_mv_value)==true)
-		UC8156_set_Vcom(vcom_mv_value);
+		UC8179_set_Vcom(vcom_mv_value);
 }
 #endif
 
@@ -123,16 +123,16 @@ void debug_flow(void)
 #if 0 	//write waveform from SD card data to LUT -> if "/700xxx/display/waveform.bin" exist
 	u8 waveform_from_file[WAVEFORM_LENGTH];
 //	if (sdcard_load_waveform("waveform.bin", waveform_from_file, WAVEFORM_LENGTH)==0)
-//	if (sdcard_load_waveform("S011_V1.0_VJW003_V1_WfId3_T23.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH)==0)
-	if (sdcard_load_waveform("S011_V1.0_VJW003_V2_T23_WfId3.uc8156_lut", waveform_from_file, WAVEFORM_LENGTH)==0)
+//	if (sdcard_load_waveform("S011_V1.0_VJW003_V1_WfId3_T23.uc8179_lut", waveform_from_file, WAVEFORM_LENGTH)==0)
+	if (sdcard_load_waveform("S011_V1.0_VJW003_V2_T23_WfId3.uc8179_lut", waveform_from_file, WAVEFORM_LENGTH)==0)
 	{
-		UC8156_send_waveform(waveform_from_file);
+		UC8179_send_waveform(waveform_from_file);
 		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
 	}
 #endif
 
 /*	read_MTP_addresses_and_print(0, 16, 2);
-	UC8156_init_registers();
+	UC8179_init_registers();
 */
 
 #if 0	//write display type into MTP
@@ -142,23 +142,23 @@ void debug_flow(void)
 #endif
 
 #if 0 	//write waveform from header-file
-	UC8156_send_waveform(waveform_default);
+	UC8179_send_waveform(waveform_default);
 	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
 //	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
-//	UC8156_set_Vcom(4000);
+//	UC8179_set_Vcom(4000);
 #endif
 
 	clear_display();
 
 #if 0	//measure VCOM
 	//print_measured_VCOM();
-	UC8156_measure_Vcom_curve();
+	UC8179_measure_Vcom_curve();
 #endif
 
 #if 1	//steps for measuring current consumption
 	clear_display();
-	UC8156_HVs_on();	//measure standby HV On
-	UC8156_HVs_off();	//measure standby HV Off
+	UC8179_HVs_on();	//measure standby HV On
+	UC8179_HVs_off();	//measure standby HV Off
 	verify_sleep_mode(); //toggle breakpoint in this routine, measure sleep current after breakpoint
 	clear_display();
 	white_update();	//measure typical current during update
@@ -227,7 +227,7 @@ void debug_flow(void)
 		white_update();
 */
 
-//	UC8156_send_waveform(waveform_S011_V1_0_VJW003_V2_T23_WfId3_uc8156_lut);
+//	UC8179_send_waveform(waveform_S011_V1_0_VJW003_V2_T23_WfId3_uc8179_lut);
 //	UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
 
 

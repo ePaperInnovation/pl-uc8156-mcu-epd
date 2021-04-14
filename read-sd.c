@@ -20,12 +20,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <UC8179.h>
 
 #include "FatFs/ff.h"
 #include "types.h"
 #include "pnm-utils.h"
 #include "utils.h"
-#include "UC8156.h"
 #include "config_display_type.h"
 #include "read-sd.h"
 
@@ -173,7 +173,7 @@ bool sdcard_load_vcom(int *value)
 	return true;
 }
 
-#define BUFFER_LENGTH 256 //1024
+#define BUFFER_LENGTH 279 //1024
 
 // reads image data from PMG image file - part of load_image function
 int read_image_data_from_file_default(FIL *f, u8 *image_buffer)
@@ -246,7 +246,7 @@ int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer)
 		}
 		pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
 	}
-	UC8156_send_image_data(image_buffer);
+	UC8179_send_image_data(image_buffer);
 	for (j=GATE_LINES-1; j>=0; j--)
 	{
 		if (f_read(f, image_file_data, BUFFER_LENGTH_D011_T1, &count) != FR_OK)
@@ -261,7 +261,7 @@ int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer)
 		}
 		pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
 	}
-	UC8156_send_image_data_slave(image_buffer);
+	UC8179_send_image_data_slave(image_buffer);
 	return 0;
 }
 
@@ -296,7 +296,7 @@ int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
         pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
     }
 
-//    UC8156_send_image_data(image_buffer);
+//    UC8179_send_image_data(image_buffer);
 
     return 0;
 }

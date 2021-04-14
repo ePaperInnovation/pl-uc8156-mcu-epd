@@ -49,7 +49,7 @@ void MSP430_gpio_init();
 
 int main(void)
 {
-	sdcard_init(); // initialize SD-card using FatFS
+	int sd_int = sdcard_init(); // initialize SD-card using FatFS
 
 	MSP430_clock_init(); // set MSP430 clock to 20MHz
 
@@ -63,10 +63,11 @@ int main(void)
 
 	//eval_kit_flow();
 
-// main function
+///////// main function
 
 	basic_flow(1);    //0: for yellow; 1: for red
-
+	//image_ini_test();
+	//image_acep();
 
 }
 
