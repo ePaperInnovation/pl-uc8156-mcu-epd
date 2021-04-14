@@ -95,9 +95,13 @@ void drive_voltage_setting(u8 gap, u8 s2g);
 
 void UC8156_send_image_data_GL0(u8 *image_data);
 void UC8156_send_image_data_GL4(u8 *image_data);
+void UC8156_send_image_data_GL11(u8 *image_data);
 void UC8156_send_image_data_GL15(u8 *image_data);
 
 void UC8156_show_image_GL(u8 *image_data, u8 update_mode, u8 waveform_mode, int GL_name);
 void UC8156_update_display_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select);
 void UC8156_show_image_all_set(u8 *image_data, u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_enable);
+void UC8156_set_Vcom_Acep(int Vcom_mv_value);
+void drive_voltage_setting_Acep(int vs_lv);
+
 #endif /* SOLOMON_H_ */

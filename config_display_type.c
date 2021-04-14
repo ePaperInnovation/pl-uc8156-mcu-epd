@@ -41,7 +41,9 @@ char PATH[64]; //global variable
 bool LINE_SHARING = false; //global variable
 volatile int single_display = 1;
 
-regSetting_t reg_settings_S011_T1_1[] =
+#pragma RETAIN(reg_settings_S011_T1_1)
+#pragma DATA_SECTION(reg_settings_S011_T1_1, ".myRegsetting");
+volatile const regSetting_t reg_settings_S011_T1_1[] =
 {
 		{0x01, 1, {0x12}},
 		{0x02, 2, {0x25, 0xff}},
@@ -105,7 +107,9 @@ regSetting_t reg_settings_S014_T1_2[] =
 		{0x44, 1, {0x60}}
 };
 
-regSetting_t reg_settings_S021_T1_1[] =
+#pragma RETAIN(reg_settings_S021_T1_1)
+#pragma DATA_SECTION(reg_settings_S021_T1_1, ".myRegsetting");
+volatile const regSetting_t reg_settings_S021_T1_1[] =
 {
 		{0x01, 1, {0x10}},
 		{0x02, 2, {0x25, 0xff}},
@@ -115,10 +119,12 @@ regSetting_t reg_settings_S021_T1_1[] =
 		{0x0d, 4, {0, 240-1, 0x00, 146-1}},      // {0, 180-1, 60, 160-1}
 		{0x0e, 2, {0, 0}},                  // {0, 0}
 		{0x0f, 1, {0x20}},
-		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},
+		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},   // for BW or tricolor
+        //{0x18, 4, {0x00, 0x00, 0x24, 0x05}},   // for Acep
 		{0x1d, 1, {0x04}},
 		{0x1f, 3, {0x00, 0x00, 0x00}},
 		{0x44, 1, {0x60}}
+
 };
 
 regSetting_t reg_settings_S025_T1_1[] =

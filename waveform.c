@@ -26,9 +26,9 @@
 #ifndef WAVEFORM_H_
 #define WAVEFORM_H_
 
+#include <UC8179.h>
 #include "waveform.h"
 #include "types.h"
-#include "UC8156.h"
 
 u8 waveform_debug[WAVEFORM_LENGTH]= { \
 0xAA, 0x6A, 0xAA, 0xAA, \
