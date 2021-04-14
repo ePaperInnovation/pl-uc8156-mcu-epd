@@ -37,7 +37,7 @@
 #include "slideshow_tricolor.h"
 #include "flow_basis.h"
 #include "image.h"
-#include "image_acep.h"
+//#include "image_acep.h"
 #include "msp430/msp430-spi.h"
 
 #include "msp430-defs.h"
