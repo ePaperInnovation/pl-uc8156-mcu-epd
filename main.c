@@ -66,7 +66,12 @@ int main(void)
 
 ///////// main function
 
-	UC8179_basic_flow(1);    //0: for yellow; 1: for red
+
+	// UC8156 bw and tricolor basic flow
+	// basic_flow(1); //0: for yellow; 1: for red, 2: for BW
+
+	// UC8179 basic flow
+	UC8179_basic_flow();
 	//image_ini_test();
 	//image_acep();
 

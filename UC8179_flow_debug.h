@@ -29,7 +29,7 @@
 #ifndef UC8179_FLOW_DEBUG_H_
 #define UC8179_FLOW_DEBUG_H_
 
-void UC8179_basic_flow(int display_color);
+void UC8179_basic_flow();
 void UC8179_ini(void);
 void UC8179_path_find(void);
 void UC8179_KW_MODE(void);

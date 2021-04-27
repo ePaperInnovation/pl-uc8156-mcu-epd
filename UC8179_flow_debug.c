@@ -39,7 +39,7 @@ bool UC9179_sd_exist = true;
 extern char PATH[64]; //global variable
 char full_path[MAX_PATH_LEN];
 
-void UC8179_basic_flow(int display_color)
+void UC8179_basic_flow()
 {
 
     UC8179_ini();
