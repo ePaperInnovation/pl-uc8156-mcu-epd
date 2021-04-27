@@ -23,97 +23,119 @@
  *      Author: Zhongke.Dai & Matti.Haugwitz
  */
 
-#ifndef SOLOMON_H_
-#define SOLOMON_H_
+#ifndef UC8179_H_
+#define UC8179_H_
 
 #include "types.h"
 #include <stddef.h>
 
-#define GATE_LINES_MAX 160
-#define SOURCE_LINES_MAX 240
 
-enum UPDATE_MODES {FULL_UPDATE=0x00, PARTIAL_UPDATE=0x04, INIT_UPDATE=0x10}; // Reg[14h]
-enum WAVEFORM_TYPES {NORMAL_4GL=0x00, FAST_2GL=0x02}; // Reg[40h]
-enum WAVEFORM_MODES {WAVEFORM_FROM_LUT=0x00, WAVEFORM_FROM_MTP=0x02}; // Reg[14h]
-enum TRANSPARENCY_KEY_VALUE { TRANSPARENCY_GS0 = 0x00,  TRANSPARENCY_GS1 = 0x40, TRANSPARENCY_GS2 = 0x80,TRANSPARENCY_GS3 = 0xc0 }; // Reg[14h]
-enum TRANSPARENCY_DISPLAY_ENABLE {  TRANSPARENCY_DISPLAY_ENABLE_OFF = 0x00,  TRANSPARENCY_DISPLAY_ENABLE_ON = 0x08 };  // Reg[14h]
-enum DISPLAY_MODE_SELECT {FULL_DISPLAY_UPDATE = 0x00, INITIAL_UPDATE = 0x10, AREA_DISPLAY_UPDATE = 0x20, AREA_DISPLAY_UPDATE_DISABLE_NON_SELECT_GATE_LINE = 0x30};
-enum DATA_STOP_FLAG {NOT_ALL_DATA=0x00, ONEFRAME_DATA=0x80}; // Reg[14h]
+#define UC8179_DISPLAY_SOURCE 800
+#define UC8179_DISPLAY_GATE 600
 
-#define WAVEFORM_LENGTH 120
-#define TS_LENGTH 10
+////////////////////////////////////// Parameter for Panel Setting
+enum UC8179_LUT_SETTING {LUT_FROM_OTP=0x00, LUT_FROM_REGISTER=0x20}; // panel setting bit 5 0: LUT from OTP (Default); 1: LUT from register
+enum UC8179_KWR{ PIXEL_KWR_MODE = 0x00, PIXEL_KW_MODE = 0x10}; // 0: Pixel with Black/White/Red (Default); 1: Pixel with Black/White
+enum UC8179_GATE_SCAN_DIRECTION{GATE_SCAN_DOWN = 0x00,  GATE_SCAN_UP = 0x08}; //  0: First line to Last line: Gn-1 ->  Gn-2 ->... ->G0; 1: G0 -> G1...->Gn
+enum UC8179_SOURCE_SHIFT_DIRECTION{SOURCE_SHIFT_LEFT = 0x00,  SOURCE_SHIFT_RIGHT = 0x04}; // First data to Last data 0 (shift left): Sn-1 -> Sn-2 ->...-> S0; 1 (shift right): S0 -> S1 ->...-> Sn-1
+enum UC8179_BOOSTER_SWITCH{ BOOSTER_OFF = 0x00,  BOOSTER_ON = 0x02};  // 0: Booster OFF; 1: Booster ON (Default)
+enum UC8179_SOFT_RESET{SOFT_RESET = 0x00, SOFT_RESET_NO_EFFECT = 0x01 }; // 0: Soft Reset; 1: No effect
+////////////////////////////////////////////////
 
 
-void UC8179_panel_Setting(u8 reg_value);
-void UC8179_power_Setting(u8 reg_value1, u8 reg_value2, u8 reg_value3,  u8 reg_value4,  u8 reg_value5);
-void UC8179_poweroff_sequenceSetting(u8 reg_value);
-void UC8179_boost_Softstart(u8 reg_value1, u8 reg_value2, u8 reg_value3,  u8 reg_value4);
-void UC8179_data_Transmission1(u8 *image_data, size_t size);
-void UC8179_display_Refresh();
-void UC8179_data_Transmission1(u8 *image_data, size_t size);
-u8 UC8179_read_PanelCheck();
+/////////////////////////////////////Parameter for Power Setting//////////
+enum UC8179_BORDER_LDO{BORDER_LDO_DISABLE = 0x00, BORDER_LDO_ENABLE = 0x10}; // 0: Border LDO disable (Default)
+enum UC8179_SOURCE_LV_POWER_SELECTION{ EXTERNAL_POWER_FOR_VDHR = 0x00, INTERNAL_DC_FOR_VDHR = 0x04};
+enum UC8179_SOURCE_POWER_SELECTION{ EXTERNAL_POWER_FOR_VDHL = 0x00, INTERNAL_DC_FOR_VDHL = 0x02};
+enum UC8179_GATE_POWER_SELECTION{ EXTERNAL_POWER_FOR_VGHL = 0x00, INTERNAL_DC_FOR_VGHL = 0x01};
+enum UC8179_VCOM_SLEW{SLEW_RATE_SLOW = 0x00, SLEW_RATE_FAST = 0x10};
+enum UC8179_VG_LVL{VGHL_9V = 0x00, VGHL_10V = 0x01, VGHL_11V = 0x02, VGHL_12V = 0x03, VGHL_17V = 0x04, VGHL_18V = 0x05, VGHL_19V = 0x06, VGHL_20V = 0x07  };
+enum UC8179_VDH_VDL_VDHR {VDH_LVL = 0x58, VDL_LVL = 0x58, VDHR_LVL = 0x03};
 
-void UC8179_reset();
+
+///////////////////////////////////// Parameter for Boost Soft Start
+enum UC8179_BT_PH_PERIOD {PH_PERIOD_10MS = 0x00, PH_PERIOD_20MS = 0x40, PH_PERIOD_30MS = 0x80 , PH_PERIOD_40MS = 0xC0};
+enum UC8179_BT_PH_DRIVING_STRENGTH { PH_STRENGTH1 = 0x00, PH_STRENGTH2 = 0x08, PH_STRENGTH3 = 0x10, PH_STRENGTH4 = 0x18, PH_STRENGTH5 = 0x20, PH_STRENGTH6 = 0x00, PH_STRENGTH7 = 0x30, PHA_STRENGTH8 = 0x38};
+enum UC8179_BT_PH_MIN_OFF_TIME{ PH_027US = 0x00,  PH_034US = 0x01, PH_040US = 0x02, PH_054US = 0x3, PH_080US = 0x04, PH_154US = 0x05, PH_334US = 0x06, PH_658US = 0x07};
+enum UC8179_BT_PHC2{ PHC2_ENABLE = 0x80, PHC2_DISABLE = 0x00  };
+
+
+
+enum UC8179_DUAL_SPI{MM_INPUT_DISABLE = 0x00, MM_INPUT_ENABLE = 0x20, DUAL_SPI_MODE_DISABLE = 0x00, DUAL_SPI_MODE_ENABLE = 0x10};
+enum UC8179_AUTO_CODE{PON_DRF_POF = 0xA5, PON_DRF_POF_DSLP = 0xA7};
+
+enum UC8179_STATE_XON_ENABLE{STATE_XON_DISABLE = 0x00, STATE1_ENABLE = 0x01, STATE2_ENABLE = 0x02, STATE3_ENABLE = 0x04, STATE4_ENABLE = 0x08, STATE5_ENABLE = 0x10, STATE6_ENABLE = 0x20, STATE7_ENABLE = 0x40, STATE8_ENABLE = 0x80, STATE9_ENABLE = 0x40, STATE10_ENABLE = 0x80 };
+
+enum UC8179_KWR_LUT_SELECT{KWR_LUT_ALWAYS = 0x00, KW_LUT_ONLY = 0x01, RED_AUTO_DETECT = 0x02};
+enum UC8179_VCOM_END_VOLTAGE_SELECTION{VCOM_END_VOLTAGE_VCOM = 0x00, VCOM_END_VOLTAGE_FLOATING = 0x08};
+enum UC8179_BORDER_END_VOLTAGE_SELECTION{BORDER_END_VOLTAGE_0 = 0x00, BORDER_END_VOLTAGE_VCOM = 0x02, BORDER_END_VOLTAGE_FLOATING = 0x03 };
+
+enum UC8179_GET_STATUS_FLAG{BUSY_N_FLAG = 0x00, POF_FLAG = 0x01, PON_FLAG = 0x02, DATA_FLAG = 0x03, I2C_BUSY_N = 0x04, I2C_ERR = 0x05, PTL_FLAG = 0x06};
+
+enum UC8179_AUTO_MEASURE_VCOM_TIME_SETTING{AMVT_3S = 0x00, AMVT_5S = 0x10, AMVT_8S = 0x20, AMVT_10S = 0x30 };
+enum UC8179_AUTO_MEASURE_VCOM_XON_SETTING{GATE_NORMAL = 0x00, GATE_ALL_ON = 0x08};
+enum UC8179_AUTO_MEASURE_VCOM_SOURCE_OUTPUT_SETTING{SOURCE_OUTPUT_0 = 0x00,  SOURCE_OUTPUT_VDHR = 0x04};
+
+enum UC8179_LVD_VOLTAGE_SELECT_SETTING{LVD_SEL_22V = 0x00, LVD_23V = 0x01, LVD_24V = 0x02, LVD_25V = 0x03 };
+
+enum UC8179_PLL_CONTROL_FRAME_RATE{PLL_CONTROL_FRAME_RATE_50HZ = 0x06};
+
+enum UC8179_VCOM_DATA_INTER_SETTING_BORDER_OUTPUT_HIZ{BDZ_OUTPUT_HIZ_DISABLE = 0x80, BDZ_OUTPUT_HIZ_ENABLE = 0x80 };
+enum UC8179_VCOM_DATA_INTER_SETTING_BORDER_LUT_SELECTION_KWR{BORDER_LUT_LUTK = 0x00, BORDER_LUT_LUTW = 0x10, BORDER_LUT_LUTR = 0x20};
+enum UC8179_VCOM_DATA_INTER_SETTING_BORDER_LUT_SELECTION_KW{BORDER_LUT_LUTKK = 0x00, BORDER_LUT_LUTWK = 0x10, BORDER_LUT_LUTKW = 0x20, BORDER_LUT_LUTWW = 0x30 };
+enum UC8179_VCOM_DATA_INTER_SETTING_N2OCP{COPY_NEW_DATA_TO_OLD_DATA_DIS = 0x00, COPY_NEW_DATA_TO_OLD_DATA_EN = 0x08};
+enum UC8179_VCOM_DATA_INTER_INTERVAL{VCOM_AND_DATA_INTERVAL = 0x07};
+enum UC8179_PARTIAL_WINDOW_PT_SCAN{GATE_ONLY_INSIDE = 0x00, GATE_BOTH_INSIDE_AND_OUTSIDE = 0x01};
+
+
+
 void UC8179_hardware_reset();
 unsigned int UC8179_wait_for_BUSY_inactive();
 unsigned long UC8179_wait_for_PowerON_ready();
-unsigned long UC8179_wait_for_PowerON_ready_timeout();
-void UC8179_init_registers();
-void UC8179_HVs_on();
-void UC8179_HVs_off();
-
-u8 UC8179_read_RevID();
-u8 print_current_VCOM();
-
-void UC8179_send_waveform(u8 *waveform);
-void UC8179_set_Vcom(int VCOM_mv_value);
-void UC8179_send_image_data(u8 *image_data);
-void UC8179_send_image_data_inv(u8 *image_data);
-void UC8179_send_image_data_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size);
-void UC8179_send_repeated_image_data(u8 image_data);
-void UC8179_update_display(u8 update_mode, u8 waveform_mode);
-void UC8179_update_display_full();
-void UC8179_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode);
-void UC8179_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode);
-void UC8179_show_image_inv(u8 *image_data, u8 update_mode, u8 waveform_mode);
-
-void UC8179_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, u8 update_mode, u8 waveform_mode);
-void UC8179_check_status_register(u8 expected_value);
-void UC8179_check_RevID();
-
-void UC8179_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t size);
-
-// Function prototypes for dual controller displays - second display
-unsigned int UC8179_wait_for_BUSY_inactive_slave();
-void UC8179_init_registers_slave();
-void UC8179_HVs_on_dual();
-void UC8179_HVs_off_dual();
-void UC8179_send_waveform_slave(u8 *waveform);
-void UC8179_print_waveform();
-void UC8179_print_waveform_slave();
-void UC8179_set_Vcom_slave(int Vcom_mv_value);
-void UC8179_send_image_data_slave(u8 *image_data);
-void UC8179_send_repeated_image_data_slave(u8 image_data);
-void UC8179_update_display_dual(u8 update_mode, u8 waveform_mode);
-void UC8179_show_image_dual(u8 *image_data, u8 update_mode, u8 waveform_mode);
-void UC8179_check_RevID_slave();
-
-float UC8179_measure_VCOM();
-void print_measured_VCOM();
-void UC8179_measure_Vcom_curve();
-void tcom_timing_setting(u8 vg_lv, u8 vs_lv);
-void drive_voltage_setting(u8 gap, u8 s2g);
 
 
-void UC8179_send_image_data_GL0(u8 *image_data);
-void UC8179_send_image_data_GL4(u8 *image_data);
-void UC8179_send_image_data_GL11(u8 *image_data);
-void UC8179_send_image_data_GL15(u8 *image_data);
-
-void UC8179_show_image_GL(u8 *image_data, u8 update_mode, u8 waveform_mode, int GL_name);
-void UC8179_update_display_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select);
-void UC8179_show_image_all_set(u8 *image_data, u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_enable);
-void UC8179_set_Vcom_Acep(int Vcom_mv_value);
-void drive_voltage_setting_Acep(int vs_lv);
-u8 UC8179_read_PanelCheck();
+u8 UC8179_READ_REVID();
+u8 *UC8179_READ_PRODUCT_REVISION();
+u8 *UC8179_READ_LUT_REVISION();
+void UC8179_PANEL_SETTING(u8 REG_value, u8 KWR_value, u8 UD_value, u8 SHL_value, u8 SHD_N_value, u8 REST_N_value);
+void UC8179_PANEL_SETTING_DEFAULT(void);
+void UC8179_POWER_SETTING(u8 BD_EN, u8 VSR_EN, u8 VS_EN, u8 VG_EN, u8 VCOM_SLEW, u8 VG_LVL, u8 VDH_LVL, u8 VDL_LVL, u8 VDHR_LVL);
+void UC8179_POWER_SETTING_DEFAULT(void);
+void UC8179_POWER_OFF(void);
+void UC8179_POWER_OFF_SEQUENCE_SETTING(u8 T_VDS_OFF);
+void UC8179_POWER_ON(void);
+void UC8179_POWER_ON_MEASURE(void);
+void UC8179_BOOSTER_SOFT_START(u8 BT_PHA_PERIODE_VALUE, u8 BT_PHA_STRENGTH_VALUE, u8 BT_PHA_MIN_OFF_VALUE, u8 BT_PHB_PERIODE_VALUE, u8 BT_PHB_STRENGTH_VALUE, u8 BT_PHB_MIN_OFF_VALUE, u8 BT_PHC1_STRENGTH_VALUE, u8 BT_PHC1_MIN_OFF_VALUE, u8 BT_PHC2_ENABLE_VALUE, u8 BT_PHC2_STRENGTH_VALUE, u8 BT_PHC2_MIN_OFF_VALUE);
+void UC8179_BOOSTER_SOFT_START_DEFAULT(void);
+void UC8179_DEEP_SLEEP(void);
+void UC8179_DATA_TRANSMISSION1(u8 *data, int data_length);
+void UC8179_DATA_TRANSMISSION2(u8 *data, int data_length);
+u8 UC8179_DATA_FLAG();
+void UC8179_DISPLAY_REFRESH(void);
+void UC8179_DUAL_SPI_MODE(u8 MM_EN, u8 DUSPI_EN);
+void UC8179_AUTO_SEQUENCE(u8 auto_code);
+void UC8179_LUT_OPTION(u8 STATE10_XON, u8 STATE9_XON, u8 STATE8_XON, u8 STATE7_XON, u8 STATE6_XON, u8 STATE5_XON, u8 STATE4_XON, u8 STATE3_XON, u8 STATE2_XON, u8 STATE1_XON);
+void UC8179_KW_LUT_OPTION(u8 LUT_SELECT, u8 STATE10_XON, u8 STATE9_XON, u8 STATE8_XON, u8 STATE7_XON, u8 STATE6_XON, u8 STATE5_XON, u8 STATE4_XON, u8 STATE3_XON, u8 STATE2_XON, u8 STATE1_XON);
+void UC8179_PLL_CONTROL(u8 FRAME_RATE_SETTING);
+void UC8179_TEMPERATURE_SENSOR_ENABLE();
+bool UC8179_LOW_POWER_DETECTION();
+void UC8179_END_VOLTAGE_SETTING(u8 VCEND, u8 BDEND);
+void UC8179_TCON_SETTING(u8 S2G, u8 G2S);
+u8 UC8179_PANEL_GLASS_CHECK();
+void UC8179_RESOLUTION_SETTING(u8 HORIZON_RESOLUTION, u8 VERTICAL_RESOLUTION);
+void UC8179_GATE_SOURCE_START_SETTING(u8 SOURCE_START, u8 GATE_START);
+bool UC8179_GET_STATUS(u8 STATUS_FLAG);
+void UC8179_AUTO_MEASURE_VCOM(u8 AMVT, u8 XON, u8 AMVS);
+u8 UC8179_VCOM_VALUE_READ();
+void UC8179_VCOM_DC_SETTING(int VCOM_DC);
+void UC8179_PARTIAL_IN();
+void UC8179_PARTIAL_OUT();
+void UC8179_PROGRAMM_MODE();
+void UC8179_ACTIVE_PROGRAMM();
+void UC8179_LVD_VOLTAGE_SELECT(u8 LVD_SEL);
+void UC8179_VCOM_AND_DATA_INTERVAL_SETTING(u8 BDZ, u8 BDV, u8 N2OCP, u8 DDX, u8 CDI);
+void UC8179_VCOM_AND_DATA_SETTING_KWR_KW(u8 BDV, u8 DDX);
+void UC8179_PARTIAL_WINDOW(int HRST, int HRND, int VRST, int VRED, u8 PT_SCAN);
+void UC8179_POWER_SAVING();
+void UC8179_TEMPERATUR_BOUNDRY_C2();
 #endif /* SOLOMON_H_ */

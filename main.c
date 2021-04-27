@@ -36,6 +36,7 @@
 #include "read-sd.h"
 #include "utils.h"
 #include "flow_basis.h"
+#include "UC8179_flow_debug.h"
 
 
 #define DEBUG_PRINTOUTS 0
@@ -65,7 +66,7 @@ int main(void)
 
 ///////// main function
 
-	basic_flow(1);    //0: for yellow; 1: for red
+	UC8179_basic_flow(1);    //0: for yellow; 1: for red
 	//image_ini_test();
 	//image_acep();
 

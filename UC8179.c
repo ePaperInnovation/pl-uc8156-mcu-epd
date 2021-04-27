@@ -32,65 +32,6 @@
 #include <UC8179.h>
 
 
-//global variables
-u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
-extern u16 PIXEL_COUNT; //global variable
-extern regSetting_t *REG_SETTINGS; //global variable
-extern u8 NUMBER_OF_REGISTER_OVERWRITES; //global variable
-
-// UC8179 hardware reset
-
-
-void UC8179_panel_Setting(u8 reg_value)            //UC8179 IDX 0x00: Panel Setting
-{
-    spi_write_command_1param(0x00, reg_value);
-}
-
-void UC8179_power_Setting(u8 reg_value1, u8 reg_value2, u8 reg_value3,  u8 reg_value4,  u8 reg_value5)            //UC8179 IDX 0x01: Power Setting
-{
-    spi_write_command_5params(0x01, reg_value1, reg_value2, reg_value3, reg_value4, reg_value5);
-}
-
-//void UC8179_power_Off()            //UC8179 IDX 0x02: Power off
-
-void UC8179_poweroff_sequenceSetting(u8 reg_value)            //UC8179 IDX 0x03: poweroff sequencesetting
-{
-    spi_write_command_1param(0x03, reg_value);
-}
-
-//void UC8179_power_On()            //UC8179 IDX 0x04: Power On
-
-void UC8179_boost_Softstart(u8 reg_value1, u8 reg_value2, u8 reg_value3,  u8 reg_value4)            //UC8179 IDX 0x06: boost_Softstart
-{
-    spi_write_command_4params(0x06, reg_value1, reg_value2, reg_value3, reg_value4);
-}
-
-
-void UC8179_data_Transmission1(u8 *image_data, size_t size)  // write data into SRAM
-{
-    spi_write_command_and_bulk_data(0x10, image_data, size);
-}
-
-
-void UC8179_data_Stop(u8 reg_value)            //UC8179 IDX 0x11: data stop
-{
-    spi_write_command_1param(0x11, reg_value);
-}
-
-void UC8179_display_Refresh()            //UC8179 IDX 0x12: display refresh
-{
-    spi_write_only_command(0x12);
-}
-
-void UC8179_data_Transmission2(u8 *image_data, size_t size)  // write data into SRAM
-{
-    spi_write_command_and_bulk_data(0x13, image_data, size);
-}
-
-
-
-
-
 
 void UC8179_hardware_reset()
 {
@@ -100,17 +41,7 @@ void UC8179_hardware_reset()
 }
 
 // waits for BUSY getting inactive = 1 (BUSY pin is low-active)
-unsigned int UC8179_wait_for_BUSY_inactive_slave()
-{
- 	unsigned long counter=0;
-  	while (gpio_get_value(PIN_BUSY_SLAVE)==0) // BUSY loop
-  	{
-  		mdelay(1);
- 		counter++; // BUSY loop
- 		if (counter>1000) abort_now("Busy-Loop Timeout", ABORT_UC8156_INIT);
-  	}
-  	return counter;
-}
+
 
 unsigned int UC8179_wait_for_BUSY_inactive()
 {
@@ -124,646 +55,483 @@ unsigned int UC8179_wait_for_BUSY_inactive()
  	return counter;
 }
 
- // waits for BUSY getting inactive = 1 (BUSY pin is low-active)
  void UC8179_wait_for_BUSY_inactive_debug()
  {
  	printf("BUSY loop counter = %d\n", UC8179_wait_for_BUSY_inactive());
  }
 
-// waits for Power_ON RDY
-unsigned long UC8179_wait_for_PowerON_ready()
- {
- 	unsigned long counter=0;
- 	while (spi_read_command_1param(0x15)!=4 && counter<1000)
- 	{
-  		mdelay(1);
- 		counter++; // BUSY loop
-  	}
- 	return(counter);
- }
 
-// waits for Power_ON RDY with timeout
-unsigned long UC8179_wait_for_PowerON_ready_timeout()
- {
- 	unsigned long counter=0;
- 	do
- 	{
-  		mdelay(1);
- 		counter++; // BUSY loop
-  	}
- 	while (spi_read_command_1param(0x15)!=4 && counter < 1000);
- 	if (counter >= 1000)
-		abort_now("HV not enabled.\n", ABORT_UC8156_INIT);
- 	return(counter);
- }
-
-// waits for Power_ON RDY with timeout
-unsigned long UC8179_wait_for_PowerON_ready_slave()
- {
- 	unsigned long counter=0;
- 	do
- 	{
-  		mdelay(1);
- 		counter++; // BUSY loop
-  	}
- 	while (spi_read_command_1param_slave(0x15)!=4 && counter < 1000);
- 	if (counter >= 1000)
-		abort_now("HV not enabled.\n", ABORT_UC8156_INIT);
- 	return(counter);
- }
-
-// waits for Power_ON RDY -> print-out counter
 void UC8179_wait_for_PowerON_ready_debug()
  {
 	unsigned long counter = UC8179_wait_for_PowerON_ready();
  	//printf("PowerOn loop counter = %d\n", counter);
  }
 
-// UC8179 change registers which need values different from power-up values
-void UC8179_init_registers()
-{
-	int i;
-
-	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
-	    spi_write_command((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->val, (REG_SETTINGS+i)->valCount);
-}
-
-void UC8179_print_registers()
-{
-	int i;
-
-	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
-		print_spi_read_command((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->valCount);
-}
-
-// UC8179 change registers which need values different from power-up values
-void UC8179_init_registers_slave()
-{
-	int i;
-
-	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
-		spi_write_command_slave((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->val, (REG_SETTINGS+i)->valCount);
-}
-
-void UC8179_print_registers_slave()
-{
-	int i;
-
-	for (i=0; i<NUMBER_OF_REGISTER_OVERWRITES; i++)
-		print_spi_read_command_slave((REG_SETTINGS+i)->addr, (REG_SETTINGS+i)->valCount);
-}
-
-// waits for Power_OFF RDY
-unsigned long UC8179_wait_for_PowerOFF_ready()
- {
- 	unsigned long counter=0;
-
- 	while ((spi_read_command_1param(0x15)&4) && counter<1000)
- 	{
-  		mdelay(1);
- 		counter++;
-  	}
-
-// 	printf("Power-Off Counter=%d\n", counter);
-
- 	return(counter);
- }
-
-// waits for Power_OFF RDY
-unsigned long UC8179_wait_for_PowerOFF_ready_slave()
- {
- 	unsigned long counter=0;
-
- 	while ((spi_read_command_1param_slave(0x15)&4) && counter<1000)
- 	{
-  		mdelay(1);
- 		counter++;
-  	}
-
-// 	printf("Power-Off Counter=%d\n", counter);
-
- 	return(counter);
- }
-
-
-// UC8179 HV power-on (enable charge pumps, execute power-on sequence for outputs)
-void UC8179_HVs_on()
-{
-	u8 reg_value = spi_read_command_1param(0x03); //read power control setting register
-	reg_value |= 0x11; //switch on CLKEN+PWRON bits
-	spi_write_command_1param (0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
-
-	UC8179_wait_for_PowerON_ready();
-//	UC8179_wait_for_PowerON_ready_debug();
-}
-
-void UC8179_HVs_on_slave()
-{
-	u8 reg_value = spi_read_command_1param_slave(0x03); //read power control setting register
-//	reg_value |= 0x01; //switch on CLKEN+PWRON bits
-	reg_value |= 0x07; //switch on CLKEN+PWRON bits
-	spi_write_command_1param_slave(0x03, reg_value); //write power control setting register --> switch on CLKEN+PWRON bits
-
-	UC8179_wait_for_PowerON_ready_slave();
-}
-
-void UC8179_HVs_on_dual()
-{
-	u8 reg_value_master = spi_read_command_1param(0x03); //read power control setting register
-	u8 reg_value_slave  = spi_read_command_1param_slave(0x03); //read power control setting register
-	reg_value_master |= 0x01; //switch on CLKEN+PWRON bits
-
-	reg_value_slave |= 0x07; //switch on CLKEN+PWRON bits
-	spi_write_command_1param(0x03, reg_value_master); //write power control setting register --> switch on CLKEN+PWRON bits
-	spi_write_command_1param_slave(0x03, reg_value_slave); //write power control setting register --> switch on CLKEN+PWRON bits
-
-	UC8179_wait_for_PowerON_ready(); // BUSY loop -> wait for BUSY inactive
-
-}
-
-// UC8179 power-off sequence
-void UC8179_HVs_off()
-{
-	u8 reg_value = spi_read_command_1param(0x03); //read power control setting register
-	reg_value &= ~0x01; //switch off PWRON bit
-	spi_write_command_1param (0x03, reg_value); //write power control setting register
-	UC8179_wait_for_BUSY_inactive();
-	reg_value &= ~0x10; //switch off CLKEN bit
-	spi_write_command_1param (0x03, reg_value);
-}
-
-void UC8179_HVs_off_slave(int pin)
-{
-	u8 reg_value = spi_read_command_1param_slave(0x03); //read power control setting register
-	reg_value &= ~0x01; //switch off PWRON bit
-	spi_write_command_1param_slave(0x03, reg_value); //write power control setting register
-	UC8179_wait_for_PowerOFF_ready_slave();
-	UC8179_wait_for_BUSY_inactive_slave();
-}
-
-// UC8179 power-off sequence
-void UC8179_HVs_off_dual()
-{
-	u8 reg_value_master = spi_read_command_1param(0x03); //read power control setting register
-	u8 reg_value_slave  = spi_read_command_1param_slave(0x03); //read power control setting register
-	reg_value_master &= ~0x01; // reset PWRON bit
-	reg_value_slave &= ~0x01; //reset PWRON bit
-	spi_write_command_1param(0x03, reg_value_master); //write power control setting register --> switch on PWRON bit
-	spi_write_command_1param_slave(0x03, reg_value_slave); //write power control setting register --> switch on PWRON bit
-
-	UC8179_wait_for_PowerOFF_ready();
-	UC8179_wait_for_PowerOFF_ready_slave();
- 	UC8179_wait_for_BUSY_inactive();
-	UC8179_wait_for_BUSY_inactive_slave();
-}
-
-u8 UC8179_read_RevID()
-{
-    return spi_read_uc8179_Revision();
-}
 
 
 
-u8 UC8179_read_PanelCheck()
+
+
+u8 UC8179_READ_REVID()
 {
     u8 return_value;
-//    gpio_set_value_lo(SPI_CS);
-//    gpio_set_value_lo(SPI_CD);
-    UC8179_spi_write_command(0x44);
-    mdelay(5);
-    return_value = UC8179_spi_read_parameter();
-    return return_value;
+
+       UC8179_spi_write_command(0x70);
+       UC8179_spi_read_parameter();
+       UC8179_spi_read_parameter();
+       UC8179_spi_read_parameter();
+       UC8179_spi_read_parameter();
+       UC8179_spi_read_parameter();
+       UC8179_spi_read_parameter();
+       return_value =  UC8179_spi_read_parameter();
+
+       return return_value;
+}
+
+u8 *UC8179_READ_PRODUCT_REVISION()
+{
+    u8 value_char[4];
+
+    UC8179_spi_write_command(0x70);
+    value_char[0] =  UC8179_spi_read_parameter();
+    printf("value_char[0] = %d\n", value_char[0]);
+
+    value_char[1] = UC8179_spi_read_parameter();
+    printf("value_char[1] = %d\n", value_char[1]);
+    value_char[2] = UC8179_spi_read_parameter();
+    printf("value_char[2] = %d\n", value_char[2]);
+    value_char[3] = '\0';
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+
+    return  value_char;
+
+}
+
+u8 *UC8179_READ_LUT_REVISION()
+{
+    u8 value_char[3];
+    UC8179_spi_write_command(0x70);
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    UC8179_spi_read_parameter();
+    value_char[0] = UC8179_spi_read_parameter();
+    printf("value_char[0] = %x\n", value_char[0]);
+    value_char[1] = UC8179_spi_read_parameter();
+    printf("value_char[1] = %x\n", value_char[1]);
+    value_char[2] = UC8179_spi_read_parameter();
+    printf("value_char[2] = %x\n", value_char[2]);
+    UC8179_spi_read_parameter();
+    return value_char;
+
 }
 
 
 
-u8 UC8179_read_RevID_slave()
+
+
+
+void UC8179_PANEL_SETTING(u8 REG_value, u8 KWR_value, u8 UD_value, u8 SHL_value, u8 SHD_N_value, u8 REST_N_value)
 {
-	return spi_read_command_1param_slave(0x00);
+    u8 value = REG_value | KWR_value | UD_value | SHL_value | SHD_N_value | REST_N_value;
+    UC8179_spi_write_command(0x00);
+    UC8179_spi_write_parameter(value);
 }
 
-// send Vcom value (in mV) to UC8179
-void UC8179_set_Vcom(int Vcom_mv_value)
+
+void UC8179_PANEL_SETTING_DEFAULT(void)
 {
-	u16 Vcom_register_value = (float)Vcom_mv_value/(float)30.0;
-	spi_write_command_2params(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
+    UC8179_PANEL_SETTING(LUT_FROM_OTP, PIXEL_KWR_MODE, GATE_SCAN_UP, SOURCE_SHIFT_RIGHT, BOOSTER_ON, SOFT_RESET_NO_EFFECT);
 }
 
-void UC8179_set_Vcom_Acep(int Vcom_mv_value)
+
+void UC8179_POWER_SETTING(u8 BD_EN, u8 VSR_EN, u8 VS_EN, u8 VG_EN, u8 VCOM_SLEW, u8 VG_LVL, u8 VDH_LVL, u8 VDL_LVL, u8 VDHR_LVL)
 {
-    u16 Vcom_register_value;
-    if(Vcom_mv_value >= -3300 )
+    u8 value1 = BD_EN | VSR_EN | VS_EN | VG_EN;
+    u8 value2 = VCOM_SLEW | VG_LVL;
+    UC8179_spi_write_command(0x01);
+    UC8179_spi_write_parameter(value1);
+    UC8179_spi_write_parameter(value2);
+    UC8179_spi_write_parameter(VDH_LVL);
+    UC8179_spi_write_parameter(VDL_LVL);
+    UC8179_spi_write_parameter(VDHR_LVL);
+}
+
+void UC8179_POWER_SETTING_DEFAULT(void)
+{
+    UC8179_POWER_SETTING( BORDER_LDO_DISABLE, INTERNAL_DC_FOR_VDHR, INTERNAL_DC_FOR_VDHL, INTERNAL_DC_FOR_VGHL, SLEW_RATE_FAST, VGHL_20V, VDH_LVL, VDL_LVL, VDHR_LVL);
+}
+
+
+void UC8179_POWER_OFF(void)
+{
+    UC8179_spi_write_command(0x02);
+}
+
+void UC8179_POWER_OFF_SEQUENCE_SETTING(u8 T_VDS_OFF)
+{
+    u8 value = (u8)(T_VDS_OFF << 4 );
+    UC8179_spi_write_command(0x03);
+    UC8179_spi_write_parameter(value);
+}
+
+
+void UC8179_POWER_ON(void)
+{
+    UC8179_spi_write_command(0x04);
+}
+
+void UC8179_POWER_ON_MEASURE(void)
+{
+    UC8179_spi_write_command(0x05);
+}
+
+
+void UC8179_BOOSTER_SOFT_START(u8 BT_PHA_PERIODE_VALUE, u8 BT_PHA_STRENGTH_VALUE, u8 BT_PHA_MIN_OFF_VALUE, u8 BT_PHB_PERIODE_VALUE, u8 BT_PHB_STRENGTH_VALUE, u8 BT_PHB_MIN_OFF_VALUE, u8 BT_PHC1_STRENGTH_VALUE, u8 BT_PHC1_MIN_OFF_VALUE, u8 BT_PHC2_ENABLE_VALUE, u8 BT_PHC2_STRENGTH_VALUE, u8 BT_PHC2_MIN_OFF_VALUE)
+{
+    u8 value_PHA = BT_PHA_PERIODE_VALUE | BT_PHA_STRENGTH_VALUE | BT_PHA_MIN_OFF_VALUE ;
+    u8 value_PHB = BT_PHB_PERIODE_VALUE | BT_PHB_STRENGTH_VALUE | BT_PHB_MIN_OFF_VALUE ;
+    u8 value_PHC1 = BT_PHC1_STRENGTH_VALUE | BT_PHC1_MIN_OFF_VALUE ;
+    u8 value_PHC2  = BT_PHC2_ENABLE_VALUE |BT_PHC2_STRENGTH_VALUE | BT_PHC2_MIN_OFF_VALUE  ;
+    UC8179_spi_write_command(0x06);
+    UC8179_spi_write_parameter(value_PHA);
+    UC8179_spi_write_parameter(value_PHB);
+    UC8179_spi_write_parameter(value_PHC1);
+    UC8179_spi_write_parameter(value_PHC2);
+}
+
+
+void UC8179_BOOSTER_SOFT_START_DEFAULT(void)
+{
+    UC8179_BOOSTER_SOFT_START(PH_PERIOD_10MS, PH_STRENGTH3, PH_658US,PH_PERIOD_10MS, PH_STRENGTH3, PH_658US,PH_STRENGTH3, PH_658US,PHC2_ENABLE,PH_STRENGTH3, PH_658US);
+}
+
+void UC8179_DEEP_SLEEP(void)
+{
+    UC8179_spi_write_command(0x07);
+    UC8179_spi_write_parameter(0xA5);
+}
+
+void UC8179_DATA_TRANSMISSION1(u8 *data, int data_length)
+{
+    UC8179_spi_write_command(0x10);
+    unsigned int i;
+    for (i = 0; i < data_length; i++)
     {
-      Vcom_register_value = (float)(Vcom_mv_value + 3300)/(float)30.0;
-      spi_write_command_2params(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
+        UC8179_spi_write_parameter(data[i]);
+    }
+}
+
+
+void UC8179_DATA_TRANSMISSION2(u8 *data, int data_length)
+{
+    UC8179_spi_write_command(0x13);
+    unsigned int i;
+    for (i = 0; i < data_length; i++)
+    {
+        UC8179_spi_write_parameter(data[i]);
+    }
+}
+
+u8 UC8179_DATA_FLAG()
+{
+    u8 data_flag;
+    UC8179_spi_write_command(0x11);
+    data_flag = UC8179_spi_read_parameter();
+
+    return data_flag;
+}
+
+void UC8179_DISPLAY_REFRESH(void)
+{
+    UC8179_spi_write_command(0x12);
+}
+
+
+void UC8179_DUAL_SPI_MODE(u8 MM_EN, u8 DUSPI_EN)
+{
+    u8 value = MM_EN | DUSPI_EN;
+    UC8179_spi_write_command(0x15);
+    UC8179_spi_write_parameter(value);
+}
+
+void UC8179_AUTO_SEQUENCE(u8 auto_code)
+{
+    UC8179_spi_write_command(0x17);
+    UC8179_spi_write_parameter(auto_code);
+}
+
+void UC8179_LUT_OPTION(u8 STATE10_XON, u8 STATE9_XON, u8 STATE8_XON, u8 STATE7_XON, u8 STATE6_XON, u8 STATE5_XON, u8 STATE4_XON, u8 STATE3_XON, u8 STATE2_XON, u8 STATE1_XON)
+{
+    u8 value1 = STATE10_XON | STATE9_XON;
+    u8 value2 = STATE8_XON | STATE7_XON | STATE6_XON | STATE5_XON | STATE4_XON | STATE3_XON | STATE2_XON | STATE1_XON;
+    UC8179_spi_write_command(0x2A);
+    UC8179_spi_write_parameter(value1);
+    UC8179_spi_write_parameter(value2);
+}
+
+
+void UC8179_KW_LUT_OPTION( u8 LUT_SELECT    , u8 STATE10_XON, u8 STATE9_XON, u8 STATE8_XON, u8 STATE7_XON, u8 STATE6_XON, u8 STATE5_XON, u8 STATE4_XON, u8 STATE3_XON, u8 STATE2_XON, u8 STATE1_XON)
+{
+    u8 value1 = STATE10_XON | STATE9_XON;
+    u8 value2 = STATE8_XON | STATE7_XON | STATE6_XON | STATE5_XON | STATE4_XON | STATE3_XON | STATE2_XON | STATE1_XON;
+    UC8179_spi_write_command(0x2B);
+    UC8179_spi_write_parameter(LUT_SELECT);
+    UC8179_spi_write_parameter(value1);
+    UC8179_spi_write_parameter(value2);
+}
+
+
+void UC8179_PLL_CONTROL(u8 FRAME_RATE_SETTING)
+{
+    UC8179_spi_write_command(0x30);
+    UC8179_spi_write_parameter(FRAME_RATE_SETTING); // 0b0110: 50Hz
+}
+
+void UC8179_TEMPERATURE_SENSOR_ENABLE()
+{
+    UC8179_spi_write_command(0x41);
+    UC8179_spi_write_parameter(0x00); // Default: using internal sensor, offset: 0
+}
+
+u8 UC8179_PANEL_GLASS_CHECK()
+{
+    u8 PSTA;
+    UC8179_spi_write_command(0x44);
+    mdelay(1);
+    PSTA = UC8179_spi_read_parameter();
+    return PSTA;
+}
+
+void UC8179_VCOM_AND_DATA_INTERVAL_SETTING(u8 BDZ, u8 BDV, u8 N2OCP, u8 DDX, u8 CDI )
+{
+    u8 value = BDZ | BDV | N2OCP | DDX;
+    UC8179_spi_write_command(0x50);
+    UC8179_spi_write_parameter(value);
+    UC8179_spi_write_parameter(CDI);
+}
+
+void UC8179_VCOM_AND_DATA_SETTING_KWR_KW(u8 BDV, u8 DDX)
+{
+    UC8179_VCOM_AND_DATA_INTERVAL_SETTING(BDZ_OUTPUT_HIZ_DISABLE, BDV, COPY_NEW_DATA_TO_OLD_DATA_DIS, DDX, VCOM_AND_DATA_INTERVAL);
+}
+
+
+
+bool UC8179_LOW_POWER_DETECTION()
+{
+    u8 LPD_VALUE;
+    bool LPD_FLAG;
+    UC8179_spi_write_command(0x51);
+    gpio_set_value_lo(PIN_BUSY);
+    mdelay(1);
+    gpio_set_value_hi(PIN_BUSY);
+    LPD_VALUE = UC8179_spi_read_parameter();
+    if(LPD_VALUE == 1)
+    {
+     LPD_FLAG = true;
     }
     else
     {
-        Vcom_register_value = (float)(Vcom_mv_value + 3300)/(float)30.0*(float)-1;
-        u8 byte_h = (u8)(((Vcom_register_value>>8) | 4) & 0x03);
-        spi_write_command_2params(0x1B, (u8)Vcom_register_value, byte_h);
+        LPD_FLAG = false;
     }
-
-}
-
-// send Vcom value (in mV) to UC8179
-void UC8179_set_Vcom_slave(int Vcom_mv_value)
-{
-	u16 Vcom_register_value = (float)Vcom_mv_value/(float)30.0;
-	spi_write_command_2params_slave(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
-}
-
-
-// send waveform to UC8179
-void UC8179_send_waveform(u8 *waveform)
-{
-	spi_write_command_and_bulk_data(0x1C, waveform, WAVEFORM_LENGTH);
-}
-
-// send waveform to UC8179
-void UC8179_send_waveform_slave(u8 *waveform)
-{
-	spi_write_command_and_bulk_data_slave(0x1C, waveform, WAVEFORM_LENGTH);
-}
-
-void UC8179_print_waveform()
-{
-	u8 *buffer;
-	buffer = (u8*) malloc(WAVEFORM_LENGTH * sizeof(u8));
-	spi_read_command_and_bulk_data(0x1C, buffer, WAVEFORM_LENGTH);
-	int i;
-	for (i=0;i<WAVEFORM_LENGTH;i++)
-		printf("0x%02x ", *(buffer+i));
-	printf("\n");
-}
-
-void UC8179_print_waveform_slave()
-{
-	u8 *buffer;
-	buffer = (u8*) malloc(WAVEFORM_LENGTH * sizeof(u8));
-	spi_read_command_and_bulk_data_slave(0x1C, buffer, WAVEFORM_LENGTH);
-	int i;
-	for (i=0;i<WAVEFORM_LENGTH;i++)
-		printf("0x%02x ", *(buffer+i));
-	printf("\n");
-}
-
-//send an image to UC8179 image data memory
-void UC8179_send_image_data(u8 *image_data)
-{
-	spi_write_command_and_bulk_data(0x10, image_data, PIXEL_COUNT/4);
+    return LPD_FLAG;
 }
 
 
 
 
-void UC8179_send_image_data_inv(u8 *image_data)
+
+void UC8179_END_VOLTAGE_SETTING(u8 VCEND, u8 BDEND)
 {
-    spi_write_command_and_bulk_data_inv(0x10, image_data, PIXEL_COUNT/4);
-}
-
-
-void UC8179_send_image_data_GL0(u8 *image_data)
-{
-    spi_write_command_and_bulk_data_GL0(0x10, image_data, PIXEL_COUNT/4);
-}
-
-
-void UC8179_send_image_data_GL4(u8 *image_data)
-{
-    spi_write_command_and_bulk_data_GL4(0x10, image_data, PIXEL_COUNT/4);
-}
-
-void UC8179_send_image_data_GL11(u8 *image_data)
-{
-    spi_write_command_and_bulk_data_GL11(0x10, image_data, PIXEL_COUNT/4);
-}
-
-void UC8179_send_image_data_GL15(u8 *image_data)
-{
-    spi_write_command_and_bulk_data_GL15(0x10, image_data, PIXEL_COUNT/4);
+    u8 value = VCEND | BDEND;
+    UC8179_spi_write_command(0x52);
+    UC8179_spi_write_parameter(value);
 }
 
 
 
 
-void UC8179_send_image_data_slave(u8 *image_data)
+
+
+
+
+
+
+
+void UC8179_TCON_SETTING(u8 S2G, u8 G2S)
 {
-	spi_write_command_and_bulk_data_slave(0x10, image_data, PIXEL_COUNT/4);
-}
-
-//send an image to UC8179 image data memory
-void UC8179_send_image_data_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size)
-{
-	spi_write_command_4params(0x0d, row_start*2, row_start*2+row_size*2-1, col_start/2, col_start/2+col_size/2-1);
-	spi_write_command_2params(0x0e, row_start*2, col_start/2);
-
-	spi_write_command_and_bulk_data(0x10, image_data, col_size*row_size/4);
-}
-
-//send any data to UC8179 image data memory --> e.g. used for MTP programming
-void UC8179_send_data_to_image_RAM_for_MTP_program(u8 *waveform_data, size_t size)
-{
-	spi_write_command_and_bulk_data(0x10, waveform_data, size);
-}
-
-//send an repeated byte to the image buffer --> used to create a solid image like all white
-void UC8179_send_repeated_image_data(u8 image_data)
-{
-	spi_write_command_byte_repeat(0x10, image_data, PIXEL_COUNT/4);
-}
-
-//send an repeated byte to the image buffer --> used to create a solid image like all white
-void UC8179_send_repeated_image_data_slave(u8 image_data)
-{
-	spi_write_command_byte_repeat_slave(0x10, image_data, PIXEL_COUNT/4);
-}
-
-//update display using full update mode and wait for BUSY-pin low
-void UC8179_update_display_full()
-{
-	spi_write_command_1param(0x14, 0x01);
-	UC8179_wait_for_BUSY_inactive();
-}
-
-//update display and wait for BUSY-pin low
-void UC8179_update_display(u8 update_mode, u8 waveform_mode)
-{
-	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
-	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
-	//spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | 0x20); // test area update mode
-	UC8179_wait_for_BUSY_inactive();
-	//UC8179_wait_for_BUSY_inactive_debug();
-}
-
-void UC8179_update_display_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select)
-{
-    spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
-
-   // spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select | 0x01); // 0x20 for area update
-    spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select | 0x03); //for Acep
-    UC8179_wait_for_BUSY_inactive();
-
-}
-
-
-//update display and wait for BUSY-pin low
-void UC8179_update_display_slave_only(u8 update_mode, u8 waveform_mode)
-{
-	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
-	spi_write_command_1param_slave(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
-
-	UC8179_wait_for_BUSY_inactive();
-
-}
-
-//update display and wait for BUSY-pin low
-void UC8179_update_display_dual(u8 update_mode, u8 waveform_mode)
-{
-	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
-	spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
-	spi_write_command_1param_slave(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 );
-
-	UC8179_wait_for_BUSY_inactive();
-	UC8179_wait_for_BUSY_inactive_slave();
-}
-
-void UC8179_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode)
-{
-	  UC8179_HVs_on();
-	  UC8179_update_display(update_mode, waveform_mode);
-      UC8179_HVs_off();
-}
-
-
-void UC8179_update_display_with_power_on_off_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select)
-{
-      UC8179_HVs_on();
-      UC8179_update_display_all_set(update_mode, waveform_mode, transparency_key_value, transparency_display_enable, display_mode_select);
-      UC8179_HVs_off();
+    u8 value = S2G | G2S;
+    UC8179_spi_write_command(0x60);
+    UC8179_spi_write_parameter(value);
 }
 
 
 
-void UC8179_update_display_with_power_on_off_dual(u8 update_mode, u8 waveform_mode)
+
+void UC8179_RESOLUTION_SETTING(u8 HORIZON_RESOLUTION, u8 VERTICAL_RESOLUTION)
 {
-	  UC8179_HVs_on_dual();
-	  UC8179_update_display_dual(update_mode, waveform_mode);
-      UC8179_HVs_off_dual();
+    u8 value_hori_h = (u8)((HORIZON_RESOLUTION>>8)  && 0x03);
+    u8 value_hori_l = (u8)((HORIZON_RESOLUTION>>3)  && 0x1F);
+    u8 value_vert_h = (u8)((VERTICAL_RESOLUTION>>8)  && 0x03);
+    u8 value_vert_l = (u8)(VERTICAL_RESOLUTION  && 0xFF);
+    UC8179_spi_write_command(0x61);
+    UC8179_spi_write_parameter(value_hori_h);
+    UC8179_spi_write_parameter(value_hori_l);
+    UC8179_spi_write_parameter(value_vert_h);
+    UC8179_spi_write_parameter(value_vert_l);
 }
 
-void UC8179_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode)
+void UC8179_GATE_SOURCE_START_SETTING(u8 SOURCE_START, u8 GATE_START)
 {
-	  UC8179_send_image_data(image_data);
-
-	  UC8179_update_display_with_power_on_off(update_mode, waveform_mode);
+    u8 value_source_h = (u8)((SOURCE_START>>8)  && 0x03);
+    u8 value_source_l = (u8)((SOURCE_START>>3)  && 0x1F);
+    u8 value_gate_h = (u8)((GATE_START>>8)  && 0x03);
+    u8 value_gate_l = (u8)(GATE_START  && 0xFF);
+    UC8179_spi_write_command(0x61);
+    UC8179_spi_write_parameter(value_source_h);
+    UC8179_spi_write_parameter(value_source_l);
+    UC8179_spi_write_parameter(value_gate_h);
+    UC8179_spi_write_parameter(value_gate_l);
 }
 
 
-void UC8179_show_image_inv(u8 *image_data, u8 update_mode, u8 waveform_mode)
+
+bool UC8179_GET_STATUS(u8 STATUS_FLAG)
 {
-      UC8179_send_image_data_inv(image_data);
-
-      UC8179_update_display_with_power_on_off(update_mode, waveform_mode);
-}
-
-
-
-void UC8179_show_image_all_set(u8 *image_data, u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_enable)
-{
-    if(inv_enable)
+    bool status_flag = false;
+    UC8179_spi_write_command(0x71);
+    u8 status_flag_u8 = UC8179_spi_read_parameter();
+    u8 status_flag_check = 0;
+    switch(STATUS_FLAG)
     {
-        UC8179_send_image_data_inv(image_data);
+        case BUSY_N_FLAG:
+            status_flag_check = status_flag_u8 && 0x01;
+            break;
+        case POF_FLAG:
+            status_flag_check = status_flag_u8 && 0x02;
+            break;
+        case PON_FLAG:
+            status_flag_check = status_flag_u8 && 0x04;
+            break;
+        case DATA_FLAG:
+            status_flag_check = status_flag_u8 && 0x08;
+            break;
+        case I2C_BUSY_N:
+            status_flag_check = status_flag_u8 && 0x10;
+            break;
+        case I2C_ERR:
+            status_flag_check = status_flag_u8 && 0x20;
+            break;
+
+        case PTL_FLAG:
+            status_flag_check = status_flag_u8 && 0x40;
+            break;
     }
-    else if (!inv_enable)
+    if(status_flag_check > 0)
     {
-        UC8179_send_image_data(image_data);
+        status_flag = true;
     }
-      UC8179_update_display_with_power_on_off_all_set(update_mode,  waveform_mode, transparency_key_value, transparency_display_enable,  display_mode_select);
+    return status_flag;
 }
 
 
-
-
-void UC8179_show_image_GL(u8 *image_data, u8 update_mode, u8 waveform_mode, int GL_name)
+void UC8179_AUTO_MEASURE_VCOM(u8 AMVT, u8 XON, u8 AMVS)
 {
-        switch(GL_name)
-        {
-           case 0:
-               UC8179_send_image_data_GL0(image_data);
-               break;
-           case 4:
-               UC8179_send_image_data_GL4(image_data);
-               break;
-           case 11:
-               UC8179_send_image_data_GL11(image_data);
-               break;
-           case 15:
-               UC8179_send_image_data_GL15(image_data);
-               break;
-        }
-      UC8179_update_display_with_power_on_off(update_mode, waveform_mode);
+    u8 value = AMVT | XON | AMVS;
+    UC8179_spi_write_command(0x80);
+    UC8179_spi_write_parameter(value);
 }
 
-void UC8179_show_image_dual(u8 *image_data, u8 update_mode, u8 waveform_mode)
+u8 UC8179_VCOM_VALUE_READ()
 {
-	//UC8179_send_image_data(image_data);
-	// No need to send data, because data is already sent to the controllers by the read_sd-function
-	UC8179_update_display_with_power_on_off_dual(update_mode, waveform_mode);
+    u8 value_read;
+    UC8179_spi_write_command(0x81);
+    value_read = UC8179_spi_read_parameter();
+    return value_read;
 }
 
-void UC8179_show_image_area(u8 *image_data, int col_start, int col_size, int row_start, int row_size, u8 update_mode, u8 waveform_mode)
+void UC8179_VCOM_DC_SETTING(int VCOM_DC)
 {
-	  UC8179_send_image_data_area(image_data, col_start, col_size, row_start, row_size);
+    u8 value;
+    value = ((-VCOM_DC) -10)/5;
+    printf("vcom_DC_value = %d\n", value);
+    UC8179_spi_write_command(0x82);
+    UC8179_spi_write_parameter(value);
 
-	  UC8179_HVs_on();
-	  UC8179_update_display(update_mode, waveform_mode);
-      UC8179_HVs_off();
 }
 
-//measure Vcom with continuous readout
-void UC8179_measure_Vcom_curve()
+
+void UC8179_PARTIAL_WINDOW(int HRST, int HRED, int VRST, int VRED, u8 PT_SCAN)
 {
-	u8 return_value;
+    u8 hrst_h = (u8)((HRST>>8)  && 0x03);
+    u8 hrst_l = (u8)((HRST>>3)  && 0x1F);
 
-	spi_write_command_4params(0x18, 0x40, 0x01,0x24, 0x05); //TPCOM=Hi-Z before update and during null-frame drive
+    u8 hred_h = (u8)((HRED>>8)  && 0x03);
+    u8 hred_l = (u8)((HRED>>3)  && 0x1F);
 
-	UC8179_HVs_on();
-	return_value = 	spi_read_command_1param(0x15);
-	printf("R15h after HV_on = %x\n", return_value);
-	//spi_write_command_1param(0x19, 0x29); //trigger Vcom sensing with waiting time 5sec
-	spi_write_command_1param(0x19, 0x81); //trigger Vcom sensing with waiting time 15sec
-	//spi_write_command_1param(0x19, 0xfd); //trigger Vcom sensing with max waiting time ~30sec
+    u8 vrst_h = (u8)((VRST>>8)  && 0x03);
+    u8 vrst_l = (u8)(VRST  && 0xFF);
 
-	int i;
-	u8 value[1600][2];
-	for (i=0;i<1600;i++)
-	{
-		value[i][0]=0;
-		value[i][1]=0;
-	}
+    u8 vred_h = (u8)((VRED>>8)  && 0x03);
+    u8 vred_l = (u8)(VRED  && 0xFF);
 
-	//UC8179_wait_for_BUSY_inactive(); // wait for power-up completed
-	unsigned long counter=0;
-	const int DIVIDER=25;
-	do
-	{
-		mdelay(1);
-		if (counter % DIVIDER == 0)
-			spi_read_command_2params1(0x1a, &value[counter/DIVIDER][0]);
-		counter++;
-	} while (gpio_get_value(PIN_BUSY)==0); // BUSY loop
 
-	UC8179_HVs_off();
+    UC8179_spi_write_command(0x90);
 
-	for (i=0;i<(int)(counter/DIVIDER)+1;i++)
-	{
-		//printf("%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
-//		if (value[i][0]>0)
-//			printf("%f sec = %f V\n", i*DIVIDER/1000.0, value[i][0] * 0.03);
-	}
+    UC8179_spi_write_command(hrst_h);
+    UC8179_spi_write_command(hrst_l);
+    UC8179_spi_write_command(hred_h);
+    UC8179_spi_write_command(hred_l);
+    UC8179_spi_write_command(vrst_h);
+    UC8179_spi_write_command(vrst_l);
+    UC8179_spi_write_command(vred_h);
+    UC8179_spi_write_command(vred_l);
+    UC8179_spi_write_command(PT_SCAN);
 }
 
-void print_temperature_sensor_value()
+
+
+
+void UC8179_PARTIAL_IN()
 {
-	u8 return_value = spi_read_command_1param(0x08);
-	printf("Temperatur sensor value read from Reg[08h] = 0x%x\n", return_value);
+    UC8179_spi_write_command(0x91);
 }
 
-u8 print_current_VCOM()
+void UC8179_PARTIAL_OUT()
 {
-	u8 return_value = spi_read_command_1param(0x1b);
-	return return_value;
-//	printf("Vcom read from Reg[1Bh] = 0x%x = %.3fV\n", return_value, return_value*0.03);
+    UC8179_spi_write_command(0x92);
 }
 
-void UC8179_check_status_register(u8 expected_value)
+
+void UC8179_PROGRAMM_MODE()
 {
-	char error_message[30];
-
-	u8 status_reg_value = spi_read_command_1param(0x15);
-
-	#if DEBUG_PRINTOUTS
-	printf("Status Register = %x\n", status_reg_value);
-	#endif
-
-	if (status_reg_value != expected_value) //check Status Register
-	{
-		sprintf(error_message, "Status Register not %x but %x.\n", expected_value, status_reg_value);
-		abort_now(error_message, ABORT_UC8156_INIT);
-	}
+    UC8179_spi_write_command(0xA0);
 }
 
-void UC8179_check_RevID()
+void UC8179_ACTIVE_PROGRAMM()
 {
-	char error_message[30];
-	u8 revID = UC8179_read_RevID();
-
-	printf("RevID = %x\n", revID);
-
-	if (revID != 0x79)
-	{
-		sprintf(error_message, "RevID 0x79 not read correctly (%x).\n", revID);
-		abort_now(error_message, ABORT_UC8156_INIT);
-	}
+    UC8179_spi_write_command(0xA1);
 }
 
-void UC8179_check_RevID_slave()
+void UC8179_POWER_SAVING()
 {
-
-	char error_message[30];
-	u8 revID = UC8179_read_RevID_slave();
-
-	printf("Slave: RevID = %x\n", revID);
-
-	if (revID != 0x79)
-	{
-		sprintf(error_message, "RevID 0x79 not read correctly (%x).\n", revID);
-		abort_now(error_message, ABORT_UC8156_INIT);
-	}
+    UC8179_spi_write_command(0xE3);
+    UC8179_spi_write_parameter(0x00);
 }
 
-//measure Vcom and give back only last readout (final value)
-float UC8179_measure_VCOM()
+
+void UC8179_LVD_VOLTAGE_SELECT(u8 LVD_SEL)
 {
-	u8 values[2];
-	int sign=1;
-	spi_write_command_1param(0x19,0x14 | 0x01);
-	UC8179_wait_for_BUSY_inactive();
-	spi_read_command_2params1(0x1a,values);
-	spi_write_command_1param(0x19,0x14);
-	if (values[1]==2)
-		sign=-1;
-	return sign*values[0]*30/1000;
+    UC8179_spi_write_command(0xE4);
+    UC8179_spi_write_parameter(LVD_SEL);
 }
 
-void print_measured_VCOM()
+void UC8179_TEMPERATUR_BOUNDRY_C2()
 {
-//	printf("Vcom measured = %.3fV\n", UC8179_measure_VCOM());
+    UC8179_spi_write_command(0xE7);
+    UC8179_spi_write_parameter(0x00);
 }
-
-
-void drive_voltage_setting(u8 vg_lv, u8 vs_lv)
-{
-    spi_write_command_2params(0x02, vg_lv, vs_lv);
-}
-
-void drive_voltage_setting_Acep(int v)
-{
-
-    v = round(v/1000);
-
-    int x = (v-8)/1*2 << 4;
-    x = x | (v-8)/1*2;
-    spi_write_command_2params(0x02, 0x25, x);
-}
-
-void tcom_timing_setting(u8 gap, u8 s2g)
-{
-    spi_write_command_2params(0x06, gap, s2g);
-}
-
-
-
-
 

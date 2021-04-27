@@ -100,7 +100,7 @@ void UC8179_spi_write_command(u8 byte);
 void UC8179_spi_write_byte(u8 byte) ;
 u8 UC8179_spi_read_byte();
 
-u8 spi_read_uc8179_Revision();
+
 
 
 #endif /* MSP430_SPI_H_ */

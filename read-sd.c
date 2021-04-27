@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <UC8179.h>
-
+#include <UC8156.h>
 #include "FatFs/ff.h"
 #include "types.h"
 #include "pnm-utils.h"

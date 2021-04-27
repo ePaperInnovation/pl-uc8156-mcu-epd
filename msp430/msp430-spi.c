@@ -432,21 +432,7 @@ u8* spi_read_command_4params(u8 command)
 	return return_value;
 }
 
-u8 spi_read_uc8179_Revision()
-{
-    u8 return_value;
 
-    UC8179_spi_write_command(0x70);
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    return_value =  UC8179_spi_read_parameter();
-
-    return return_value;
-}
 
 u8 spi_read_command_1param_1dummy(u8 command)
 {

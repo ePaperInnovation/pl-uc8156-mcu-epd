@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <UC8179.h>
-
+#include <UC8156.h>
 #include "types.h"
 #include "FatFs/ff.h"
 #include "utils.h"

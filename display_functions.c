@@ -23,7 +23,8 @@
  *      Author: andreas.meier
  */
 
-#include <UC8179.h>
+
+#include <UC8156.h>
 #include "msp430/msp430-spi.h"
 #include "msp430/msp430-gpio.h"
 #include "read-sd.h"
@@ -38,29 +39,29 @@ void clear_display()
 	u8 reg0fh_value = spi_read_command_1param(0x0f);
 
 	spi_write_command_1param(0x0f, reg0fh_value|0x10); //
-	UC8179_send_repeated_image_data(0xff); // 0xff is white
+	UC8156_send_repeated_image_data(0xff); // 0xff is white
 	spi_write_command_1param(0x0f, reg0fh_value&(~0x10)); //
-	UC8179_send_repeated_image_data(0xff); // 0xff is white
+	UC8156_send_repeated_image_data(0xff); // 0xff is white
 	if(single_display){
-		UC8179_HVs_on();
-		UC8179_update_display(FULL_UPDATE, NORMAL_4GL);
-		UC8179_update_display(FULL_UPDATE, NORMAL_4GL);
-		//UC8179_update_display(INIT_UPDATE);
-		UC8179_HVs_off();
+		UC8156_HVs_on();
+		UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
+		UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
+		//UC8156_update_display(INIT_UPDATE);
+		UC8156_HVs_off();
 	}else{
 		spi_write_command_1param_slave(0x0f, reg0fh_value|0x10); //
-		UC8179_send_repeated_image_data_slave(0xff); // 0xff is white
+		UC8156_send_repeated_image_data_slave(0xff); // 0xff is white
 		spi_write_command_1param_slave(0x0f, reg0fh_value&(~0x10)); //
-		UC8179_send_repeated_image_data_slave(0xff); // 0xff is white
+		UC8156_send_repeated_image_data_slave(0xff); // 0xff is white
 
 		spi_write_command_1param_slave(0x03, 0xc6); //Enable external HV supply for Slave
 
-		UC8179_HVs_on_dual();
+		UC8156_HVs_on_dual();
 
-		UC8179_update_display_dual(FULL_UPDATE, NORMAL_4GL);
-		UC8179_update_display_dual(FULL_UPDATE, NORMAL_4GL);
+		UC8156_update_display_dual(FULL_UPDATE, NORMAL_4GL);
+		UC8156_update_display_dual(FULL_UPDATE, NORMAL_4GL);
 
-		UC8179_HVs_off_dual();
+		UC8156_HVs_off_dual();
 	}
 }
 
@@ -69,7 +70,7 @@ void show_image_from_SDcard(char *image, int mode)
 {
 	sdcard_load_image(image, image_data);
 
-   	UC8179_show_image(image_data, mode, NORMAL_4GL);
+   	UC8156_show_image(image_data, mode, NORMAL_4GL);
 }
 
 
@@ -81,11 +82,11 @@ void show_image_from_SDcard_inv(char *image, int mode, bool inv_bool)
 
     if(!inv_bool)
     {
-        UC8179_show_image(image_data, mode, NORMAL_4GL);
+        UC8156_show_image(image_data, mode, NORMAL_4GL);
     }
     else
     {
-        UC8179_show_image_inv(image_data, mode, NORMAL_4GL);
+        UC8156_show_image_inv(image_data, mode, NORMAL_4GL);
     }
 }
 
@@ -96,7 +97,7 @@ void show_image_from_SDcard_all_set(char *image, int mode,  u8 transparency_key_
 
     sdcard_load_image(image, image_data);
 
-    UC8179_show_image_all_set( image_data, mode, NORMAL_4GL, transparency_key_value, transparency_display_enable, display_mode_select, inv_bool);
+    UC8156_show_image_all_set( image_data, mode, NORMAL_4GL, transparency_key_value, transparency_display_enable, display_mode_select, inv_bool);
 }
 
 
@@ -113,7 +114,7 @@ void show_image_from_SDcard_GL(char *image, int mode, int GL_name)
 */
          sdcard_load_image(image, image_data);
 
-    UC8179_show_image_GL(image_data, mode, NORMAL_4GL, GL_name);
+    UC8156_show_image_GL(image_data, mode, NORMAL_4GL, GL_name);
 
 
 }
@@ -121,7 +122,7 @@ void show_image_from_SDcard_GL(char *image, int mode, int GL_name)
 void show_image_from_SDcard_bg(char *image, int mode)
 {
          sdcard_load_image(image, image_data);
-         UC8179_show_image(image_data, mode, NORMAL_4GL);
+         UC8156_show_image(image_data, mode, NORMAL_4GL);
 }
 
 
@@ -132,13 +133,13 @@ void show_image_from_SDcard_V2(char *image, int mode, int waveform_table)
 {
 	sdcard_load_image(image, image_data);
 
-   	UC8179_show_image(image_data, mode, waveform_table);
+   	UC8156_show_image(image_data, mode, waveform_table);
 }
 
 void show_image_from_SDcard_dual(char *image, int mode)
 {
  	sdcard_load_image(image, image_data);
- 	UC8179_show_image_dual(image_data, mode, NORMAL_4GL);
+ 	UC8156_show_image_dual(image_data, mode, NORMAL_4GL);
 }
 
 void tri_color_display()
@@ -146,16 +147,16 @@ void tri_color_display()
     u8 reg0fh_value = spi_read_command_1param(0x0f);
 
         spi_write_command_1param(0x0f, reg0fh_value|0x10); //
-        UC8179_send_repeated_image_data(0x00); // 0xff is white
+        UC8156_send_repeated_image_data(0x00); // 0xff is white
         spi_write_command_1param(0x0f, reg0fh_value&(~0x10)); //
-        UC8179_send_repeated_image_data(0x00); // 0xff is white
+        UC8156_send_repeated_image_data(0x00); // 0xff is white
         if(single_display)
         {
-            UC8179_HVs_on();
-            UC8179_update_display(FULL_UPDATE, NORMAL_4GL);
-          //  UC8179_update_display(FULL_UPDATE, NORMAL_4GL);
-            //UC8179_update_display(INIT_UPDATE);
-            UC8179_HVs_off();
+            UC8156_HVs_on();
+            UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
+          //  UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
+            //UC8156_update_display(INIT_UPDATE);
+            UC8156_HVs_off();
         }
 }
 

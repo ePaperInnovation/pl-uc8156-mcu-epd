@@ -248,6 +248,11 @@ void set_display_type(int display_type)
 			read_image_data_from_file = read_image_data_from_file_D011_T1;
 
 			break;
+		case UC8179_800_600:
+            GATE_LINES = 600;
+            SOURCE_LINES = 800;
+
+		    break;
 		default:
 			abort_now("Fatal error in: config_display_type.c -> set_display_type -> display_type unknown.", ABORT_DISP_INFO);
 	}

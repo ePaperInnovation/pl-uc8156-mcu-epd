@@ -26,6 +26,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <msp430.h>
+
+
+#include <UC8156.h>
+#include <UC8156_MTP.h>
 #include <UC8179.h>
 #include <UC8179_MTP.h>
 #include "types.h"
@@ -47,7 +51,7 @@
 
 u8 waveform_from_file1[WAVEFORM_LENGTH];
 u8 waveform_from_file2[WAVEFORM_LENGTH];
-static int current_vcom = 0;
+
 bool sd_exist = true;
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable
@@ -66,21 +70,11 @@ enum image_clear{EPD_LGRAY = 0x00, EPD_WHITE = 0x01, EPD_BLACK = 0x02 , EPD_HGRA
 
 void basic_flow(int display_color)
 {
-//    display_type = read_display_type_from_MTP(); // find the type of the display
-//    set_display_type(display_type);             // display tp by tricolor is 2.1
 
-   // UC8179_wait_for_BUSY_inactive(); // wait for power-up completed
 
-//    // optional: additional hardware reset after 5ms delay
-//    mdelay(5);
-//    UC8179_hardware_reset(); // UC8179 hardware reset
-//    UC8179_wait_for_BUSY_inactive(); // wait for RESET completed
 
-    uc_8179_ini();
 
-    u8 revID = UC8179_read_RevID();
 
-        printf("RevID = %x\n", revID);
 
 
 
@@ -128,21 +122,5 @@ if( sd_exist)
 
 }
 
-void uc_8179_ini(void)
-{
 
-        gpio_set_value_lo(PIN_RESET);
-        //gpio_set_value_lo(PIN_3V3_ENABLE);
-        mdelay(500);
-        //gpio_set_value_hi(PIN_3V3_ENABLE);
-        gpio_set_value_hi(PIN_RESET);
-        mdelay(1);
-        udelay(500);
-        UC8179_hardware_reset(); // UC8156 hardware reset
-        gpio_set_value_hi(SPI_CS);
-        mdelay(10);
-        UC8179_wait_for_BUSY_inactive(); // wait for RESET completed
-
-
-}
 
