@@ -246,7 +246,7 @@ int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer)
 		}
 		pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
 	}
-	UC8179_send_image_data(image_buffer);
+	UC8156_send_image_data(image_buffer);
 	for (j=GATE_LINES-1; j>=0; j--)
 	{
 		if (f_read(f, image_file_data, BUFFER_LENGTH_D011_T1, &count) != FR_OK)
@@ -261,7 +261,7 @@ int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer)
 		}
 		pack_2bpp(data_scrambled, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
 	}
-	UC8179_send_image_data_slave(image_buffer);
+	UC8156_send_image_data_slave(image_buffer);
 	return 0;
 }
 

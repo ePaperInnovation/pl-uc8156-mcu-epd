@@ -37,6 +37,9 @@
 #include "msp430-spi.h"
 #include "msp430-gpio.h"
 
+#define UC_8179_SOURCE_LENGTH 800
+#define UC_8179_GATE_LENGTH 600
+
 /* We only support a single SPI bus and that bus is defined at compile
  * time.
  */
@@ -94,7 +97,7 @@ void UC8179_spi_write_parameter(u8 byte)           // UC8179
 {
 
     gpio_set_value_lo(SPI_CS);
-    UC8179_spi_write_byte(byte);
+    spi_write_read_byte(byte);
     gpio_set_value_hi(SPI_CS);
 
 }
@@ -113,26 +116,28 @@ void UC8179_spi_write_command(u8 byte)           // UC8179
 }
 
 
-void UC8179_spi_write_byte(u8 byte)           // UC8179
-{
-      while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
-      UCxnTXBUF = byte;
-}
-
-
-u8 UC8179_spi_read_byte()           // UC8179
-{
-
-    while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
-         UCxnTXBUF = 0x00;
-    u8 count = 8;
-    while (count > 0) ;                     // Wait for all TX/RX to finish
-      {
-          UCxnTXBUF = 0x00;
-          count--;
-      }
-      return UCxnRXBUF;
-}
+//void UC8179_spi_write_byte(u8 byte)           // UC8179
+//{
+//      while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
+//      UCxnTXBUF = byte;
+//}
+//
+//
+//
+//
+//u8 UC8179_spi_read_byte()           // UC8179
+//{
+//
+//    while (UCxnSTAT & UCBUSY) ;                     // Wait for all TX/RX to finish
+//         UCxnTXBUF = 0x00;
+//    u8 count = 8;
+//    while (count > 0) ;                     // Wait for all TX/RX to finish
+//      {
+//          UCxnTXBUF = 0x00;
+//          count--;
+//      }
+//      return UCxnRXBUF;
+//}
 
 u8 spi_write_read_byte_GL0()
 {

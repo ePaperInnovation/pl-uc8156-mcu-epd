@@ -30,7 +30,7 @@
 #include "utils.h"
 #include <math.h>
 #include <UC8179.h>
-
+#include <UC8179_MTP.h>
 
 
 void UC8179_hardware_reset()
@@ -88,45 +88,45 @@ u8 UC8179_READ_REVID()
        return return_value;
 }
 
-u8 *UC8179_READ_PRODUCT_REVISION()
-{
-    u8 value_char[4];
+//u8 *UC8179_READ_PRODUCT_REVISION()
+//{
+//    u8 value_char[4];
+//
+//    UC8179_spi_write_command(0x70);
+//    value_char[0] =  UC8179_spi_read_parameter();
+//    printf("value_char[0] = %d\n", value_char[0]);
+//
+//    value_char[1] = UC8179_spi_read_parameter();
+//    printf("value_char[1] = %d\n", value_char[1]);
+//    value_char[2] = UC8179_spi_read_parameter();
+//    printf("value_char[2] = %d\n", value_char[2]);
+//    value_char[3] = '\0';
+//    UC8179_spi_read_parameter();
+//    UC8179_spi_read_parameter();
+//    UC8179_spi_read_parameter();
+//    UC8179_spi_read_parameter();
+//
+//    return  value_char;
+//
+//}
 
-    UC8179_spi_write_command(0x70);
-    value_char[0] =  UC8179_spi_read_parameter();
-    printf("value_char[0] = %d\n", value_char[0]);
-
-    value_char[1] = UC8179_spi_read_parameter();
-    printf("value_char[1] = %d\n", value_char[1]);
-    value_char[2] = UC8179_spi_read_parameter();
-    printf("value_char[2] = %d\n", value_char[2]);
-    value_char[3] = '\0';
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-
-    return  value_char;
-
-}
-
-u8 *UC8179_READ_LUT_REVISION()
-{
-    u8 value_char[3];
-    UC8179_spi_write_command(0x70);
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    UC8179_spi_read_parameter();
-    value_char[0] = UC8179_spi_read_parameter();
-    printf("value_char[0] = %x\n", value_char[0]);
-    value_char[1] = UC8179_spi_read_parameter();
-    printf("value_char[1] = %x\n", value_char[1]);
-    value_char[2] = UC8179_spi_read_parameter();
-    printf("value_char[2] = %x\n", value_char[2]);
-    UC8179_spi_read_parameter();
-    return value_char;
-
-}
+//u8 *UC8179_READ_LUT_REVISION()
+//{
+//    u8 value_char[3];
+//    UC8179_spi_write_command(0x70);
+//    UC8179_spi_read_parameter();
+//    UC8179_spi_read_parameter();
+//    UC8179_spi_read_parameter();
+//    value_char[0] = UC8179_spi_read_parameter();
+//    printf("value_char[0] = %x\n", value_char[0]);
+//    value_char[1] = UC8179_spi_read_parameter();
+//    printf("value_char[1] = %x\n", value_char[1]);
+//    value_char[2] = UC8179_spi_read_parameter();
+//    printf("value_char[2] = %x\n", value_char[2]);
+//    UC8179_spi_read_parameter();
+//    return value_char;
+//
+//}
 
 
 
@@ -239,7 +239,7 @@ u8 UC8179_DATA_FLAG()
 {
     u8 data_flag;
     UC8179_spi_write_command(0x11);
-    data_flag = UC8179_spi_read_parameter();
+    data_flag = (UC8179_spi_read_parameter() >> 7) & 0x01;
 
     return data_flag;
 }
@@ -288,6 +288,14 @@ void UC8179_PLL_CONTROL(u8 FRAME_RATE_SETTING)
 {
     UC8179_spi_write_command(0x30);
     UC8179_spi_write_parameter(FRAME_RATE_SETTING); // 0b0110: 50Hz
+}
+
+u8 UC8179_TEMPERATUR_READ_INTER()
+{
+    u8 value;
+    UC8179_spi_write_command(0x40);
+    value = UC8179_spi_read_parameter();
+    return value;
 }
 
 void UC8179_TEMPERATURE_SENSOR_ENABLE()
@@ -371,12 +379,12 @@ void UC8179_TCON_SETTING(u8 S2G, u8 G2S)
 
 
 
-void UC8179_RESOLUTION_SETTING(u8 HORIZON_RESOLUTION, u8 VERTICAL_RESOLUTION)
+void UC8179_RESOLUTION_SETTING(int HORIZON_RESOLUTION, int VERTICAL_RESOLUTION)
 {
-    u8 value_hori_h = (u8)((HORIZON_RESOLUTION>>8)  && 0x03);
-    u8 value_hori_l = (u8)((HORIZON_RESOLUTION>>3)  && 0x1F);
-    u8 value_vert_h = (u8)((VERTICAL_RESOLUTION>>8)  && 0x03);
-    u8 value_vert_l = (u8)(VERTICAL_RESOLUTION  && 0xFF);
+    u8 value_hori_h = (u8)((HORIZON_RESOLUTION>>8)  & 0x03);
+    u8 value_hori_l = (u8)(HORIZON_RESOLUTION  & 0xF8);
+    u8 value_vert_h = (u8)((VERTICAL_RESOLUTION>>8)  & 0x03);
+    u8 value_vert_l = (u8)(VERTICAL_RESOLUTION  & 0xFF);
     UC8179_spi_write_command(0x61);
     UC8179_spi_write_parameter(value_hori_h);
     UC8179_spi_write_parameter(value_hori_l);
@@ -384,13 +392,13 @@ void UC8179_RESOLUTION_SETTING(u8 HORIZON_RESOLUTION, u8 VERTICAL_RESOLUTION)
     UC8179_spi_write_parameter(value_vert_l);
 }
 
-void UC8179_GATE_SOURCE_START_SETTING(u8 SOURCE_START, u8 GATE_START)
+void UC8179_GATE_SOURCE_START_SETTING(int SOURCE_START, int GATE_START)
 {
-    u8 value_source_h = (u8)((SOURCE_START>>8)  && 0x03);
-    u8 value_source_l = (u8)((SOURCE_START>>3)  && 0x1F);
-    u8 value_gate_h = (u8)((GATE_START>>8)  && 0x03);
-    u8 value_gate_l = (u8)(GATE_START  && 0xFF);
-    UC8179_spi_write_command(0x61);
+    u8 value_source_h = (u8)((SOURCE_START>>8)  & 0x03);
+    u8 value_source_l = (u8)(SOURCE_START  & 0xF8);
+    u8 value_gate_h = (u8)((GATE_START>>8)  & 0x03);
+    u8 value_gate_l = (u8)(GATE_START  & 0xFF);
+    UC8179_spi_write_command(0x65);
     UC8179_spi_write_parameter(value_source_h);
     UC8179_spi_write_parameter(value_source_l);
     UC8179_spi_write_parameter(value_gate_h);
@@ -408,26 +416,26 @@ bool UC8179_GET_STATUS(u8 STATUS_FLAG)
     switch(STATUS_FLAG)
     {
         case BUSY_N_FLAG:
-            status_flag_check = status_flag_u8 && 0x01;
+            status_flag_check = status_flag_u8 & 0x01;
             break;
         case POF_FLAG:
-            status_flag_check = status_flag_u8 && 0x02;
+            status_flag_check = status_flag_u8 & 0x02;
             break;
         case PON_FLAG:
-            status_flag_check = status_flag_u8 && 0x04;
+            status_flag_check = status_flag_u8 & 0x04;
             break;
         case DATA_FLAG:
-            status_flag_check = status_flag_u8 && 0x08;
+            status_flag_check = status_flag_u8 & 0x08;
             break;
         case I2C_BUSY_N:
-            status_flag_check = status_flag_u8 && 0x10;
+            status_flag_check = status_flag_u8 & 0x10;
             break;
         case I2C_ERR:
-            status_flag_check = status_flag_u8 && 0x20;
+            status_flag_check = status_flag_u8 & 0x20;
             break;
 
         case PTL_FLAG:
-            status_flag_check = status_flag_u8 && 0x40;
+            status_flag_check = status_flag_u8 & 0x40;
             break;
     }
     if(status_flag_check > 0)
@@ -466,17 +474,17 @@ void UC8179_VCOM_DC_SETTING(int VCOM_DC)
 
 void UC8179_PARTIAL_WINDOW(int HRST, int HRED, int VRST, int VRED, u8 PT_SCAN)
 {
-    u8 hrst_h = (u8)((HRST>>8)  && 0x03);
-    u8 hrst_l = (u8)((HRST>>3)  && 0x1F);
+    u8 hrst_h = (u8)((HRST>>8)  & 0x03);
+    u8 hrst_l = (u8)(HRST& 0xF8);
 
-    u8 hred_h = (u8)((HRED>>8)  && 0x03);
-    u8 hred_l = (u8)((HRED>>3)  && 0x1F);
+    u8 hred_h = (u8)((HRED>>8)  & 0x03);
+    u8 hred_l = (u8)(HRST& 0xF8);
 
-    u8 vrst_h = (u8)((VRST>>8)  && 0x03);
-    u8 vrst_l = (u8)(VRST  && 0xFF);
+    u8 vrst_h = (u8)((VRST>>8)  & 0x03);
+    u8 vrst_l = (u8)(VRST  & 0xFF);
 
-    u8 vred_h = (u8)((VRED>>8)  && 0x03);
-    u8 vred_l = (u8)(VRED  && 0xFF);
+    u8 vred_h = (u8)((VRED>>8)  & 0x03);
+    u8 vred_l = (u8)(VRED  & 0xFF);
 
 
     UC8179_spi_write_command(0x90);
@@ -534,4 +542,83 @@ void UC8179_TEMPERATUR_BOUNDRY_C2()
     UC8179_spi_write_command(0xE7);
     UC8179_spi_write_parameter(0x00);
 }
+
+
+void UC8179_LUT_SETTING(u8 LUT_TYPE, u8 LELVEL_SELECT, u8 FRAME0, u8 FRAME1, u8 FRAME2, u8 FRAME3, u8 TIME_REPEAT )
+{
+    UC8179_spi_write_command(LUT_TYPE);
+    UC8179_spi_write_parameter(LELVEL_SELECT);
+    UC8179_spi_write_parameter(FRAME0);
+    UC8179_spi_write_parameter(FRAME1);
+    UC8179_spi_write_parameter(FRAME2);
+    UC8179_spi_write_parameter(FRAME3);
+    UC8179_spi_write_parameter(TIME_REPEAT);
+}
+
+u8 UC8179_OTP_READ(int ADDRESS)
+{
+    u8 value;
+    UC8179_spi_write_command(0xA2);
+    int i;
+
+    for(i = 0; i<=ADDRESS; i++)
+    {
+        value = UC8179_spi_read_parameter();
+    }
+    //value = UC8179_spi_read_parameter();
+    return value;
+}
+
+void UC8179_KWR_LUTC_SETTING(u8 *LUTC_ARRAY)
+{
+    UC8179_spi_write_command(0x20);
+    int i;
+    for(i = 0; i < KWR_LUTC_LENGTH; i++)
+    {
+        UC8179_spi_write_parameter(LUTC_ARRAY[i]);
+    }
+}
+
+
+void UC8179_KWR_LUTR_SETTING(u8 *LUTR_ARRAY)
+{
+    UC8179_spi_write_command(0x22);
+    int i;
+    for(i = 0; i < KWR_LUTR_LENGTH; i++)
+    {
+        UC8179_spi_write_parameter(LUTR_ARRAY[i]);
+    }
+}
+
+void UC8179_KWR_LUTW_SETTING(u8 *LUTW_ARRAY)
+{
+    UC8179_spi_write_command(0x23);
+    int i;
+    for(i = 0; i < KWR_LUTW_LENGTH; i++)
+    {
+        UC8179_spi_write_parameter(LUTW_ARRAY[i]);
+    }
+}
+
+void UC8179_KWR_LUTK_SETTING(u8 *LUTK_ARRAY)
+{
+    UC8179_spi_write_command(0x24);
+    int i;
+    for(i = 0; i < KWR_LUTK_LENGTH; i++)
+    {
+        UC8179_spi_write_parameter(LUTK_ARRAY[i]);
+    }
+}
+
+
+void UC8179_KWR_LUTBD_SETTING(u8 *LUTBD_ARRAY)
+{
+    UC8179_spi_write_command(0x25);
+    int i;
+    for(i = 0; i < KWR_LUTBD_LENGTH; i++)
+    {
+        UC8179_spi_write_parameter(LUTBD_ARRAY[i]);
+    }
+}
+
 

@@ -30,6 +30,7 @@
 #include "msp430-defs.h"
 #include "msp430-spi.h"
 #include "msp430-gpio.h"
+#include "UC8179_ini.h"
 
 
 
@@ -43,22 +44,57 @@ void UC8179_basic_flow()
 {
 
     UC8179_ini();
+    mdelay(500);
+    UC8179_POWER_ON();
     u8 revID = UC8179_READ_REVID();
 
     printf("RevID = %x\n", revID);
 
-    u8 *proct_revID = UC8179_READ_PRODUCT_REVISION();
-    printf("proct_revID1 = %d\n", proct_revID[0]);
-    printf("proct_revID2 = %d\n", proct_revID[1]);
-    printf("proct_revID3 = %c\n", proct_revID[2]);
+//    u8 temp_read = UC8179_TEMPERATUR_READ_INTER();
+//    printf("temp read = %x\n", temp_read);
+    mdelay(500);
+    //UC8179_KWR_OTP_Register_TR_SETTING_Value_Read(TR4);
 
 
-    u8 vcom_value = UC8179_VCOM_VALUE_READ();
-    printf("vcom_value = %d\n", vcom_value);
 
 
-//    char *lut_revision = UC8179_READ_LUT_REVION();
-//      printf("lut_revision = %x\n", lut_revision);
+
+//    UC8179_KWR_OTP_Register_TR_LUTC_Read(TR4);
+//    UC8179_KWR_OTP_Register_TR_LUTR_Read(TR4);
+//    UC8179_KWR_OTP_Register_TR_LUTW_Read(TR4);
+//    UC8179_KWR_OTP_Register_TR_LUTK_Read(TR4);
+
+
+
+
+
+
+
+    bool PTL_flag = UC8179_GET_STATUS(PTL_FLAG);
+
+    printf("%s\n", PTL_flag ? "true" : "false");
+
+//    UC8179_PARTIAL_WINDOW(0, 320, 0 , 320, 1);
+//    UC8179_PARTIAL_IN();
+
+         // UC8179_image_BLACK();
+          UC8179_image_WHITE();
+          UC8179_image_WHITE2();
+          //UC8179_image_BLACK2();
+         u8 data_finish_flag = UC8179_DATA_FLAG();
+         if(data_finish_flag == 1)
+         {
+             printf("data read finish");
+         }
+         else
+         {
+             printf("data read not finish");
+         }
+
+
+
+         UC8179_DISPLAY_REFRESH();
+         UC8179_PARTIAL_OUT();
 
 }
 
@@ -112,33 +148,52 @@ void UC8179_ini(void)
         //gpio_set_value_hi(PIN_3V3_ENABLE);
         gpio_set_value_hi(PIN_RESET);
         mdelay(1);
-        udelay(500);
+        mdelay(500);
         UC8179_hardware_reset(); // UC8156 hardware reset
         gpio_set_value_hi(SPI_CS);
         mdelay(10);
         UC8179_wait_for_BUSY_inactive(); // wait for RESET completed
-        UC8179_KW_MODE();
-        UC8179_POWER_ON();
+       // UC8179_KWR_MODE();
+        UC8179_MANUAL_INI();
+
+
 }
 
 
 void UC8179_KW_MODE(void)
 {
-    UC8179_PANEL_SETTING( LUT_FROM_OTP, PIXEL_KW_MODE,GATE_SCAN_UP,SOURCE_SHIFT_RIGHT,BOOSTER_ON, SOFT_RESET_NO_EFFECT);
+    UC8179_KW_MODE_OTP();
     UC8179_POWER_SETTING(BORDER_LDO_DISABLE, INTERNAL_DC_FOR_VDHR, INTERNAL_DC_FOR_VDHL,INTERNAL_DC_FOR_VGHL, SLEW_RATE_FAST,VGHL_20V, VDH_LVL,VDL_LVL,VDHR_LVL );
+ //   UC8179_TEMPERATURE_SENSOR_ENABLE();
+
     UC8179_BOOSTER_SOFT_START_DEFAULT();
+    UC8179_KW_LUT_OPTION(KW_LUT_ONLY, 0,0,0,0,0,0,0,0,0,0);
     UC8179_PLL_CONTROL(PLL_CONTROL_FRAME_RATE_50HZ);
-    UC8179_TEMPERATURE_SENSOR_ENABLE();
+
+    UC8179_TCON_SETTING(0x02, 0x02);
+    UC8179_RESOLUTION_SETTING(800,600);
+    UC8179_GATE_SOURCE_START_SETTING(0,0);
+    UC8179_LVD_VOLTAGE_SELECT(LVD_25V);
+    UC8179_TEMPERATUR_BOUNDRY_C2();
+    UC8179_POWER_SAVING();
+
+
 }
 
 
 void UC8179_KWR_MODE(void)
 {
-    UC8179_PANEL_SETTING_DEFAULT();
-    UC8179_POWER_SETTING_DEFAULT();
+   // UC8179_PANEL_SETTING_DEFAULT();
+   // UC8179_POWER_SETTING_DEFAULT();
     UC8179_BOOSTER_SOFT_START_DEFAULT();
+    UC8179_KW_LUT_OPTION(KWR_LUT_ALWAYS, 0,0,0,0,0,0,0,0,0,0);
     UC8179_PLL_CONTROL(PLL_CONTROL_FRAME_RATE_50HZ);
-    UC8179_TEMPERATURE_SENSOR_ENABLE();
+    UC8179_TCON_SETTING(0x02, 0x02);
+    UC8179_RESOLUTION_SETTING(800,600);
+    UC8179_GATE_SOURCE_START_SETTING(0,0);
+    UC8179_LVD_VOLTAGE_SELECT(LVD_25V);
+    UC8179_TEMPERATUR_BOUNDRY_C2();
+    UC8179_POWER_SAVING();
 }
 
 

@@ -25,6 +25,7 @@
 
 
 #include <UC8156.h>
+
 #include "msp430/msp430-spi.h"
 
 #include "display_functions.h"
@@ -86,7 +87,7 @@ void diagonale()
 	for (i=0; i<GATE_LINES; i++)
 		image_data[i*SOURCE_LINES/4+i]=0x00;
 
-	uc8156_send_image_data(image_data);
+	UC8156_send_image_data(image_data);
 
 //	uc8156_HVs_on();
 //	uc8156_update_display(FULL_UPDATE);
@@ -104,7 +105,7 @@ void alt_source_SOO_0()
 		for (source_p=SOURCE_LINES/2/4; source_p<SOURCE_LINES/4; source_p++)
 			image_data[gate_p*SOURCE_LINES/4+source_p]=0xff;
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void checkerboard_SOO_0()
@@ -124,7 +125,7 @@ void checkerboard_SOO_0()
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0x00;
 		}
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_source_debug(u8 data)
@@ -135,7 +136,7 @@ void alt_source_debug(u8 data)
 		for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
 			image_data[gate_p*SOURCE_LINES/4+source_p]=data;//0x33 is "real" alt_source
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_source()
@@ -176,7 +177,7 @@ void checkerboard_debug(u8 data, u8 s_start, u8 s_end)
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=~data;
 		}
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void checkerboard()
@@ -191,23 +192,23 @@ void inv_checkerboard()
 
 void white_update()
 {
-	uc8156_send_repeated_image_data(0xff); // 0xff is white
+	UC8156_send_repeated_image_data(0xff); // 0xff is white
 
-	uc8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }
 
 void black_update()
 {
-	uc8156_send_repeated_image_data(0x00); // 0xff is white
+	UC8156_send_repeated_image_data(0x00); // 0xff is white
 
-	uc8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }
 
 void solid_update(u8 value)
 {
-	uc8156_send_repeated_image_data(value);
+	UC8156_send_repeated_image_data(value);
 
-	uc8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_gate()
@@ -229,7 +230,7 @@ void alt_gate()
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;
 		}
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_gate_SOO_0()
@@ -250,7 +251,7 @@ void alt_gate_SOO_0()
 			image_data[(gate_p+1)*SOURCE_LINES/4+source_p]=0xff;
 		}
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void alt_source_4er()
@@ -272,7 +273,7 @@ void alt_source_4er()
 			image_data[gate_p*SOURCE_LINES/4+source_p+1]=0xf0;
 		}
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void pattern_sequence()
@@ -332,7 +333,7 @@ void pixel_00_update()
 	//for (source_p=0; source_p<SOURCE_LINES/4; source_p++)
 		//image_data[source_p]=0x00;
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 
 void pixel_00_update_windowed()
@@ -354,7 +355,7 @@ void pixel_00_update_windowed()
 
 	//uc8156_send_image_data(image_data);
 
-	uc8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
+	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }
 
 void checkerboard_20x20()
@@ -381,6 +382,6 @@ void checkerboard_20x20()
 		data_org=~data_org;
 	}
 
-	uc8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
+	UC8156_show_image(image_data, FULL_UPDATE, NORMAL_4GL);
 }
 

@@ -37,7 +37,7 @@
 #define	SPI_SOMI		GPIO(3,5)
 #define	SPI_CLK			GPIO(3,0)
 #define SPI_CS          GPIO(3,6)
-#define SPI_CD          GPIO(2,7)   // Command/Data
+#define SPI_CD          GPIO(1,3)   // Command/Data
 #define SPI_CS_SLAVE	GPIO(1,6)
 
 #define SPI_MODE_0 (UCCKPH)                            /* CPOL=0 CPHA=0 */
@@ -97,8 +97,8 @@ void spi_write_only_command(u8 command);
 u8 UC8179_spi_read_parameter();
 void UC8179_spi_write_parameter(u8 byte) ;
 void UC8179_spi_write_command(u8 byte);
-void UC8179_spi_write_byte(u8 byte) ;
-u8 UC8179_spi_read_byte();
+//void UC8179_spi_write_byte(u8 byte) ;
+//u8 UC8179_spi_read_byte();
 
 
 
