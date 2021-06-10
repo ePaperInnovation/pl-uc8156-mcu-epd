@@ -28,6 +28,7 @@
 
 void clear_display();
 void tri_color_display();
+void show_image_from_flash(u8 *image_data, int mode, bool inv_bool);
 int show_image_from_SDcard(char *image, int mode);
 int show_image_from_SDcard_inv(char *image, int mode, bool inv_bool);
 int show_image_from_SDcard_V2(char *image, int mode, int waveform_table);

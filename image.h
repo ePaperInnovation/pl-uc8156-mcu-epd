@@ -26,8 +26,11 @@
 #ifndef IMAGE_H_
 #define IMAGE_H_
 
-extern u8 visa_180x100[];
+extern u8 inch21_tricolor[];
 extern u8 image_74x312_1card[];
 extern u8 image_8x8_scrambled_A[];
+extern u8  waveformType1[];
+extern u8  waveformType2[];
+
 
 #endif /* IMAGE_H_ */

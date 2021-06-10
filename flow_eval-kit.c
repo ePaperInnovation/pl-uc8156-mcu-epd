@@ -46,6 +46,7 @@ void eval_kit_flow(void)
 	char path[64];
 	// 1st try to read display-type from MTP
 	display_type = read_display_type_from_MTP();
+
 	if (display_type == UNKNOWN)
 	{
 		// 2nd try to read display-type from SD-Card
@@ -80,13 +81,15 @@ void eval_kit_flow(void)
 
 		//write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
 
-		sprintf(path, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type1");
-
-		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
-		{
-			UC8156_send_waveform(waveform_from_file);
-			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
-		}
+		//sprintf(path, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type2");
+		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
+		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
+		//UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+//		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
+//		{
+//			UC8156_send_waveform(waveform_from_file);
+//			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+//		}
 
 	}else{
 		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
@@ -139,11 +142,12 @@ void eval_kit_flow(void)
 	}
 
 	clear_display();
+	slideshow_run(FULL_UPDATE, 2000);
 
-	while(1)
-	{
-		slideshow_run(FULL_UPDATE, 2000);
-	}
+//	while(1)
+//	{
+//		slideshow_run(FULL_UPDATE, 2000);
+//	}
 }
 
 
