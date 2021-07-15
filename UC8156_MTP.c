@@ -52,7 +52,7 @@ void write_single_waveform_table_to_MTP(char *filename)
 
 	//read/verify
 	u8 value;
-	int addr;
+	uint16_t addr;
 	for (addr=0; addr<WAVEFORM_LENGTH; addr++)
 	{
 		value = read_MTP_address(addr);
@@ -74,7 +74,7 @@ void write_waveform_library_for_type1_only_to_MTP(char *filename)
 
 	//read/verify
 	u8 value;
-	int addr;
+	uint16_t addr;
 	for (addr=0; addr<WF_1TYPEonly_LENGTH; addr++)
 	{
 		value = read_MTP_address(addr);
@@ -87,7 +87,7 @@ void write_waveform_library_for_type1_only_to_MTP(char *filename)
 void write_complete_waveform_library_to_MTP(u8 *waveform_data)
 {
 	u8 value;
-	int addr;
+	uint16_t addr;
 
 	// write type1
 	write_waveform_to_MTP(waveform_data, WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE1);
@@ -219,7 +219,7 @@ u8 read_MTP_address_and_print(const u16 address)
 void read_MTP_addresses_and_print(u16 start_address, int count, int type)
 {
 	u8 value;
-	int i;
+	uint16_t i;
 	u16 address = start_address;
 
 	switch (type)
@@ -293,8 +293,8 @@ void one_Byte_MTP_program(u16 address, u8 data)
 void print_SerialNo_read_from_MTP()
 {
 	char display_serial_no[19];
-	u16 start_address = 0x4bc;
-	int i;
+	 const u16 start_address = 0x4bc;
+	uint16_t i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);
 
@@ -314,8 +314,8 @@ void print_SerialNo_read_from_MTP()
 void print_WfVersion_read_from_MTP()
 {
 	char display_serial_no[32];
-	u16 start_address = 0x4d0;
-	int i;
+	const u16 start_address = 0x4d0;
+	uint16_t i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);
 
@@ -335,8 +335,8 @@ void print_WfVersion_read_from_MTP()
 void print_Display_Type_read_from_MTP()
 {
 	char display_type_string[16];
-	u16 start_address = 0x4f0;
-	int i;
+    const	u16 start_address = 0x4f0;
+	uint16_t i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);
 
@@ -356,8 +356,8 @@ void print_Display_Type_read_from_MTP()
 void print_MagicWord_read_from_MTP()
 {
 	char display_type_string[3];
-	u16 start_address = 0x4b9;
-	int i;
+	const u16 start_address = 0x4b9;
+	uint16_t i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);
 
@@ -379,7 +379,7 @@ enum DISPLAY_TYPE read_display_type_from_MTP()
 	char display_type_string[10];
 	enum DISPLAY_TYPE display_type_enum = UNKNOWN;
 	u16 start_address = 0x4f0;
-	int i;
+	uint16_t i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);
 
@@ -438,8 +438,8 @@ enum DISPLAY_TYPE convert_string_to_DISPLAY_TYPE(const char *display_type_string
 
 void program_display_type_into_MTP(const char *display_type)
 {
-	u16 start_address = 0x4f0;
-	int i;
+	const u16 start_address = 0x4f0;
+	uint16_t i;
 
 	u8 backup_reg40h = spi_read_command_1param(0x40);
 

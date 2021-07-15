@@ -62,7 +62,7 @@ void UC8179_KWR_MODE_OTP()
 void UC8179_image_WHITE(void)
 {
     UC8179_spi_write_command(0x10);
-   unsigned long sum =  60000;
+   const unsigned long sum =  60000;
     unsigned long i;
     for (i = 0; i < sum; i++ )
     {
@@ -74,7 +74,7 @@ void UC8179_image_WHITE(void)
 void UC8179_image_WHITE2(void)
 {
     UC8179_spi_write_command(0x13);
-   unsigned long sum =  60000;
+   const unsigned long sum =  60000;
     unsigned long i;
     for (i = 0; i < sum; i++ )
     {
@@ -86,7 +86,7 @@ void UC8179_image_WHITE2(void)
 void UC8179_image_BLACK(void)
 {
     UC8179_spi_write_command(0x10);
-    unsigned long sum = 60000;
+    const unsigned long sum = 60000;
     unsigned long i;
     for (i = 0; i < sum; i++ )
     {
@@ -99,13 +99,33 @@ void UC8179_image_BLACK(void)
 void UC8179_image_BLACK2(void)
 {
     UC8179_spi_write_command(0x13);
-    unsigned long sum = 60000;
+    const  unsigned long sum = 60000;
     unsigned long i;
     for (i = 0; i < sum; i++ )
     {
         UC8179_spi_write_parameter(0x00);
     }
 
+}
+
+void UC8179_byte_array_WRITE1(u8 *byte_array, unsigned long  array_length)
+{
+    UC8179_spi_write_command(0x10);
+    unsigned long i;
+    for (i = 0; i < array_length; i++ )
+    {
+        UC8179_spi_write_parameter(byte_array[i]);
+    }
+}
+
+void UC8179_byte_array_WRITE2(u8 *byte_array, unsigned long array_length)
+{
+    UC8179_spi_write_command(0x13);
+    unsigned long i;
+    for (i = 0; i < array_length; i++ )
+    {
+        UC8179_spi_write_parameter(byte_array[i]);
+    }
 }
 
 void UC8179_OTP_Register_Value_Read(int index_start, int index_end)
@@ -516,7 +536,7 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
 
     UC8179_PWR_PARAMETER( 0x07, 0x17, 0x3F, 0x3F, 0x0E);      // PWR  DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E
 
-    UC8179_BTST_PARAMETER(0x027, 0x27, 0x28, 0x17);      // BTST  DKE: 0x027, 0x27, 0x28, 0x17
+    UC8179_BTST_PARAMETER(0x27, 0x27, 0x28, 0x17);      // BTST  DKE: 0x27, 0x27, 0x28, 0x17
 
     UC8179_KWOPT_PARAMETER(0x00, 0x00, 0x00, 0x00 );      // KWOPT DKE: 0x00, 0x00, 0x00, 0x00
 
@@ -697,6 +717,34 @@ void UC8179_LUTOPT_PARAMETER(u8 param1, u8 param2)
 void UC8179_VDCS_PARAMETER(u8 param1)
 {
     UC8179_WRITE_COMMAND_1PARAM(0x82, param1);       // VDCS
+}
+
+
+void UC8179_OTP_WRITE(u8 *byte_packet, unsigned long packet_length)
+{
+    UC8179_PROGRAMM_MODE();
+    UC8179_byte_array_WRITE1(byte_packet, packet_length);
+
+    UC8179_PWR_PARAMETER( 0x07, 0x97, 0x3F, 0x3F, 0x0E);      // PWR  DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E.               0x97, for VPP_EN = true;
+    UC8179_POWER_ON();
+    UC8179_BUSY_N_CHECK();
+    UC8179_PROGRAMM_MODE();
+    UC8179_BUSY_N_CHECK();
+    UC8179_POWER_OFF();
+
+
+
+}
+
+bool UC8179_BUSY_N_CHECK()
+{
+    bool check_finish = false;
+    while(!check_finish)
+    {
+        check_finish = UC8179_GET_STATUS(BUSY_N_FLAG);
+        mdelay(50);
+    }
+    return check_finish;
 }
 
 

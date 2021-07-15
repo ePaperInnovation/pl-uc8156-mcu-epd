@@ -30,6 +30,8 @@
 #include "msp430/msp430-gpio.h"
 #include "types.h"
 #include "utils.h"
+#include <math.h>
+
 
 //global variables
 u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
@@ -280,6 +282,23 @@ void UC8156_set_Vcom(int Vcom_mv_value)
 	spi_write_command_2params(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
 }
 
+void UC8156_set_Vcom_Acep(int Vcom_mv_value)
+{
+    u16 Vcom_register_value;
+    if(Vcom_mv_value >= -3300 )
+    {
+      Vcom_register_value = (float)(Vcom_mv_value + 3300)/(float)30.0;
+      spi_write_command_2params(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
+    }
+    else
+    {
+        Vcom_register_value = (float)(Vcom_mv_value + 3300)/(float)30.0*(float)-1;
+        u8 byte_h = (u8)(((Vcom_register_value>>8) | 4) & 0x03);
+        spi_write_command_2params(0x1B, (u8)Vcom_register_value, byte_h);
+    }
+
+}
+
 // send Vcom value (in mV) to UC8156
 void UC8156_set_Vcom_slave(int Vcom_mv_value)
 {
@@ -346,6 +365,10 @@ void UC8156_send_image_data_GL4(u8 *image_data)
     spi_write_command_and_bulk_data_GL4(0x10, image_data, PIXEL_COUNT/4);
 }
 
+void UC8156_send_image_data_GL11(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL11(0x10, image_data, PIXEL_COUNT/4);
+}
 
 void UC8156_send_image_data_GL15(u8 *image_data)
 {
@@ -408,7 +431,8 @@ void UC8156_update_display_all_set(u8 update_mode, u8 waveform_mode, u8 transpar
 {
     spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
 
-    spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select); // 0x20 for area update
+   // spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select | 0x01); // 0x20 for area update
+    spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select | 0x03); //for Acep
     UC8156_wait_for_BUSY_inactive();
 
 }
@@ -494,20 +518,21 @@ void UC8156_show_image_all_set(u8 *image_data, u8 update_mode, u8 waveform_mode,
 
 void UC8156_show_image_GL(u8 *image_data, u8 update_mode, u8 waveform_mode, int GL_name)
 {
-        if (GL_name == 0)
+        switch(GL_name)
         {
-            UC8156_send_image_data_GL0(image_data);
+           case 0:
+               UC8156_send_image_data_GL0(image_data);
+               break;
+           case 4:
+               UC8156_send_image_data_GL4(image_data);
+               break;
+           case 11:
+               UC8156_send_image_data_GL11(image_data);
+               break;
+           case 15:
+               UC8156_send_image_data_GL15(image_data);
+               break;
         }
-        else if (GL_name == 4)
-        {
-            UC8156_send_image_data_GL4(image_data);
-        }
-        else if (GL_name == 15)
-        {
-            UC8156_send_image_data_GL15(image_data);
-        }
-
-
       UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
 }
 
@@ -654,6 +679,15 @@ void drive_voltage_setting(u8 vg_lv, u8 vs_lv)
     spi_write_command_2params(0x02, vg_lv, vs_lv);
 }
 
+void drive_voltage_setting_Acep(int v)
+{
+
+    v = round(v/1000);
+
+    int x = (v-8)/1*2 << 4;
+    x = x | (v-8)/1*2;
+    spi_write_command_2params(0x02, 0x25, x);
+}
 
 void tcom_timing_setting(u8 gap, u8 s2g)
 {

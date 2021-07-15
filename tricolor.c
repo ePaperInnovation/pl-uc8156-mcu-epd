@@ -27,7 +27,7 @@ void tricolor_run(int mode, u16 delay_ms)
     FILINFO fno;
     char path[MAX_PATH_LEN];
     char full_path[MAX_PATH_LEN];
-    int result = 0;
+    const int result = 0;
 
     sprintf(path, "/%s/%s", PATH, "img");
 

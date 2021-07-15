@@ -329,7 +329,7 @@ err_alloc:
 
 void gpio_set_value(int gpio, int state)
 {
-	int port    = GPIO_PORT(gpio);
+    int port    = GPIO_PORT(gpio);
 	int pinmask = GPIO_PIN(gpio);
 
 	assert2(gpio_is_allocated(port, pinmask));

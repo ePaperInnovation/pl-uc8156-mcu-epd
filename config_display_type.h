@@ -23,12 +23,17 @@
  *      Author: andreas.meier
  */
 
+
+
 #ifndef CONFIG_DISPLAY_TYPE_H_
 #define CONFIG_DISPLAY_TYPE_H_
 
-enum DISPLAY_TYPE { S011_T1_1, S011_T1_2, S014_T1_1, S014_T1_2, S021_T1_1, S025_T1_1, S031_T1_1, D011_T1_1, UC8179_800_600 , UNKNOWN};
+enum DISPLAY_TYPE { S011_T1_1, S011_T1_2, S014_T1_1, S014_T1_2, S021_T1_1, S025_T1_1, S031_T1_1, D011_T1_1, UNKNOWN, S017_T1_1, S036_T1_1};
+
+//extern regSetting_t reg_settings_S011_T1_1[];
 
 void set_display_type(int display_type);
 extern volatile int single_display;
+
 
 #endif /* CONFIG_DISPLAY_TYPE_H_ */

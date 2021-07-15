@@ -12,7 +12,6 @@
 #include "types.h"
 #include "FatFs/ff.h"
 #include "UC8156.h"
-#include "UC8179.h"
 #include "utils.h"
 #include "display_functions.h"
 #include "config_display_type.h"
@@ -23,82 +22,29 @@ extern char PATH[64]; //global variable
 /** Slideshow, calling show_image for each pgm-file found in a directory */
 void slideshow_tricolor_run(int mode, u16 loop_count, char *file_name, bool inv_bool )     // false for original, true for inverse
 {
-    /*
-    DIR dir;
-//    FILINFO fno;
-    char path[MAX_PATH_LEN];
-    char full_path[MAX_PATH_LEN];
-
-
-    sprintf(path, "/%s/%s", PATH, "img");
-
-
-    if (f_opendir(&dir, path) != FR_OK)
-        abort_now("Fatal error in: slideshow.c -> slideshow_run -> f_opendir", ABORT_SD_CARD);
-*/
-    int result = 0;
-
+   int result = 0;
    do {
-        /*
-
-        if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)
-            break;
-
-        // skip directories
-        if ((fno.fname[0] == '.') || (fno.fattrib & AM_DIR))
-            continue;
-
-        // .. and files without the PGM extension
-        if (!strstr(fno.fname, ".PGM") && !strstr(fno.fname, ".pgm"))
-            continue;
-*/
-       // sprintf(full_path, "%s/%s", path, file_name);
         show_image_from_SDcard_inv(file_name, mode, inv_bool);
-
-    //   mdelay(10);
         result++;
    } while (result < loop_count);
 }
 
 
-
-
-
-void slideshow_tricolor_run_GL(int mode, u16 loop_count, char *file_name, int GL_name )
+void slideshow_tricolor_memory_run(int mode, u16 loop_count, bool inv_bool )     // false for original, true for inverse
 {
-
-    /*
-    DIR dir;
-//    FILINFO fno;
-    char path[MAX_PATH_LEN];
-    char full_path[MAX_PATH_LEN];
-
-
-    sprintf(path, "/%s/%s", PATH, "img");
+   int result = 0;
+   do {
+        show_image_from_flash(mode, inv_bool);
+        result++;
+   } while (result < loop_count);
+}
 
 
-    if (f_opendir(&dir, path) != FR_OK)
-        abort_now("Fatal error in: slideshow.c -> slideshow_run -> f_opendir", ABORT_SD_CARD);
-        */
+void slideshow_tricolor_run_GL(int mode, u16 loop_count, int GL_name )
+{
     int result = 0;
    do {
-        /*
-
-        if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)
-            break;
-
-        // skip directories
-        if ((fno.fname[0] == '.') || (fno.fattrib & AM_DIR))
-            continue;
-
-        // .. and files without the PGM extension
-        if (!strstr(fno.fname, ".PGM") && !strstr(fno.fname, ".pgm"))
-            continue;
-*/
-       // sprintf(full_path, "%s/%s", path, file_name);
-        show_image_from_SDcard_GL(file_name, mode, GL_name);
-
-    //   mdelay(10);
+        show_image_from_GL(mode, GL_name);
         result++;
    } while (result < loop_count);
 }

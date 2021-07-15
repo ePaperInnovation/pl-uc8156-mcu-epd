@@ -205,7 +205,7 @@ extern int util_read_vcom(void);
 typedef struct {
 	u8 addr;
 	int valCount;
-	u8 val[4];
+	u8 val[5];
 } regSetting_t;
 
 #endif /* TYPES_H_ */

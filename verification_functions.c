@@ -77,7 +77,7 @@ void read_and_print_LUT()
 {
 	u8 *LUT = read_waveform_LUT();
 
-	int i=0,j=0;
+	uint16_t i=0,j=0;
 	printf("\n");
 	for(i=0;i<30;i++)
 	{
@@ -160,7 +160,7 @@ void drift_test(u8 *waveform_p)
 
 void send_drift_test_image()
 {
-	  int i;
+    uint16_t i;
 
 	  for(i=0;i<PIXEL_COUNT/4/2;i++)
 		  image_data[i]=0x00;
@@ -231,7 +231,7 @@ void measure_vcom()
 #define MEAS_COUNT MEAS_TIME * 1000 / MEAS_RESOLUTION + 10
 
 	u8 meas_value[MEAS_COUNT][2], status_reg[MEAS_COUNT];
-	int i;
+	uint16_t i;
 
 	u8 status = 	spi_read_command_1param(0x15);
 	printf("Status Register = %x\n", status);
@@ -276,7 +276,7 @@ void measure_vcom_new(int meas_time)
 #define MEAS_COUNT 1
 
 	u8 meas_value[MEAS_COUNT][2], status_reg[MEAS_COUNT];
-	int i;
+	uint16_t i;
 
 	UC8156_HVs_on();
 

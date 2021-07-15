@@ -36,7 +36,7 @@
 
 #define MAX_PATH_LEN 64
 char path[64];
-bool UC9179_sd_exist = true;
+bool UC8179_sd_exist = true;
 extern char PATH[64]; //global variable
 char full_path[MAX_PATH_LEN];
 
@@ -45,7 +45,7 @@ void UC8179_basic_flow()
 
     UC8179_ini();
     mdelay(500);
-    UC8179_POWER_ON();
+
     u8 revID = UC8179_READ_REVID();
 
     printf("RevID = %x\n", revID);
@@ -81,6 +81,8 @@ void UC8179_basic_flow()
           UC8179_image_WHITE();
           UC8179_image_WHITE2();
           //UC8179_image_BLACK2();
+          UC8179_BUSY_N_CHECK();
+          UC8179_POWER_ON();
          u8 data_finish_flag = UC8179_DATA_FLAG();
          if(data_finish_flag == 1)
          {
@@ -94,7 +96,10 @@ void UC8179_basic_flow()
 
 
          UC8179_DISPLAY_REFRESH();
-         UC8179_PARTIAL_OUT();
+         UC8179_BUSY_N_CHECK();
+         UC8179_POWER_OFF();
+         UC8179_BUSY_N_CHECK();
+      //   UC8179_PARTIAL_OUT();
 
 }
 
@@ -110,12 +115,12 @@ void UC8179_path_find(void)
     if (f_opendir(&dir, path) != FR_OK)
     {
 
-        UC9179_sd_exist = false;
+        UC8179_sd_exist = false;
     }
 
         //        abort_now("Fatal error in: slideshow.c -> slideshow_run -> f_opendir",
 //                  ABORT_SD_CARD);
-if( UC9179_sd_exist)
+if( UC8179_sd_exist)
 {  do
     {
         if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)

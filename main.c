@@ -36,7 +36,6 @@
 #include "read-sd.h"
 #include "utils.h"
 #include "flow_basis.h"
-#include "UC8179_flow_debug.h"
 
 
 #define DEBUG_PRINTOUTS 0
@@ -47,6 +46,7 @@ void MSP430_HBZ9_3V3_enable();
 void MSP430_HBZ9_3V3_disable();
 void MSP430_spi_init();
 void MSP430_gpio_init();
+
 
 int main(void)
 {
@@ -64,16 +64,22 @@ int main(void)
 
 	//eval_kit_flow();
 
-///////// main function
+///////// main function for UC8156
+
+	//image_eval_flow_SD(color_yellow);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
+	image_eval_flow_flash(color_lectum);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 
 
-	// UC8156 bw and tricolor basic flow
-	// basic_flow(1); //0: for yellow; 1: for red, 2: for BW
 
-	// UC8179 basic flow
-	UC8179_basic_flow();
-	//image_ini_test();
-	//image_acep();
+
+	///////// main function for UC8179
+	//  UC8179_basic_flow();
+
+
+
+
+
+
 
 }
 

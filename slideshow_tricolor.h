@@ -15,7 +15,8 @@
 #include "display_functions.h"
 #include "config_display_type.h"
 void slideshow_tricolor_run(int mode, u16 loop_count, char *file_name, bool inv_bool);
-void slideshow_tricolor_run_GL(int mode, u16 loop_count, char *file_name, int GL_name );
+void slideshow_tricolor_run_GL(int mode, u16 loop_count, int GL_name);
+void slideshow_tricolor_memory_run(int mode, u16 loop_count, bool inv_bool);
 void slideshow_tricolor_run_path(int mode, int count, char *file_name, char *file_path, bool inv_bool );
 void slideshow_tricolor_run_all(int mode, int count, char *file_name, char *file_path,   u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select  ,bool inv_bool );
 

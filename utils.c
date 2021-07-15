@@ -154,7 +154,7 @@ int parser_read_area(const char *str, const char *sep, struct area *a)
 
 int parser_read_file_line(FIL *f, char *buffer, int max_length)
 {
-	size_t count;
+	uint16_t count;
 	char *out;
 	int i;
 

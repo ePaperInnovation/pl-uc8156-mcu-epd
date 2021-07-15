@@ -74,18 +74,22 @@ void UC8179_wait_for_PowerON_ready_debug()
 
 u8 UC8179_READ_REVID()
 {
-    u8 return_value;
+    u8 return_value[7];
 
        UC8179_spi_write_command(0x70);
-       UC8179_spi_read_parameter();
-       UC8179_spi_read_parameter();
-       UC8179_spi_read_parameter();
-       UC8179_spi_read_parameter();
-       UC8179_spi_read_parameter();
-       UC8179_spi_read_parameter();
-       return_value =  UC8179_spi_read_parameter();
+       return_value[0] = UC8179_spi_read_parameter();
+       return_value[1] = UC8179_spi_read_parameter();
+       return_value[2] = UC8179_spi_read_parameter();
+       return_value[3] = UC8179_spi_read_parameter();
+       return_value[4] = UC8179_spi_read_parameter();
+       return_value[5] = UC8179_spi_read_parameter();
+       return_value[6] = UC8179_spi_read_parameter();
 
-       return return_value;
+       uint16_t i = 0;
+       for(i=0; i<7; i++)
+           printf("RevID = %x\n", return_value[i]);
+
+       return return_value[6];
 }
 
 //u8 *UC8179_READ_PRODUCT_REVISION()
@@ -572,7 +576,7 @@ u8 UC8179_OTP_READ(int ADDRESS)
 void UC8179_KWR_LUTC_SETTING(u8 *LUTC_ARRAY)
 {
     UC8179_spi_write_command(0x20);
-    int i;
+    uint16_t i;
     for(i = 0; i < KWR_LUTC_LENGTH; i++)
     {
         UC8179_spi_write_parameter(LUTC_ARRAY[i]);
@@ -583,7 +587,7 @@ void UC8179_KWR_LUTC_SETTING(u8 *LUTC_ARRAY)
 void UC8179_KWR_LUTR_SETTING(u8 *LUTR_ARRAY)
 {
     UC8179_spi_write_command(0x22);
-    int i;
+    uint16_t i;
     for(i = 0; i < KWR_LUTR_LENGTH; i++)
     {
         UC8179_spi_write_parameter(LUTR_ARRAY[i]);
@@ -593,7 +597,7 @@ void UC8179_KWR_LUTR_SETTING(u8 *LUTR_ARRAY)
 void UC8179_KWR_LUTW_SETTING(u8 *LUTW_ARRAY)
 {
     UC8179_spi_write_command(0x23);
-    int i;
+    uint16_t i;
     for(i = 0; i < KWR_LUTW_LENGTH; i++)
     {
         UC8179_spi_write_parameter(LUTW_ARRAY[i]);
@@ -603,7 +607,7 @@ void UC8179_KWR_LUTW_SETTING(u8 *LUTW_ARRAY)
 void UC8179_KWR_LUTK_SETTING(u8 *LUTK_ARRAY)
 {
     UC8179_spi_write_command(0x24);
-    int i;
+    uint16_t i;
     for(i = 0; i < KWR_LUTK_LENGTH; i++)
     {
         UC8179_spi_write_parameter(LUTK_ARRAY[i]);
@@ -614,11 +618,12 @@ void UC8179_KWR_LUTK_SETTING(u8 *LUTK_ARRAY)
 void UC8179_KWR_LUTBD_SETTING(u8 *LUTBD_ARRAY)
 {
     UC8179_spi_write_command(0x25);
-    int i;
+    uint16_t i;
     for(i = 0; i < KWR_LUTBD_LENGTH; i++)
     {
         UC8179_spi_write_parameter(LUTBD_ARRAY[i]);
     }
 }
+
 
 

@@ -24,6 +24,7 @@
 #include "types.h"
 
 int sdcard_init(void);
+void flash_load_image(char *image_name, u8 *image_data);
 void sdcard_load_image(char *image_name, u8 *image_data);
 bool sdcard_load_vcom(int *value);
 bool sdcard_load_waveform(char *waveform_file_name, u8 *waveform_data, UINT length);
@@ -33,6 +34,7 @@ int read_image_data_from_file_default(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_S031_T1(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S011_T1(FIL *f, u8 *image_buffer);
 extern int (* read_image_data_from_file) (FIL *f, u8 *image_buffer);
 
 #endif /*READ_SD_H_*/

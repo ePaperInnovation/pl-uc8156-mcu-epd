@@ -110,6 +110,9 @@ void UC8179_PLL_PARAMETER(u8 param1);
 void UC8179_EVS_PARAMETER(u8 param1);
 void UC8179_LUTOPT_PARAMETER(u8 param1, u8 param2);
 void UC8179_VDCS_PARAMETER(u8 param1);
-
+bool UC8179_BUSY_N_CHECK();
+void UC8179_byte_array_WRITE1(u8 *byte_array, unsigned long  array_length);
+void UC8179_byte_array_WRITE2(u8 *byte_array, unsigned long  array_length);
+void UC8179_OTP_WRITE(u8 *byte_packet, unsigned long packet_length);
 
 #endif /* UC8179_MTP_H_ */

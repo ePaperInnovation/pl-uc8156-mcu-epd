@@ -90,6 +90,7 @@ u8 UC8179_spi_read_parameter()
     gpio_set_value_lo(SPI_CS);
     read_parameter =  spi_write_read_byte(0xff);
     gpio_set_value_hi(SPI_CS);
+
     return read_parameter;
 }
 
