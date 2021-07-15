@@ -204,7 +204,7 @@ extern int util_read_vcom(void);
 
 typedef struct {
 	u8 addr;
-	int valCount;
+	u8 valCount;
 	u8 val[4];
 } regSetting_t;
 

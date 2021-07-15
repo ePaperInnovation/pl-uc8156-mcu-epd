@@ -80,6 +80,7 @@ void spi_read_command_and_bulk_data_slave(u8 command, u8 *buffer, size_t size);
 void spi_write_command_byte_repeat_slave(u8 command, u8 data, size_t size);
 u8 spi_write_read_byte_GL0();
 u8 spi_write_read_byte_GL4();
+u8 spi_write_read_byte_GL11();
 u8 spi_write_read_byte_GL15();
 u8 spi_write_read_byte(u8 byte);
 u8 spi_write_read_byte_inv(u8 byte);
@@ -87,6 +88,7 @@ void spi_write_command_and_bulk_data_inv(u8 command, u8 *buffer, size_t size);
 
 void spi_write_command_and_bulk_data_GL0(u8 command, u8 *buffer, size_t size);
 void spi_write_command_and_bulk_data_GL4(u8 command, u8 *buffer, size_t size);
+void spi_write_command_and_bulk_data_GL11(u8 command, u8 *buffer, size_t size);
 void spi_write_command_and_bulk_data_GL15(u8 command, u8 *buffer, size_t size);
 
 #endif /* MSP430_SPI_H_ */

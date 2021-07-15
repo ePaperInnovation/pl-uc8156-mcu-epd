@@ -426,6 +426,7 @@ enum DISPLAY_TYPE convert_string_to_DISPLAY_TYPE(const char *display_type_string
 		{return S014_T1_2;}
 	if (strcmp(display_type_string, "S021_T1.1") == 0)
 		{return S021_T1_1;}
+
 	if (strcmp(display_type_string, "S025_T1.1") == 0)
 	        {return S025_T1_1;}
 	if (strcmp(display_type_string, "S031_T1.1") == 0)

@@ -89,6 +89,24 @@ void show_image_from_SDcard_inv(char *image, int mode, bool inv_bool)
     }
 }
 
+void show_image_from_flash(u8 *image_data, int mode, bool inv_bool)
+{
+    if(!inv_bool)
+      {
+          UC8156_show_image(image_data, mode, NORMAL_4GL);
+      }
+      else
+      {
+          UC8156_show_image_inv(image_data, mode, NORMAL_4GL);
+      }
+}
+
+
+
+
+
+
+
 
 
 void show_image_from_SDcard_all_set(char *image, int mode,  u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_bool)
