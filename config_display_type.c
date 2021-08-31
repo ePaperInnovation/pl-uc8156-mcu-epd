@@ -312,7 +312,7 @@ void set_display_type(int display_type)
             REG_SETTINGS = reg_settings_S025_T1_1;
             NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S025_T1_1)/sizeof(regSetting_t);
             strcpy(PATH, "S025_T1.1");
-            read_image_data_from_file = read_image_data_from_file_default;
+            read_image_data_from_file = read_image_data_from_file_S025_T1;
 
             break;
 		case S031_T1_1:
@@ -357,11 +357,35 @@ void set_display_type(int display_type)
 
 
 			break;
+
+
+
+        case S041_T1_1:
+            GATE_LINES = 512;       // not sure
+            SOURCE_LINES = 104;     //
+//            REG_SETTINGS = reg_settings_S036_T1_1;
+//            NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S036_T1_1)/sizeof(regSetting_t);
+//            strcpy(PATH, "S036_T1.1");
+            single_display = 0;
+            read_image_data_from_file = read_image_data_from_file_S041_T1;
+            strcpy(PATH, "S041_T1.1");
+
+            break;
+
+
+
+
+
+
+
+
+
+
 		default:
 			abort_now("Fatal error in: config_display_type.c -> set_display_type -> display_type unknown.", ABORT_DISP_INFO);
 	}
 
-	if( (display_type != S036_T1_1) || S017_T1_1 )
+	if( display_type != S036_T1_1 &&  display_type != S041_T1_1  )
 	{
 	    PIXEL_COUNT = GATE_LINES * SOURCE_LINES;
 	    NEXTLINE = SOURCE_LINES / 4;
@@ -369,14 +393,24 @@ void set_display_type(int display_type)
 	    if (image_data == NULL)
 		abort_now("Fatal error in: config_display_type.c -> set_display_type -> malloc for image_data failed.", ABORT_DISP_INFO);
 	}
-	else
+	else if(display_type == S036_T1_1)
 	{
-	    if(display_type == S036_T1_1)
-	    {
-	        image_data = (u8 *) malloc( (GATE_LINES * SOURCE_LINES/8) / 4 );
+
+
+	        image_data = (u8 *) malloc( (GATE_LINES * SOURCE_LINES/8) / 4 );   // slit to 4 parts
 	        if (image_data == NULL)
 	           abort_now("Fatal error in: config_display_type.c -> set_display_type -> malloc for image_data failed.", ABORT_DISP_INFO);
-	    }
+
 	}
+    else if(display_type == S041_T1_1)
+    {
+
+
+            image_data = (u8 *) malloc( GATE_LINES * SOURCE_LINES/8 );
+            if (image_data == NULL)
+               abort_now("Fatal error in: config_display_type.c -> set_display_type -> malloc for S041 image_data failed.", ABORT_DISP_INFO);
+
+    }
+
 
 }

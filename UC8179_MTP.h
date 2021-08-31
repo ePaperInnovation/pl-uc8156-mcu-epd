@@ -80,7 +80,7 @@ void UC8179_KWR_OTP_Register_TR_LUTC_Read(u8 TRN);
 void UC8179_KWR_OTP_Register_TR_LUTR_Read(u8 TRN);
 void UC8179_KWR_OTP_Register_TR_LUTW_Read(u8 TRN);
 void UC8179_KWR_OTP_Register_TR_LUTK_Read(u8 TRN);
-void UC8179_LUT_INI_SETTING(u8 *LUTBD_ARRAY , u8 *LUTC_ARRAY, u8 *LUTR_ARRAY, u8 *LUTW_ARRAY, u8 *LUTK_ARRAY);
+void UC8179_LUT_INI_SETTING(u8 *LUTBD_ARRAY ,u8 *LUTC_ARRAY, u8 *LUTWW_ARRAY, u8 *LUTR_ARRAY, u8 *LUTW_ARRAY, u8 *LUTK_ARRAY);
 void UC8179_KWR_OTP_Register_LUTBD_SETTING_Value_Read();
 
 
@@ -93,12 +93,13 @@ void UC8179_WRITE_COMMAND_2PARAM(u8 commad, u8 param1, u8 param2);
 void UC8179_WRITE_COMMAND_3PARAM(u8 commad, u8 param1, u8 param2, u8 param3);
 void UC8179_WRITE_COMMAND_4PARAM(u8 commad, u8 param1, u8 param2, u8 param3, u8 param4);
 void UC8179_WRITE_COMMAND_5PARAM(u8 commad, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5);
+void UC8179_WRITE_COMMAND_9PARAM(u8 commad, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8, u8 param9);
 
 
 void UC8179_PSR_PARAMETER(u8 param1);
 void UC8179_PWR_PARAMETER(u8 param1, u8 param2, u8 param3, u8 param4, u8 param5);
 void UC8179_BTST_PARAMETER( u8 param1, u8 param2, u8 param3, u8 param4);
-void UC8179_KWOPT_PARAMETER(u8 param1, u8 param2, u8 param3, u8 param4);
+void UC8179_KWOPT_PARAMETER(u8 param1, u8 param2, u8 param3);
 void UC8179_CDI_PARAMETER(u8 param1, u8 param2);
 void UC8179_TCON_PARAMETER(u8 param1);
 void UC8179_TRES_PARAMETER(u8 param1, u8 param2, u8 param3, u8 param4);
@@ -114,5 +115,18 @@ bool UC8179_BUSY_N_CHECK();
 void UC8179_byte_array_WRITE1(u8 *byte_array, unsigned long  array_length);
 void UC8179_byte_array_WRITE2(u8 *byte_array, unsigned long  array_length);
 void UC8179_OTP_WRITE(u8 *byte_packet, unsigned long packet_length);
+void UC8179_GATESETTING_PARAMETER(u8 param1);
+void UC8179_PTL_PARAMETER(u8 param1, u8 param2,u8 param3,u8 param4,u8 param5,u8 param6,u8 param7, u8 param8, u8 param9);
+void UC8179_PTIN_PARAMETER();
+void UC8179_PTOUT_PARAMETER();
+
+void UC8171_MANUAL_INI(void);
+void UC8171_BTST_PARAMETER( u8 param1, u8 param2, u8 param3);
+void UC8171_TRES_PARAMETER(u8 param1, u8 param2, u8 param3);
+void UC8171_GSST_PARAMETER(u8 param1, u8 param2, u8 param3);
+void UC8171_image_WHITE(void);
+void UC8171_image_WHITE2(void);
+void UC8171_image_BLACK(void);
+void UC8171_image_BLACK2(void);
 
 #endif /* UC8179_MTP_H_ */

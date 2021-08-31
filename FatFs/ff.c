@@ -91,7 +91,7 @@
 #include "ff.h"                 /* FatFs configurations and declarations */
 #include "diskio.h"             /* Declarations of low level disk I/O functions */
 
-#pragma diag_suppress 112
+
 /*--------------------------------------------------------------------------
  *
  * Module Private Definitions
@@ -332,6 +332,12 @@ static WCHAR LfnBuf[_MAX_LFN + 1];
  *-----------------------------------------------------------------------
  */
 
+#if 1 /* use standard functions... */
+#include <string.h>
+#define mem_cpy(_dst, _src, _cnt) memcpy((_dst), (_src), (_cnt))
+#define mem_set(_dst, _val, _cnt) memset((_dst), (_val), (_cnt))
+#define mem_cmp(_dst, _src, _cnt) memcmp((_dst), (_src), (_cnt))
+#else
 /* Copy memory to memory */
 static
 void mem_cpy (void* dst, const void* src, UINT cnt){
@@ -367,6 +373,7 @@ int mem_cmp (const void* dst, const void* src, UINT cnt){
     while (cnt-- && (r = *d++ - *s++) == 0) ;
     return (r);
 }
+#endif
 
 /* Check if chr is contained in the string */
 static
@@ -1621,8 +1628,7 @@ FRESULT create_name (
         }
 #if !_LFN_UNICODE
         w &= 0xFF;
-        if (IsDBCS1(w)){                                                    /* Check if it is a DBC 1st byte (always false on SBCS
-                                                                             *cfg) */
+        if (IsDBCS1(w)){                                                    /* Check if it is a DBC 1st byte (always false on SBCS *cfg) */
             b = (BYTE)p[si++];                                              /* Get 2nd byte */
             if (!IsDBCS2(b)){
                 return (FR_INVALID_NAME);                                   /* Reject invalid sequence */

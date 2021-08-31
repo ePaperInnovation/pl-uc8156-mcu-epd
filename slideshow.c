@@ -62,7 +62,10 @@ void slideshow_run(int mode, u16 delay_ms)
 
 		sprintf(full_path, "%s/%s", path, fno.fname);
 		if(single_display){
+
 			show_image_from_SDcard(full_path, mode);
+
+
 		}else{
 			show_image_from_SDcard_dual(full_path, mode);
 		}

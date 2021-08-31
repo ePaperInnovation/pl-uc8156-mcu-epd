@@ -74,6 +74,7 @@ void slideshow_tricolor_run_path(int mode, int count, char *file_name, char *fil
        show_image_from_SDcard_inv(full_path_bg, mode, inv_bool );
         count_ini++;
    } while (count_ini <  count);
+
 }
 
 

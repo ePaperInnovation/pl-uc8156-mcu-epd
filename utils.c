@@ -241,6 +241,22 @@ void pack_2bpp(u8 *in, u8 *out, int in_count)
 	}
 }
 
+
+/*Converts image data to 1 Byte per 8 pixels data */
+void pack_8bpp(u8 *in, u8 *out, int in_count)
+{
+    while (in_count > 0) {
+        *out = (u8)((in[0] & 0x80)  | ((in[1] & 0x80) >> 1) | ((in[2] & 0x80) >> 2) | (in[3] & 0x80>> 3) | (in[4] & 0x80>> 4) | (in[5] & 0x80>> 5) | (in[6] & 0x80>> 6) | (in[7] & 0x80>> 7));
+        in += 8;
+        out++;
+        in_count -= 8;
+    }
+}
+
+
+
+
+
 void abort_now(const char *error_string, enum led_error_code error_code)
 {
 	printf(error_string);

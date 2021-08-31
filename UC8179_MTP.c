@@ -36,6 +36,7 @@
 #include "utils.h"
 #include "config_display_type.h"
 
+bool display_KWR;
 
 void UC8179_KW_MODE_REGISTER()
 {
@@ -94,6 +95,9 @@ void UC8179_image_BLACK(void)
     }
 
 }
+
+
+
 
 
 void UC8179_image_BLACK2(void)
@@ -516,14 +520,15 @@ int UC8179_KWR_OTP_LUTTYPE_END(u8 LUC_TYPE, u8 TRN)
       return ADR_END;
 }
 
-void UC8179_LUT_INI_SETTING(u8 *LUTBD_ARRAY ,u8 *LUTC_ARRAY, u8 *LUTR_ARRAY, u8 *LUTW_ARRAY, u8 *LUTK_ARRAY)
+void UC8179_LUT_INI_SETTING(u8 *LUTBD_ARRAY ,u8 *LUTC_ARRAY, u8 *LUTWW_ARRAY, u8 *LUTR_ARRAY, u8 *LUTW_ARRAY, u8 *LUTK_ARRAY)
+                             // lutbd_array,    lut_C_array,    lut_WW_array,    lut_KW_array  , lut_WK_array, lut_KK_array
 {
-
-    UC8179_KWR_LUTBD_SETTING(LUTBD_ARRAY);
-    UC8179_KWR_LUTC_SETTING(LUTC_ARRAY);
-    UC8179_KWR_LUTR_SETTING(LUTR_ARRAY);
-    UC8179_KWR_LUTW_SETTING(LUTW_ARRAY);
-    UC8179_KWR_LUTK_SETTING(LUTK_ARRAY);
+    UC8179_KWR_LUTC_SETTING(LUTC_ARRAY);      // VCOM LUT, LUTC
+    UC8179_KW_LUTWW_SETTING(LUTWW_ARRAY);     // LUTWW
+    UC8179_KWR_LUTR_SETTING(LUTR_ARRAY);      // LUTKW / LUTR
+    UC8179_KWR_LUTW_SETTING(LUTW_ARRAY);      // LUTWK / LUTW
+    UC8179_KWR_LUTK_SETTING(LUTK_ARRAY);      // LUTKK / LUTK
+    UC8179_KWR_LUTBD_SETTING(LUTBD_ARRAY);    // LUTBD
 
 }
 
@@ -532,13 +537,20 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
 {
 
 
-    UC8179_PSR_PARAMETER( 0x27 );      // PSR: 0x07 | 0x20 (LUT from Register)
-
-    UC8179_PWR_PARAMETER( 0x07, 0x17, 0x3F, 0x3F, 0x0E);      // PWR  DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E
-
+  if(display_KWR)
+  {
+    UC8179_PSR_PARAMETER( 0x07 );      // PSR: 0x07 | 0x20 (LUT from Register)
     UC8179_BTST_PARAMETER(0x27, 0x27, 0x28, 0x17);      // BTST  DKE: 0x27, 0x27, 0x28, 0x17
 
-    UC8179_KWOPT_PARAMETER(0x00, 0x00, 0x00, 0x00 );      // KWOPT DKE: 0x00, 0x00, 0x00, 0x00
+
+
+    UC8179_PWR_PARAMETER( 0x07, 0x17, 0x3F, 0x3F, 0x0E);      // PWR  DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E
+    //UC8179_PWR_PARAMETER( 0x07, 0x97, 0x26, 0x26, 0x1B);      // PWR AKM: 0x07, 0x97, 0x26, 0x26, 0x1B
+
+    UC8179_KWOPT_PARAMETER(0x00, 0x00, 0x00);      // KWOPT DKE: 0x00, 0x00, 0x00
+    //UC8179_KWOPT_PARAMETER(0x01, 0x00, 0x00);      // KWOPT AKM: 0x00, 0x00, 0x00
+
+
 
     UC8179_CDI_PARAMETER( 0x11, 0x07 );       // CDI DKE: 0x11, 0x07
 
@@ -562,10 +574,54 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
 
     UC8179_VDCS_PARAMETER( 0x4F );       // VDCS  DKE: 0x1E
 
-    UC8179_LUT_INI_SETTING(lutbd_array ,lutc_array, lutr_array, lutw_array, lutk_array);  // KWR LUT Data
+    UC8179_LUT_INI_SETTING(lutbd_array, lutc_array, lut_WW_array ,lutr_array, lutw_array, lutk_array);  // u8 *LUTBD_ARRAY ,u8 *LUTC_ARRAY, u8 *LUTWW_ARRAY, u8 *LUTR_ARRAY, u8 *LUTW_ARRAY, u8 *LUTK_ARRAY
 
-   // UC8179_LUT_INI_SETTING(lutbd_array ,lutc_array, lutkw_array, lutwk_array, lutkk_array);  // KW LUT Data
-}
+    //UC8179_LUT_INI_SETTING(lutbd_array, lut_C_array, lut_WW_array, lut_KW_array, lut_WK_array, lut_KK_array);  // KW LUT Data
+  }
+  else              // KW Mode
+  {
+          UC8179_PSR_PARAMETER( 0x37 );      // PSR: 0x07 | 0x20 (LUT from Register) | 0x10 (0x10: KW Mode, 0x00: KWR Mode )    )
+          UC8179_BTST_PARAMETER(0x27, 0x27, 0x28, 0x17);      // BTST  DKE: 0x27, 0x27, 0x28, 0x17
+
+          UC8179_PWR_PARAMETER( 0x07, 0x17, 0x3F, 0x3F, 0x0E);      // PWR DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E
+          UC8179_KWOPT_PARAMETER(0x00, 0x00, 0x00);      // KWOPT AKM: 0x00, 0x00, 0x00
+
+
+          UC8179_CDI_PARAMETER( 0x19, 0x07 );       // CDI DKE: 0x11, 0x07
+
+
+
+          UC8179_TCON_PARAMETER( 0x22 );             // TCON  DKE: 0x22
+
+          UC8179_TRES_PARAMETER(0x03, 0x10, 0x02, 0x00 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+
+          UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+
+          UC8179_PWT_PARAMETER(0x00 );       // PWT  DKE: 0x00
+
+          UC8179_LVSEL_PARAMETER( 0x03 );       // LVSEL  DKE: 0x03
+
+          UC8179_TSBDRY_PARAMETER(0x00 );       // TSBDRY   DKE: 0x00
+
+          UC8179_PLL_PARAMETER(0x06 );       // PLL  DKE: 0x06
+
+          UC8179_EVS_PARAMETER( 0x00 );       // EVS   DKE: 0x00
+
+          UC8179_LUTOPT_PARAMETER(0x00, 0x00 );       // LUTOPT  DKE: 0x00, 0x00
+
+          UC8179_VDCS_PARAMETER( 0x1E );       // VDCS  DKE: 0x1E
+
+          UC8179_LUT_INI_SETTING(lutbd_array, lut_C_array, lut_WW_array, lut_KW_array, lut_WK_array, lut_KK_array);  // KW LUT Data
+
+
+
+  }
+
+
+
+
+
+ }
 
 void UC8179_OTP_BANK(u8 bank_nr)
 {
@@ -636,6 +692,22 @@ void UC8179_WRITE_COMMAND_5PARAM(u8 commad, u8 param1, u8 param2, u8 param3, u8 
 }
 
 
+void UC8179_WRITE_COMMAND_9PARAM(u8 commad, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8, u8 param9)
+{
+    UC8179_spi_write_command(commad);
+    UC8179_spi_write_parameter(param1);
+    UC8179_spi_write_parameter(param2);
+    UC8179_spi_write_parameter(param3);
+    UC8179_spi_write_parameter(param4);
+    UC8179_spi_write_parameter(param5);
+    UC8179_spi_write_parameter(param6);
+    UC8179_spi_write_parameter(param7);
+    UC8179_spi_write_parameter(param8);
+    UC8179_spi_write_parameter(param9);
+}
+
+
+
 void UC8179_PSR_PARAMETER(u8 param1 )
 {
     UC8179_WRITE_COMMAND_1PARAM(0x00, param1);      // PSR: 0x07 | 0x20 (LUT from Register)
@@ -653,11 +725,14 @@ void UC8179_BTST_PARAMETER( u8 param1, u8 param2, u8 param3, u8 param4)
     UC8179_WRITE_COMMAND_4PARAM(0x06, param1, param2, param3, param4);      // BTST
 }
 
-
-
-void UC8179_KWOPT_PARAMETER(u8 param1, u8 param2, u8 param3, u8 param4)
+void UC8171_BTST_PARAMETER( u8 param1, u8 param2, u8 param3)
 {
-   UC8179_WRITE_COMMAND_4PARAM(0x2B,  param1, param2, param3, param4 );      // KWOPT
+    UC8179_WRITE_COMMAND_3PARAM(0x06, param1, param2, param3);      // BTST
+}
+
+void UC8179_KWOPT_PARAMETER(u8 param1, u8 param2, u8 param3)
+{
+   UC8179_WRITE_COMMAND_3PARAM(0x2B,  param1, param2, param3 );      // KWOPT
 }
 
 
@@ -677,9 +752,22 @@ void UC8179_TRES_PARAMETER(u8 param1, u8 param2, u8 param3, u8 param4)
    UC8179_WRITE_COMMAND_4PARAM(0x61, param1, param2, param3, param4);      // TRES
 }
 
+
+void UC8171_TRES_PARAMETER(u8 param1, u8 param2, u8 param3)
+{
+   UC8179_WRITE_COMMAND_3PARAM(0x61, param1, param2, param3);      // TRES
+}
+
+
 void UC8179_GSST_PARAMETER(u8 param1, u8 param2, u8 param3, u8 param4)
 {
     UC8179_WRITE_COMMAND_4PARAM(0x65, param1, param2, param3, param4);      // GSST
+}
+
+
+void UC8171_GSST_PARAMETER(u8 param1, u8 param2, u8 param3)
+{
+    UC8179_WRITE_COMMAND_3PARAM(0x65, param1, param2, param3);      // GSST
 }
 
 
@@ -692,6 +780,13 @@ void UC8179_LVSEL_PARAMETER(u8 param1)
 {
     UC8179_WRITE_COMMAND_1PARAM(0xE4, param1 );       // LVSEL
 }
+
+void UC8179_GATESETTING_PARAMETER(u8 param1)
+{
+    UC8179_WRITE_COMMAND_1PARAM(0xE1, param1 );
+}
+
+
 
 void UC8179_TSBDRY_PARAMETER(u8 param1)
 {
@@ -718,6 +813,26 @@ void UC8179_VDCS_PARAMETER(u8 param1)
 {
     UC8179_WRITE_COMMAND_1PARAM(0x82, param1);       // VDCS
 }
+
+void UC8179_PTL_PARAMETER(u8 param1, u8 param2,u8 param3,u8 param4,u8 param5,u8 param6,u8 param7, u8 param8, u8 param9)
+{
+    UC8179_WRITE_COMMAND_9PARAM(0x90, param1, param2, param3, param4, param5, param6, param7, param8, param9);       // VDCS
+}
+
+
+void UC8179_PTIN_PARAMETER()
+{
+    UC8179_spi_write_command(0x91);
+}
+
+void UC8179_PTOUT_PARAMETER()
+{
+    UC8179_spi_write_command(0x92);
+}
+
+
+
+
 
 
 void UC8179_OTP_WRITE(u8 *byte_packet, unsigned long packet_length)
@@ -746,6 +861,146 @@ bool UC8179_BUSY_N_CHECK()
     }
     return check_finish;
 }
+
+void UC8171_MANUAL_INI(void)   // from DKE OTP
+{
+    bool display_KWR_UC8171 = false;
+  if(display_KWR_UC8171)
+  {  UC8179_PSR_PARAMETER( 0x27 );      // PSR: 0x07 | 0x20 (LUT from Register)
+    UC8179_BTST_PARAMETER(0x27, 0x27, 0x28, 0x17);      // BTST  DKE: 0x27, 0x27, 0x28, 0x17
+
+
+
+    UC8179_PWR_PARAMETER( 0x07, 0x17, 0x3F, 0x3F, 0x0E);      // PWR  DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E
+    //UC8179_PWR_PARAMETER( 0x07, 0x97, 0x26, 0x26, 0x1B);      // PWR AKM: 0x07, 0x97, 0x26, 0x26, 0x1B
+
+    UC8179_KWOPT_PARAMETER(0x00, 0x00, 0x00);      // KWOPT DKE: 0x00, 0x00, 0x00
+    //UC8179_KWOPT_PARAMETER(0x01, 0x00, 0x00);      // KWOPT AKM: 0x00, 0x00, 0x00
+
+
+
+    UC8179_CDI_PARAMETER( 0x19, 0x07 );       // CDI DKE: 0x11, 0x07
+
+    UC8179_TCON_PARAMETER( 0x22 );             // TCON  DKE: 0x22
+
+    UC8179_TRES_PARAMETER(0x02, 0x88, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+
+    UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+
+    UC8179_PWT_PARAMETER(0x00 );       // PWT  DKE: 0x00
+
+    UC8179_LVSEL_PARAMETER( 0x03 );       // LVSEL  DKE: 0x03
+
+    UC8179_TSBDRY_PARAMETER(0x00 );       // TSBDRY   DKE: 0x00
+
+    UC8179_PLL_PARAMETER(0x06 );       // PLL  DKE: 0x06
+
+    UC8179_EVS_PARAMETER( 0x00 );       // EVS   DKE: 0x00
+
+    UC8179_LUTOPT_PARAMETER(0x00, 0x00 );       // LUTOPT  DKE: 0x00, 0x00
+
+    UC8179_VDCS_PARAMETER( 0x4F );       // VDCS  DKE: 0x1E
+
+    UC8179_LUT_INI_SETTING(lutbd_array, lutc_array, lut_WW_array ,lutr_array, lutw_array, lutk_array);  // u8 *LUTBD_ARRAY ,u8 *LUTC_ARRAY, u8 *LUTWW_ARRAY, u8 *LUTR_ARRAY, u8 *LUTW_ARRAY, u8 *LUTK_ARRAY
+
+    //UC8179_LUT_INI_SETTING(lutbd_array, lut_C_array, lut_WW_array, lut_KW_array, lut_WK_array, lut_KK_array);  // KW LUT Data
+  }
+  else              // KW Mode
+  {
+          UC8179_PSR_PARAMETER( 0x37 );      //
+          UC8171_BTST_PARAMETER(0x3f, 0x3f, 0x3f);      // BTST UC8179: 3 Parameters
+          UC8179_PWR_PARAMETER( 0x07, 0x07, 0x3F, 0x3F, 0x03);      // PWR AKM: 0x07, 0x97, 0x26, 0x26, 0x1B
+
+
+
+      //    UC8179_KWOPT_PARAMETER(0x01, 0x00, 0x00);      // KWOPT AKM: 0x00, 0x00, 0x00
+
+          UC8179_CDI_PARAMETER( 0x31, 0x07 );       // CDI DKE: 0x11, 0x07
+
+          UC8179_TCON_PARAMETER( 0x00 );             // TCON  DKE: 0x22
+
+          UC8171_TRES_PARAMETER(0x68, 0x02, 0x00 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+
+          UC8171_GSST_PARAMETER(0x00, 0x00, 0x00);      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+
+          UC8179_PWT_PARAMETER(0x00 );       // PWT  DKE: 0x00
+
+          UC8179_LVSEL_PARAMETER( 0x03 );       // LVSEL  DKE: 0x03
+
+          UC8179_GATESETTING_PARAMETER(0x10 );       // P-Transistor
+
+          UC8179_PLL_PARAMETER(0x04 );       // PLL  DKE: 0x06
+
+          UC8179_EVS_PARAMETER( 0x00 );       // EVS   DKE: 0x00
+
+         // UC8179_LUTOPT_PARAMETER(0x00, 0x00 );       // LUTOPT  DKE: 0x00, 0x00
+
+          UC8179_VDCS_PARAMETER( 0xFF );       // VDCS  DKE: 0x1E
+
+          UC8179_LUT_INI_SETTING(lutbd_array, lut_C_array, lut_WW_array, lut_KW_array, lut_WK_array, lut_KK_array);  // KW LUT Data
+
+
+
+  }
+
+
+ }
+
+
+
+void UC8171_image_WHITE(void)
+{
+    UC8179_spi_write_command(0x10);
+   const unsigned long sum =  6656;
+    unsigned long i;
+    for (i = 0; i < sum; i++ )
+    {
+        UC8179_spi_write_parameter(0xFF);
+    }
+
+}
+
+void UC8171_image_WHITE2(void)
+{
+    UC8179_spi_write_command(0x13);
+  // const unsigned long sum =  6656;  // 104*512/8
+    const unsigned long sum =  6240;   // 104*480/8
+    unsigned long i;
+    for (i = 0; i < sum; i++ )
+    {
+        UC8179_spi_write_parameter(0xFF);
+    }
+
+}
+
+void UC8171_image_BLACK(void)
+{
+    UC8179_spi_write_command(0x10);
+    const unsigned long sum = 6656;
+    unsigned long i;
+    for (i = 0; i < sum; i++ )
+    {
+        UC8179_spi_write_parameter(0x00);
+    }
+
+}
+
+
+
+
+
+void UC8171_image_BLACK2(void)
+{
+    UC8179_spi_write_command(0x13);
+    const  unsigned long sum = 6656;
+    unsigned long i;
+    for (i = 0; i < sum; i++ )
+    {
+        UC8179_spi_write_parameter(0x00);
+    }
+
+}
+
 
 
 

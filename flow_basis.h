@@ -55,5 +55,6 @@ void waveformType2_choose(u8 waveform_place);
 void image_eval_flow_flash(int display_color);
 void tricolor_yellow_flash(u8 waveform_place);
 void tricolor_red_flash(int mode, u8 waveform_place);
+void tricolor_red_Techlab(int mode, u8 waveform_place);
 
 #endif /* FLOW_BASIS_H_ */

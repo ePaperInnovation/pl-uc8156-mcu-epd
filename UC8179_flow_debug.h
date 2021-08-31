@@ -34,5 +34,18 @@ void UC8179_ini(void);
 void UC8179_path_find(void);
 void UC8179_KW_MODE(void);
 void UC8179_KWR_MODE(void);
+void UC8179_TIME(void);
+void UC8171_basic_flow();
+void UC8171_ini(void);
+char *UC8171_image_path(char *file_name, char *file_path);
+void UC8171_image_update(char *file_name, char *file_path);
+void UC8171_image_clear(void);
+void UC8171_image_update_S041_flash();
+void UC8171_image_black(void);
+
+void UC8179_image_BW_clear(void);
+void UC8179_image_BW_black(void);
+void UC8179_BW_TEST(void);
+void UC8171_image_update_S041_flash_partial();
 
 #endif /* UC8179_FLOW_DEBUG_H_ */

@@ -40,6 +40,7 @@
 #include "image_acep.h"
 #include "msp430/msp430-spi.h"
 
+
 u8 waveform_from_file1[WAVEFORM_LENGTH];
 u8 waveform_from_file2[WAVEFORM_LENGTH];
 u8 waveform_from_file_4GL[WAVEFORM_LENGTH];
@@ -64,19 +65,30 @@ enum waveform_place{WF_SD =0x00, WF_FLASH= 0x01 };
 
 void image_eval_flow_SD(int display_color)
 {
+    u8 waveform_from_file[WAVEFORM_LENGTH];
     display_type = read_display_type_from_MTP(); // find the type of the display
-    if (display_type == UNKNOWN)
-        {
-            // 2nd try to read display-type from SD-Card
-            display_type = sdcard_read_display_type("display-type.txt");
-            if (display_type == UNKNOWN)
-                // finally: set display-type to default (1.38'')
-                display_type = S014_T1_1;
-
-        }
-
+//    if (display_type == UNKNOWN)
+//        {
+//            // 2nd try to read display-type from SD-Card
+//            display_type = sdcard_read_display_type("display-type.txt");
+//            if (display_type == UNKNOWN)
+//                // finally: set display-type to default (1.38'')
+//                display_type = S014_T1_1;
+//
+//        }
+    display_type = S025_T1_1;
 
     set_display_type(display_type);             // display tp by tricolor is 2.1
+    mdelay(100);
+
+//    unsigned long timertest1 = millis();
+//    printf("timertest1 = %d\n", timertest1);
+
+
+
+
+
+
 
     UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
 
@@ -96,6 +108,16 @@ void image_eval_flow_SD(int display_color)
     sprintf(path1, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type1");
     sprintf(path_GL, "/%s/%s", PATH, "display/waveform.bin");
 
+//    timerbInit();
+//
+//    mdelay(5000);
+//
+//    unsigned long timertest2 =  timerbStop();
+   // printf("time capture = %d ms\n", timertest2);
+
+
+
+
 
     u8 current_vcom_u8 = print_current_VCOM();   // get the Vcom from display
     current_vcom = current_vcom_u8 * 30;        // set the Vcom, unit: mV
@@ -110,9 +132,20 @@ if( sd_exist)
     switch(display_color)
     {
     case 0:
-        UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
+       // UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
+        UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_LUT;
+        if (sdcard_load_waveform(path_GL, waveform_from_file, WAVEFORM_LENGTH))
+        {
+            UC8156_send_waveform(waveform_from_file);
+            UC8156_send_waveform_slave(waveform_from_file);
+
+        }
+
         clear_display();
+        mdelay(100);
+
         slideshow_run(FULL_UPDATE, 2000);
+
     break;
 
     case 1:
@@ -125,13 +158,21 @@ if( sd_exist)
         tricolor_binary();
         break;
     case 4:
-        //HTS_test();
-        AO_Test();
+
+        if (sdcard_load_waveform(path_GL, waveform_from_file, WAVEFORM_LENGTH))
+        {
+            UC8156_send_waveform(waveform_from_file);
+            UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+        }
+        HTS_test();
+       // AO_Test();
         break;
     case 5:
         tricolor_display_with_4GL_waveform();
         break;
-
+    case 6:
+        tricolor_red_Techlab(FULL_UPDATE, WF_FLASH);         // for tricolor red
+        break;
 
     }
 
@@ -300,7 +341,7 @@ void tricolor_yellow(u8 waveform_place)
 
 void tricolor_red(int mode, u8 waveform_place)
 {
-    static const int vcom_int_red = 5800;
+    static const int vcom_int_red = 3800;
     unsigned long counter = 0;
     // # Load Waveform to do the shaky thing and load normal waveform aftwerwards
 
@@ -908,14 +949,14 @@ void HTS_test(void)
       tcom_timing_setting(0x67, 0x55);
       UC8156_set_Vcom(current_vcom_u8);
 
-      UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP; // waveform read from sd-card, 2 waveforms for tricolor
+      UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_LUT; // waveform read from sd-card, 2 waveforms for tricolor
       clear_display();
 
 
-      slideshow_tricolor_run_GL(FULL_UPDATE, 5, 15);
+     // slideshow_tricolor_run_GL(FULL_UPDATE, 5, 15);
 
-      slideshow_tricolor_run_GL(FULL_UPDATE, 5, 11);
-      slideshow_tricolor_run_GL(FULL_UPDATE, 5, 15);
+      slideshow_tricolor_run_GL(FULL_UPDATE, 5, 0);
+     // slideshow_tricolor_run_GL(FULL_UPDATE, 5, 15);
     //  slideshow_tricolor_run_GL(FULL_UPDATE, 5, full_path, 0);
 }
 
@@ -1269,8 +1310,9 @@ void image_eval_flow_flash(int display_color)
 
 
         clear_display();
+
         image_scramble_from_Memory(display_type);
-       switch(display_color)
+        switch(display_color)
         {
         case color_lectum:
             show_image_from_flash(FULL_UPDATE, false);
@@ -1449,8 +1491,79 @@ void tricolor_red_flash(int mode, u8 waveform_place)
 
 
 
+void tricolor_red_Techlab(int mode, u8 waveform_place)
+{
+    static const int vcom_int_red = 7800;
+    unsigned long counter = 0;
+    // # Load Waveform to do the shaky thing and load normal waveform aftwerwards
+
+    waveformType1_choose(waveform_place);
+    clear_display();
+    slideshow_tricolor_run_GL(mode, 4, 0);
 
 
+    waveformType2_choose(waveform_place);
+
+    slideshow_tricolor_run_GL(mode, 2, 0);
+
+
+    waveformType1_choose(waveform_place);
+    slideshow_tricolor_run_GL(mode, 4, 0); // source ~/scripts/update_image.sh ./images_test/GL0.png 0 0 4
+
+   // //     # Update Null Frames
+
+    while (counter < 5)
+    {
+        UC8156_set_Vcom(vcom_int_red);
+        drive_voltage_setting(0x25, 0x00);
+
+
+        slideshow_tricolor_run_GL(mode, 8, 15);
+
+        UC8156_set_Vcom(current_vcom);
+        drive_voltage_setting(0x25, 0xff);
+
+
+        slideshow_tricolor_run_GL(mode, 1, 0);
+
+        counter++;
+    }
+
+    // # Set Vcom to 0v and Waveform to drive Null Frames
+    drive_voltage_setting(0x25, 0x00);
+    UC8156_set_Vcom(vcom_int_red);
+
+
+    waveformType1_choose(waveform_place);
+
+    slideshow_tricolor_run_GL(mode, 8, 15);
+
+    // #Begin Black and White Update
+    drive_voltage_setting(0x25, 0xff);
+
+    tcom_timing_setting(0x67, 0x55);
+    UC8156_set_Vcom(current_vcom);
+
+
+    waveformType1_choose(waveform_place);
+    slideshow_tricolor_run(mode, 4, full_path, false); // false for original, true for inverse
+
+    waveformType2_choose(waveform_place);
+    slideshow_tricolor_run(mode, 2, full_path, false); // false for original, true for inverse
+
+
+    waveformType1_choose(waveform_place);
+    //invertieren hier
+
+    slideshow_tricolor_run(mode, 4, full_path, true); // false for original, true for inverse
+//    UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
+//   // clear_display();
+//    mdelay(100);
+//    slideshow_run(FULL_UPDATE, 2000);
+
+
+
+}
 
 
 

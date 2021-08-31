@@ -92,6 +92,22 @@ u8 UC8179_READ_REVID()
        return return_value[6];
 }
 
+
+
+u8 UC8171_READ_REVID()
+{
+    u8 return_value[2];
+
+       UC8179_spi_write_command(0x70);
+       return_value[0] = UC8179_spi_read_parameter();
+       return_value[1] = UC8179_spi_read_parameter();
+       uint16_t i = 0;
+       for(i=0; i<2; i++)
+           printf("RevID = %x\n", return_value[i]);
+
+       return return_value[1];
+}
+
 //u8 *UC8179_READ_PRODUCT_REVISION()
 //{
 //    u8 value_char[4];
@@ -582,6 +598,18 @@ void UC8179_KWR_LUTC_SETTING(u8 *LUTC_ARRAY)
         UC8179_spi_write_parameter(LUTC_ARRAY[i]);
     }
 }
+
+
+void UC8179_KW_LUTWW_SETTING(u8 *LUTC_ARRAY)
+{
+    UC8179_spi_write_command(0x21);
+    uint16_t i;
+    for(i = 0; i < KWR_LUTC_LENGTH; i++)
+    {
+        UC8179_spi_write_parameter(LUTC_ARRAY[i]);
+    }
+}
+
 
 
 void UC8179_KWR_LUTR_SETTING(u8 *LUTR_ARRAY)

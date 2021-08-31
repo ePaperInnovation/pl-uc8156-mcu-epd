@@ -191,9 +191,9 @@ int read_image_data_from_file_default(FIL *f, u8 *image_buffer)
 
 
 	} while (count);
-
 	return 0;
 }
+
 
 
 
@@ -353,15 +353,56 @@ int read_image_data_from_file_S011_T1(FIL *f, u8 *image_buffer)
 
 
 
+#define BUFFER_LENGTH_S014_T1 100
+int read_image_data_from_file_S014_T1(FIL *f, u8 *image_buffer)
+{
+    u8 image_file_data[BUFFER_LENGTH_S014_T1];
+    uint16_t count;
+    int j;
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S014_T1, &count) != FR_OK)
+            return -1;
+
+        pack_2bpp(image_file_data, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
+    }
+
+    return 0;
+}
+
+#define BUFFER_LENGTH_S025_T1 240
+int read_image_data_from_file_S025_T1(FIL *f, u8 *image_buffer)
+{
+    u8 image_file_data[BUFFER_LENGTH_S025_T1];
+    uint16_t count;
+    int j;
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S025_T1, &count) != FR_OK)
+            return -1;
+
+        pack_2bpp(image_file_data, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
+    }
+
+    return 0;
+}
 
 
+#define BUFFER_LENGTH_S041_T1 104 //source 104 UC8171
+int read_image_data_from_file_S041_T1(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S041_T1];
+    uint16_t count;
+    int j;
 
-
-
-
-
-
-
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S041_T1, &count) != FR_OK)
+            return -1;
+        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
 
 
 

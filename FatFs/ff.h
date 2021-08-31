@@ -617,7 +617,7 @@ typedef struct {
 
 /* File status structure (FILINFO) */
 
-typedef struct {
+typedef struct  {
     DWORD fsize;                                                    /* File size */
     WORD fdate;                                                     /* Last modified date */
     WORD ftime;                                                     /* Last modified time */

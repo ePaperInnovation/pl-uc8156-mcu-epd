@@ -20,8 +20,10 @@ extern u8 lutr_array[];
 extern u8 lutw_array[];
 extern u8 lutk_array[];
 
-extern u8 lutkw_array[];
-extern u8 lutwk_array[];
-extern u8 lutkk_array[];
+extern u8 lut_C_array[];
+extern u8 lut_WW_array[];
+extern u8 lut_KW_array[];
+extern u8 lut_WK_array[];
+extern u8 lut_KK_array[];
 
 #endif /* UC8179_INI_H_ */
