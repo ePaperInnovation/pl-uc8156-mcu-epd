@@ -47,5 +47,6 @@ void UC8179_image_BW_clear(void);
 void UC8179_image_BW_black(void);
 void UC8179_BW_TEST(void);
 void UC8171_image_update_S041_flash_partial();
+void UC8179_image_update_S0357_flash(void);
 
 #endif /* UC8179_FLOW_DEBUG_H_ */

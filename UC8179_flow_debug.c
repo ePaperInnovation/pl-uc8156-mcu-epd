@@ -53,8 +53,9 @@ enum UC8179_KWR_TEST {SHOW_BLACK=0x00, SHOW_WHITE=0x01, SHOW_RED = 0x02, SHOW_IM
 void UC8179_basic_flow()
 {
     display_KWR = true;
-    set_display_type(S041_T1_1);
-    int show_BW = SHOW_WHITE;
+    set_display_type(S036_T1_1);
+    //int show_BW = SHOW_WHITE;
+    int show_BW = SHOW_IMAGE;
     if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
     {
         display_KWR = false;
@@ -154,8 +155,8 @@ void UC8179_basic_flow()
                 {
                     case SHOW_BLACK:
 
-                        UC8179_TRES_PARAMETER(0x00, 0x68, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-                        UC8179_GSST_PARAMETER(0x00, 0x30, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
                         UC8171_image_BLACK2();
 
                         UC8179_POWER_ON();
@@ -178,9 +179,9 @@ void UC8179_basic_flow()
                         UC8179_BUSY_N_CHECK();
                         break;
                     case SHOW_IMAGE:
-                        UC8179_TRES_PARAMETER(0x00, 0x68, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-                        UC8179_GSST_PARAMETER(0x01, 0x00, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
-                        UC8171_image_update_S041_flash();
+                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+                        UC8179_image_update_S0357_flash();
                         break;
                     default:
                         UC8179_image_WHITE2();
@@ -620,6 +621,62 @@ void UC8171_image_update_S041_flash_partial()
      UC8179_POWER_OFF();
      UC8179_BUSY_N_CHECK();
 }
+
+
+
+
+void UC8179_image_update_S0357_flash(void)
+{
+   // long count = GATE_LINES * SOURCE_LINES/ 8 ;
+    timerbInit();
+    int count = 8000 ;
+    int i = 0;
+    for(i = 0; i < count; i++)
+    {
+        image_data[i] = my_image[i+10];
+      // image_data[i] = 0;
+    }
+
+
+    UC8179_byte_array_WRITE2(image_data, count);
+    for(i = 0; i < count; i++)
+    {
+        image_data[i] = my_image[i+8010];
+      // image_data[i] = 0;
+    }
+    UC8179_byte_array_WRITE2_Part(image_data, count);
+
+    for(i = 0; i < count; i++)
+    {
+        image_data[i] = my_image[i+16010];
+      // image_data[i] = 0;
+    }
+    UC8179_byte_array_WRITE2_Part(image_data, count);
+
+    for(i = 0; i < count; i++)
+    {
+        image_data[i] = my_image[i+24010];
+      // image_data[i] = 0;
+    }
+    timerbStop();
+    UC8179_byte_array_WRITE2_Part(image_data, count);
+
+
+     UC8179_POWER_ON();
+     UC8179_BUSY_N_CHECK();
+     UC8179_DISPLAY_REFRESH();
+     UC8179_BUSY_N_CHECK();
+     UC8179_PTOUT_PARAMETER();
+     UC8179_POWER_OFF();
+     UC8179_BUSY_N_CHECK();
+}
+
+
+
+
+
+
+
 
 
 

@@ -398,14 +398,13 @@ void set_display_type(int display_type)
 
 
 	        image_data = (u8 *) malloc( (GATE_LINES * SOURCE_LINES/8) / 4 );   // slit to 4 parts
+	  //  image_data = (u8 *) malloc( GATE_LINES * SOURCE_LINES/8);   // slit to 4 parts
 	        if (image_data == NULL)
 	           abort_now("Fatal error in: config_display_type.c -> set_display_type -> malloc for image_data failed.", ABORT_DISP_INFO);
 
 	}
     else if(display_type == S041_T1_1)
     {
-
-
             image_data = (u8 *) malloc( GATE_LINES * SOURCE_LINES/8 );
             if (image_data == NULL)
                abort_now("Fatal error in: config_display_type.c -> set_display_type -> malloc for S041 image_data failed.", ABORT_DISP_INFO);

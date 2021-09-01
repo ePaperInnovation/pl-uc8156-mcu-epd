@@ -67,7 +67,7 @@ int main(void)
 
 ///////// main function for UC8156
 
-	image_eval_flow_SD(0);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
+//	image_eval_flow_SD(0);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
    //  image_eval_flow_flash(color_red);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 
 
@@ -76,19 +76,19 @@ int main(void)
 	///////// main function for UC8179
 
 
-//	int diplay_mode_choose = 1;
-//	switch(diplay_mode_choose)
-//	{
-//	case 0:
-//	    UC8179_basic_flow();
-//	    break;
-//	case 1:
-//	    UC8179_BW_TEST();
-//	    break;
-//    case 2:
-//        UC8171_basic_flow();
-//        break;
-//	}
+	int diplay_mode_choose = 0;
+	switch(diplay_mode_choose)
+	{
+	case 0:
+	    UC8179_basic_flow();
+	    break;
+	case 1:
+	    UC8179_BW_TEST();
+	    break;
+    case 2:
+        UC8171_basic_flow();
+        break;
+	}
 
 
 

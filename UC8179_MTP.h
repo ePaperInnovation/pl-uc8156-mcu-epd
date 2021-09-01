@@ -128,5 +128,6 @@ void UC8171_image_WHITE(void);
 void UC8171_image_WHITE2(void);
 void UC8171_image_BLACK(void);
 void UC8171_image_BLACK2(void);
+void UC8179_byte_array_WRITE2_Part(u8 *byte_array, unsigned long array_length);
 
 #endif /* UC8179_MTP_H_ */

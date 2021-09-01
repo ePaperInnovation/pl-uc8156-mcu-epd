@@ -132,6 +132,24 @@ void UC8179_byte_array_WRITE2(u8 *byte_array, unsigned long array_length)
     }
 }
 
+
+void UC8179_byte_array_WRITE2_Part(u8 *byte_array, unsigned long array_length)
+{
+    //UC8179_spi_write_command(0x13);
+    unsigned long i;
+    for (i = 0; i < array_length; i++ )
+    {
+        UC8179_spi_write_parameter(byte_array[i]);
+    }
+}
+
+
+
+
+
+
+
+
 void UC8179_OTP_Register_Value_Read(int index_start, int index_end)
 {
 
@@ -580,7 +598,7 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
   }
   else              // KW Mode
   {
-          UC8179_PSR_PARAMETER( 0x37 );      // PSR: 0x07 | 0x20 (LUT from Register) | 0x10 (0x10: KW Mode, 0x00: KWR Mode )    )
+          UC8179_PSR_PARAMETER( 0x3F );      // PSR: 0x07 | 0x20 (LUT from Register) | 0x10 (0x10: KW Mode, 0x00: KWR Mode )    )
           UC8179_BTST_PARAMETER(0x27, 0x27, 0x28, 0x17);      // BTST  DKE: 0x27, 0x27, 0x28, 0x17
 
           UC8179_PWR_PARAMETER( 0x07, 0x17, 0x3F, 0x3F, 0x0E);      // PWR DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E
