@@ -38,6 +38,10 @@ int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_S011_T1(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_S014_T1(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_S041_T1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part2(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part3(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part4(FIL *f, u8 *image_buffer);
 extern int (* read_image_data_from_file) (FIL *f, u8 *image_buffer);
 
 #endif /*READ_SD_H_*/

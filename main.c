@@ -76,16 +76,19 @@ int main(void)
 	///////// main function for UC8179
 
 
-	int diplay_mode_choose = 0;
+	int diplay_mode_choose = 1;
 	switch(diplay_mode_choose)
 	{
 	case 0:
 	    UC8179_basic_flow();
 	    break;
 	case 1:
-	    UC8179_BW_TEST();
+	    UC8179_basic_flow_from_SD();
 	    break;
     case 2:
+        UC8179_BW_TEST();
+        break;
+    case 3:
         UC8171_basic_flow();
         break;
 	}

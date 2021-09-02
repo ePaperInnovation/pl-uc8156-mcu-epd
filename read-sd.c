@@ -208,13 +208,6 @@ int read_image_data_from_file_S031_T1(FIL *f, u8 *image_buffer)
        uint16_t count;
        uint16_t i,j;
 
-
-
-
-
-
-
-
        for (j=0; j<156; j++)    // 312/2   Gate
        {
            if (f_read(f, data, BUFFER_LENGTH_S031_T1, &count) != FR_OK)
@@ -282,14 +275,15 @@ int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
     u8 image_file_data[BUFFER_LENGTH_S021_T1];
     u8 data_scrambled[240];
 
-    uint16_t count;
+    uint16_t count = 0;
     uint16_t i,j;
 
+    long file_size = f_size(f);
+    printf("file size = %lu \n", file_size);
 
 
-
-
-
+    int head_size = file_size -GATE_LINES * SOURCE_LINES;
+    f_lseek(f, head_size);
 
 
     for (j=0; j<GATE_LINES; j++)
@@ -323,14 +317,6 @@ int read_image_data_from_file_S011_T1(FIL *f, u8 *image_buffer)
 
     uint16_t count;
     int j;
-
-
-
-
-
-
-
-
     for (j=0; j<GATE_LINES; j++)
     {
         if (f_read(f, image_file_data, BUFFER_LENGTH_S011_T1, &count) != FR_OK)
@@ -405,11 +391,103 @@ int read_image_data_from_file_S041_T1(FIL *f, u8 *image_buffer)
 }
 
 
+#define BUFFER_LENGTH_S036_T1 640 //source 640 UC8179
+int read_image_data_from_file_S036_T1_part1(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
+
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
 
 
 
 
+int read_image_data_from_file_S036_T1_part2(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
 
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size + 64000;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
+
+
+int read_image_data_from_file_S036_T1_part3(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
+
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size + 128000;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
+
+
+int read_image_data_from_file_S036_T1_part4(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
+
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size + 192000;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
 
 
 

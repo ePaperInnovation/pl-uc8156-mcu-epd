@@ -54,8 +54,8 @@ void UC8179_basic_flow()
 {
     display_KWR = true;
     set_display_type(S036_T1_1);
-    //int show_BW = SHOW_WHITE;
-    int show_BW = SHOW_IMAGE;
+    int show_BW = SHOW_WHITE;
+   // int show_BW = SHOW_IMAGE;
     if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
     {
         display_KWR = false;
@@ -230,7 +230,7 @@ if( UC8179_sd_exist)
             continue;
 
         /* .. and files without the PGM extension */
-        if (!strstr(fno.fname, ".PBM") && !strstr(fno.fname, ".pbm"))
+        if (!strstr(fno.fname, ".PGM") && !strstr(fno.fname, ".pgm"))
             continue;
         else
         {
@@ -259,9 +259,8 @@ void UC8179_ini(void)
         UC8179_wait_for_BUSY_inactive(); // wait for RESET completed
        // UC8179_KWR_MODE();
         UC8179_MANUAL_INI();
-
-
 }
+
 
 
 void UC8179_KW_MODE(void)
@@ -674,6 +673,37 @@ void UC8179_image_update_S0357_flash(void)
 
 
 
+void UC8179_basic_flow_from_SD(void)
+{
+    display_KWR = true;
+    set_display_type(S036_T1_1);
+   // int show_BW = SHOW_WHITE;
+    int show_BW = SHOW_IMAGE;
+    if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
+    {
+        display_KWR = false;
+    }
+
+    UC8179_ini();
+    mdelay(500);
+
+    u8 revID = UC8179_READ_REVID();
+
+    printf("RevID = %x\n", revID);
+
+//    u8 temp_read = UC8179_TEMPERATUR_READ_INTER();
+//    printf("temp read = %x\n", temp_read);
+    mdelay(500);
+    //UC8179_KWR_OTP_Register_TR_SETTING_Value_Read(TR4);
+
+
+
+
+
+//    UC8179_KWR_OTP_Register_TR_LUTC_Read(TR4);
+//    UC8179_KWR_OTP_Register_TR_LUTR_Read(TR4);
+//    UC8179_KWR_OTP_Register_TR_LUTW_Read(TR4);
+//    UC8179_KWR_OTP_Register_TR_LUTK_Read(TR4);
 
 
 
@@ -681,6 +711,166 @@ void UC8179_image_update_S0357_flash(void)
 
 
 
+    bool PTL_flag = UC8179_GET_STATUS(PTL_FLAG);
+
+    printf("%s\n", PTL_flag ? "true" : "false");
+
+//    UC8179_PARTIAL_WINDOW(0, 320, 0 , 320, 1);
+//    UC8179_PARTIAL_IN();
+
+
+
+
+//    UC8179_TRES_PARAMETER(0x02, 0x98, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+//
+//    UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+
+
+    UC8179_path_find();
+    printf("full_path = %s\n", full_path);
+
+
+
+    if(display_KWR)
+    {
+        switch(show_BW)
+            {
+                case SHOW_BLACK:
+                    UC8179_image_BLACK();
+                    UC8179_image_BLACK2();
+                    UC8179_POWER_ON();
+                    UC8179_BUSY_N_CHECK();
+                    UC8179_DISPLAY_REFRESH();
+                    UC8179_BUSY_N_CHECK();
+                    UC8179_POWER_OFF();
+                    UC8179_BUSY_N_CHECK();
+
+
+                    break;
+                case SHOW_WHITE:
+//                    UC8179_TRES_PARAMETER(0x00, 0x68, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+//                    UC8179_GSST_PARAMETER(0x01, 0x00, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+                   UC8179_image_WHITE();
+                    UC8179_image_BLACK2();
+
+//                    UC8171_image_WHITE();
+//                    UC8171_image_BLACK2();
+                    UC8179_POWER_ON();
+                    UC8179_BUSY_N_CHECK();
+                    UC8179_DISPLAY_REFRESH();
+                    UC8179_BUSY_N_CHECK();
+                    UC8179_POWER_OFF();
+                    UC8179_BUSY_N_CHECK();
+
+                    break;
+                case SHOW_RED:
+                    UC8179_image_BLACK();
+                    UC8179_image_WHITE2();
+                    UC8179_POWER_ON();
+                    UC8179_BUSY_N_CHECK();
+                    UC8179_DISPLAY_REFRESH();
+                    UC8179_BUSY_N_CHECK();
+                    UC8179_POWER_OFF();
+                    UC8179_BUSY_N_CHECK();
+
+                    break;
+            }
+    }
+    else
+    {
+        switch(show_BW)
+                {
+                    case SHOW_BLACK:
+
+                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+                        UC8179_image_BLACK2();
+
+                        UC8179_POWER_ON();
+                        UC8179_BUSY_N_CHECK();
+                        UC8179_DISPLAY_REFRESH();
+                        UC8179_BUSY_N_CHECK();
+                        UC8179_POWER_OFF();
+                        UC8179_BUSY_N_CHECK();
+
+                        break;
+                    case SHOW_WHITE:
+
+                        UC8179_image_WHITE2();
+
+                        UC8179_POWER_ON();
+                        UC8179_BUSY_N_CHECK();
+                        UC8179_DISPLAY_REFRESH();
+                        UC8179_BUSY_N_CHECK();
+                        UC8179_POWER_OFF();
+                        UC8179_BUSY_N_CHECK();
+                        break;
+                    case SHOW_IMAGE:
+                        //////////////////// for DKE Displays
+                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+//////////////////////////////////////////////////////////////////////
+                        UC8179_image_update_S0357_SD();
+
+                        break;
+                    default:
+                        UC8179_image_WHITE2();
+
+                        UC8179_POWER_ON();
+                        UC8179_BUSY_N_CHECK();
+                        UC8179_DISPLAY_REFRESH();
+                        UC8179_BUSY_N_CHECK();
+                        UC8179_POWER_OFF();
+                        UC8179_BUSY_N_CHECK();
+                        break;
+                }
+    }
+
+}
+
+
+
+
+
+void UC8179_image_update_S0357_SD(void)
+{
+
+
+
+
+
+
+
+    timerbInit();
+    sdcard_load_image(full_path, image_data);
+    UC8179_byte_array_WRITE2(image_data, 8000);
+
+    read_image_data_from_file = read_image_data_from_file_S036_T1_part2;
+    sdcard_load_image(full_path, image_data);
+    UC8179_byte_array_WRITE2_Part(image_data, 8000);
+
+    read_image_data_from_file = read_image_data_from_file_S036_T1_part3;
+    sdcard_load_image(full_path, image_data);
+    UC8179_byte_array_WRITE2_Part(image_data, 8000);
+
+
+    read_image_data_from_file = read_image_data_from_file_S036_T1_part4;
+    sdcard_load_image(full_path, image_data);
+    UC8179_byte_array_WRITE2_Part(image_data, 8000);
+
+    timerbStop();
+
+
+     UC8179_POWER_ON();
+     UC8179_BUSY_N_CHECK();
+     UC8179_DISPLAY_REFRESH();
+     UC8179_BUSY_N_CHECK();
+     UC8179_PTOUT_PARAMETER();
+     UC8179_POWER_OFF();
+     UC8179_BUSY_N_CHECK();
+
+
+}
 
 
 

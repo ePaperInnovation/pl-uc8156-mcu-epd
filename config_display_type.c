@@ -353,7 +353,7 @@ void set_display_type(int display_type)
             NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S036_T1_1)/sizeof(regSetting_t);
             strcpy(PATH, "S036_T1.1");
             single_display = 0;
-            read_image_data_from_file = read_image_data_from_file_default;
+            read_image_data_from_file = read_image_data_from_file_S036_T1_part1;
 
 
 			break;

@@ -46,16 +46,16 @@ void eval_kit_flow(void)
 	// 1st try to read display-type from MTP
 	display_type = read_display_type_from_MTP();
 
-//	if (display_type == UNKNOWN)
-//	{
-//		// 2nd try to read display-type from SD-Card
-//		display_type = sdcard_read_display_type("display-type.txt");
-//		if (display_type == UNKNOWN)
-//			// finally: set display-type to default (1.38'')
-//			display_type = S025_T1_1;
-//
-//	}
-	display_type = S025_T1_1;
+	if (display_type == UNKNOWN)
+	{
+		// 2nd try to read display-type from SD-Card
+		display_type = sdcard_read_display_type("display-type.txt");
+		if (display_type == UNKNOWN)
+			// finally: set display-type to default (1.38'')
+			display_type = S025_T1_1;
+
+	}
+	//display_type = S025_T1_1;
 	set_display_type(display_type);
 	if(single_display){
 

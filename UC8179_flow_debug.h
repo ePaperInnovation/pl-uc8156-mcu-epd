@@ -48,5 +48,7 @@ void UC8179_image_BW_black(void);
 void UC8179_BW_TEST(void);
 void UC8171_image_update_S041_flash_partial();
 void UC8179_image_update_S0357_flash(void);
+void UC8179_basic_flow_from_SD(void);
+void UC8179_image_update_S0357_SD(void);
 
 #endif /* UC8179_FLOW_DEBUG_H_ */
