@@ -94,6 +94,12 @@ u8 UC8179_spi_read_parameter()
     return read_parameter;
 }
 
+
+
+
+
+
+
 void UC8179_spi_write_parameter(u8 byte)           // UC8179
 {
 
@@ -302,6 +308,48 @@ void spi_write_command_5params(u8 command, u8 param1, u8 param2, u8 param3, u8 p
     gpio_set_value_hi(SPI_CS);
 }
 
+void spi_write_command_6params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6)
+{
+    gpio_set_value_lo(SPI_CS);
+    command &= ~0x80;
+    spi_write_read_byte(command);
+    spi_write_read_byte(param1);
+    spi_write_read_byte(param2);
+    spi_write_read_byte(param3);
+    spi_write_read_byte(param4);
+    spi_write_read_byte(param5);
+    spi_write_read_byte(param6);
+    gpio_set_value_hi(SPI_CS);
+}
+
+
+
+
+void spi_write_command_8params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8 )
+{
+    gpio_set_value_lo(SPI_CS);
+    command &= ~0x80;
+    spi_write_read_byte(command);
+    spi_write_read_byte(param1);
+    spi_write_read_byte(param2);
+    spi_write_read_byte(param3);
+    spi_write_read_byte(param4);
+    spi_write_read_byte(param5);
+    spi_write_read_byte(param6);
+    spi_write_read_byte(param7);
+    spi_write_read_byte(param8);
+    gpio_set_value_hi(SPI_CS);
+}
+
+
+
+
+
+
+
+
+
+
 
 u8 spi_read_command_1param(u8 command)
 {
@@ -463,6 +511,24 @@ void spi_write_command_and_bulk_data(u8 command, u8 *buffer, size_t size)
     }
 	gpio_set_value_hi(SPI_CS);
 }
+
+
+void spi_write_command_param_and_bulk_data(u8 command, u8 param1, u8 *buffer, size_t size)
+{
+    gpio_set_value_lo(SPI_CS);
+    command &= ~0x80;
+    spi_write_read_byte(command);
+    spi_write_read_byte(param1);
+    while (size--) {
+        spi_write_read_byte(*buffer);
+        buffer++;
+    }
+    gpio_set_value_hi(SPI_CS);
+}
+
+
+
+
 
 
 void spi_write_command_and_bulk_data_GL0(u8 command, u8 *buffer, size_t size)

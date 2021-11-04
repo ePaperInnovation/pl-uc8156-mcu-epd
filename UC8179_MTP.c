@@ -104,6 +104,7 @@ void UC8179_image_BLACK2(void)
 {
     UC8179_spi_write_command(0x13);
     const  unsigned long sum = 60000;
+   // const  unsigned long sum = 32000;
     unsigned long i;
     for (i = 0; i < sum; i++ )
     {
@@ -611,9 +612,9 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
 
           UC8179_TCON_PARAMETER( 0x22 );             // TCON  DKE: 0x22
 
-          UC8179_TRES_PARAMETER(0x03, 0x10, 0x02, 0x00 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+          UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
 
-          UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+          UC8179_GSST_PARAMETER(0x00, 0x00, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
 
           UC8179_PWT_PARAMETER(0x00 );       // PWT  DKE: 0x00
 
@@ -626,6 +627,7 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
           UC8179_EVS_PARAMETER( 0x00 );       // EVS   DKE: 0x00
 
           UC8179_LUTOPT_PARAMETER(0x00, 0x00 );       // LUTOPT  DKE: 0x00, 0x00
+          UC8179_PTYPE(); // for PL P-type Display
 
           UC8179_VDCS_PARAMETER( 0x1E );       // VDCS  DKE: 0x1E
 

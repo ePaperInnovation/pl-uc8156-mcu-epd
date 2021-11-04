@@ -27,6 +27,7 @@
 #include <msp430.h>
 
 #include "msp430/msp430-spi.h"
+#include "msp430/msp430-i2c.h"
 #include "msp430/msp430-gpio.h"
 #include "msp430/hal_pmm.h"
 
@@ -37,6 +38,8 @@
 #include "utils.h"
 #include "flow_basis.h"
 #include "UC8179_flow_debug.h"
+#include "UC8177C_flow_debug.h"
+#include "touchscreen.h"
 
 
 #define DEBUG_PRINTOUTS 0
@@ -63,7 +66,9 @@ int main(void)
 
 	mdelay(100);
 
+
 	//eval_kit_flow();
+
 
 ///////// main function for UC8156
 
@@ -75,28 +80,39 @@ int main(void)
 
 	///////// main function for UC8179
 
+////////////////////////////////////////////
+//	int diplay_mode_choose = 2;
+//	switch(diplay_mode_choose)
+//	{
+//	case 0:
+//	    UC8179_basic_flow();
+//	    break;
+//	case 1:
+//	    UC8179_basic_flow_from_SD();
+//	    break;
+//    case 2:
+//        UC8179_BW_TEST();
+//        break;
+//    case 3:
+//        UC8171_basic_flow();
+//        break;
+//	}
 
-	int diplay_mode_choose = 1;
-	switch(diplay_mode_choose)
-	{
-	case 0:
-	    UC8179_basic_flow();
-	    break;
-	case 1:
-	    UC8179_basic_flow_from_SD();
-	    break;
-    case 2:
-        UC8179_BW_TEST();
-        break;
-    case 3:
-        UC8171_basic_flow();
-        break;
-	}
+////////////////////////////////////////
+
+///////////////////touch screen test////
+//    i2c_ini();
+//    touchscreen_test();
+
+////////////////////////////////////////
 
 
 
 
+	///////////////////UC 8177C Test////
+	UC8177_basic_flow();
 
+//////////////////////////////////////////
 }
 
 int _system_pre_init(void) {

@@ -66,6 +66,8 @@ enum led_error_code {
 	                          * Also depends on preprocessor settings */
 	ABORT_HV_INIT,	        /* Error initialising HVs */
 	ABORT_UC8156_INIT, 		 /* Error initialising UC8156 (e.g. Read_RevID or Read_StatReg) */
+    ABORT_UC8179_INIT,       /* Error initialising UC8179 (e.g. Read_RevID or Read_StatReg) */
+    ABORT_UC8177_INIT,       /* Error initialising UC8177 (e.g. Read_RevID or Read_StatReg) */
 	ABORT_APPLICATION,       /* Failed while running application. Multiple
 	                          * causes for this, depending on application
 	                          * that is running. Most likely failures are

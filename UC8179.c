@@ -50,7 +50,7 @@ unsigned int UC8179_wait_for_BUSY_inactive()
  	{
  		mdelay(1);
 		counter++; // BUSY loop
-		if (counter>2000) abort_now("Busy-Loop Timeout", ABORT_UC8156_INIT);
+		if (counter>2000) abort_now("Busy-Loop Timeout", ABORT_UC8179_INIT);
  	}
  	return counter;
 }
@@ -85,9 +85,9 @@ u8 UC8179_READ_REVID()
        return_value[5] = UC8179_spi_read_parameter();
        return_value[6] = UC8179_spi_read_parameter();
 
-       uint16_t i = 0;
-       for(i=0; i<7; i++)
-           printf("RevID = %x\n", return_value[i]);
+      // uint16_t i = 0;
+//       for(i=0; i<7; i++)
+//           printf("RevID = %x\n", return_value[i]);
 
        return return_value[6];
 }
@@ -543,6 +543,21 @@ void UC8179_ACTIVE_PROGRAMM()
 {
     UC8179_spi_write_command(0xA1);
 }
+
+
+void UC8179_NTYPE()
+{
+    UC8179_spi_write_command(0xE1);
+    UC8179_spi_write_parameter(0x00);
+}
+
+
+void UC8179_PTYPE()
+{
+    UC8179_spi_write_command(0xE1);
+    UC8179_spi_write_parameter(0x10);
+}
+
 
 void UC8179_POWER_SAVING()
 {

@@ -54,12 +54,12 @@ void UC8179_basic_flow()
 {
     display_KWR = true;
     set_display_type(S036_T1_1);
-    int show_BW = SHOW_WHITE;
+    int show_BW = SHOW_BLACK;
    // int show_BW = SHOW_IMAGE;
-    if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
-    {
-        display_KWR = false;
-    }
+//    if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
+//    {
+//        display_KWR = false;
+//    }
 
     UC8179_ini();
     mdelay(500);
@@ -254,8 +254,15 @@ void UC8179_ini(void)
         mdelay(1);
         mdelay(500);
         UC8179_hardware_reset(); // UC8156 hardware reset
+ //       gpio_set_value_lo(SPI_CS);
         gpio_set_value_hi(SPI_CS);
         mdelay(10);
+
+        ////////// pin test
+    //    UC8179_spi_write_command(0x70);
+       // gpio_set_value_hi( PIN_BUSY);
+        ////////////////
+
         UC8179_wait_for_BUSY_inactive(); // wait for RESET completed
        // UC8179_KWR_MODE();
         UC8179_MANUAL_INI();
@@ -511,7 +518,7 @@ void UC8171_ini(void)
 void UC8179_BW_TEST(void)
 {
       display_KWR = false;
-      set_display_type(S041_T1_1);
+      set_display_type(S036_T1_1);
       UC8179_ini();
       mdelay(500);
 //      UC8179_CDI_PARAMETER( 0x19, 0x07 );       // N2OCP = 1: Copy NEW data to OLD data Enabled
@@ -531,11 +538,15 @@ void UC8179_BW_TEST(void)
 //          UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
 //          UC8171_image_update_S041_flash();
 //      }
-      int show_BW = SHOW_IMAGE;
+      u8 revID = UC8179_READ_REVID();
+
+      printf("RevID = %x\n", revID);
+
+      int show_BW = SHOW_BLACK;
 //      UC8179_TRES_PARAMETER(0x02, 0x88, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
 //      UC8179_GSST_PARAMETER(0x00, 0x00, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
-      UC8179_PTL_PARAMETER(0x00, 0x30, 0x00, 0x97, 0x00, 0x00, 0x01, 0xE0, 0x01);
-      UC8179_PTIN_PARAMETER();
+     // UC8179_PTL_PARAMETER(0x00, 0x30, 0x00, 0x97, 0x00, 0x00, 0x01, 0xE0, 0x01);
+      //UC8179_PTIN_PARAMETER();
       bool PTL_flag = UC8179_GET_STATUS(PTL_FLAG);
 
       printf("%s\n", PTL_flag ? "true" : "false");
@@ -545,12 +556,12 @@ void UC8179_BW_TEST(void)
 
 
 
-                               UC8171_image_BLACK2();
+                                     UC8179_image_BLACK2();
                                      UC8179_POWER_ON();
                                      UC8179_BUSY_N_CHECK();
                                      UC8179_DISPLAY_REFRESH();
                                      UC8179_BUSY_N_CHECK();
-                                     UC8179_PTOUT_PARAMETER();
+                                    // UC8179_PTOUT_PARAMETER();
                                      UC8179_POWER_OFF();
                                      UC8179_BUSY_N_CHECK();
 
@@ -558,17 +569,17 @@ void UC8179_BW_TEST(void)
                               break;
                           case SHOW_WHITE:
 
-//                              UC8179_image_WHITE2();
-//                              UC8179_POWER_ON();
-//                              UC8179_BUSY_N_CHECK();
-//                              UC8179_DISPLAY_REFRESH();
-//                              UC8179_BUSY_N_CHECK();
-//                              UC8179_PTOUT_PARAMETER();
-//                              UC8179_POWER_OFF();
-//                              UC8179_BUSY_N_CHECK();
+                              UC8179_image_WHITE2();
+                              UC8179_POWER_ON();
+                              UC8179_BUSY_N_CHECK();
+                              UC8179_DISPLAY_REFRESH();
+                              UC8179_BUSY_N_CHECK();
+                             // UC8179_PTOUT_PARAMETER();
+                              UC8179_POWER_OFF();
+                              UC8179_BUSY_N_CHECK();
 
-                            // UC8171_image_WHITE2();
-                              UC8171_image_clear();
+
+                             // UC8171_image_clear();
                               break;
                           case SHOW_IMAGE:
                               UC8171_image_update_S041_flash();
@@ -675,10 +686,10 @@ void UC8179_image_update_S0357_flash(void)
 
 void UC8179_basic_flow_from_SD(void)
 {
-    display_KWR = true;
+    display_KWR = false;
     set_display_type(S036_T1_1);
-   // int show_BW = SHOW_WHITE;
     int show_BW = SHOW_IMAGE;
+    //int show_BW = SHOW_IMAGE;
     if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
     {
         display_KWR = false;
@@ -782,9 +793,9 @@ void UC8179_basic_flow_from_SD(void)
                 {
                     case SHOW_BLACK:
 
-                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
-                        UC8179_image_BLACK2();
+//                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+//                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+//                        UC8179_image_BLACK2();
 
                         UC8179_POWER_ON();
                         UC8179_BUSY_N_CHECK();

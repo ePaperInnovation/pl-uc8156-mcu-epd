@@ -40,6 +40,9 @@
 #define SPI_CD          GPIO(1,3)   // Command/Data
 #define SPI_CS_SLAVE	GPIO(1,6)
 
+
+
+
 #define SPI_MODE_0 (UCCKPH)                            /* CPOL=0 CPHA=0 */
 #define SPI_MODE_1 (0)                         /* CPOL=0 CPHA=1 */
 #define SPI_MODE_2 (UCCKPL | UCCKPH)    /* CPOL=1 CPHA=0 */
@@ -53,6 +56,8 @@ void spi_write_command_2params(u8 command, u8 param1, u8 param2);
 void spi_write_command_3params(u8 command, u8 param1, u8 param2, u8 param3);
 void spi_write_command_4params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4);
 void spi_write_command_5params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5);
+void spi_write_command_6params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6);
+void spi_write_command_8params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8);
 void spi_write_command(u8 command, u8 *params, int count);
 
 u8 spi_read_command_1param(u8 command);
@@ -98,7 +103,7 @@ u8 UC8179_spi_read_parameter();
 void UC8179_spi_write_parameter(u8 byte) ;
 void UC8179_spi_write_command(u8 byte);
 
-
+void spi_write_command_param_and_bulk_data(u8 command, u8 param1, u8 *buffer, size_t size);
 
 
 
