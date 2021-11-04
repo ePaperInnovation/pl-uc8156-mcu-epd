@@ -108,6 +108,8 @@ void UC8177_BTST(u8 param1, u8 param2, u8 param3)  // Booster Soft Start
 void UC8177_DTM1(u8 param1, u8 *image_data, size_t size)  // Data Start Transmission 1
 {
     spi_write_command_param_and_bulk_data(0x10, param1, image_data, size);
+    spi_write_only_command(0x11);
+
 }
 
 void UC8177_DRF(u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8)     // Display Refresh
@@ -119,6 +121,7 @@ void UC8177_DRF(u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6
 void UC8177_DTM2(u8 param1, u8 *image_data, size_t size)  // Data Start Transmission 2
 {
     spi_write_command_param_and_bulk_data(0x13, param1, image_data, size);
+    spi_write_only_command(0x04);
 }
 
 void UC8177_AWM1(u8 param1)  // Auto Waveform Mode 1
