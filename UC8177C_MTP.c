@@ -43,7 +43,7 @@ void UC8177_image_update( u8 *image_data)
     UC8177_PON();    // power on
    // UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);       // data window setting
    // DTM1                                                               // write image pixel
-    spi_write_only_command(0x11);
+
     UC8177_wait_for_BUSY_inactive();                                  // check from busy pin
 
    // UC8177_DRF();
