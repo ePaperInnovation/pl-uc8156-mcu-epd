@@ -60,7 +60,7 @@ void UC8177_basic_flow(void)
 
         int VCOM_Setting = 4000;  // for -4 V
         UC8177_set_Vcom(VCOM_Setting);
-        sprintf(path, "/%s/%s", PATH, "display/TestUC8177.uc8177_lut");
+        sprintf(path, "/%s/%s", PATH, "display/Eink_S028.uc8177_lut");
 
         /////////////////////////////////////////////////////////////////////////// waveform too big for msp430
 //         long WAVEFORM_LENGTH_UC8177 = 61696;
@@ -68,7 +68,7 @@ void UC8177_basic_flow(void)
 //        if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH_UC8177))
 //            {
 
-//            UC8177_LUTD(60, waveform_from_file, 61696 );
+        UC8177_Send_WaveformFile_to_LUTD(path);
 //            }
         ///////////////////////////////////////////////////////////////////////
 

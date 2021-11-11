@@ -146,6 +146,56 @@ void UC8177_LUTD(u8 param1, u8 *lutd, size_t size)  // LUT for Frame Data (LUTD)
     spi_write_command_param_and_bulk_data(0x21, param1, lutd, size);
 }
 
+void UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUTD)
+{
+    FIL file;
+    static BUFFER_LENGTH = 64;
+    static * u8 data = malloc(BUFFER_LENGTH);
+    uint16_t count;
+    uint16_t size;
+
+    if (f_open(&file, path, FA_READ))
+        return false;
+
+    gpio_set_value_lo(SPI_CS);
+
+    //command
+    u8 command = 0x21;
+    spi_write_read_byte(command);
+
+    //frame number
+    f_read(f, data, 1, &count);
+    u8 frame_number = *data;
+    spi_write_read_byte(frame_number);
+
+    //jump (over LUTC) to LUTD
+    f_lseek(f, 16 + (frame_number/64 + 1) * 16)
+
+    do
+    {
+        if (f_read(f, data, BUFFER_LENGTH, &count) != FR_OK)
+            return -1;
+
+        size = count;
+
+        while (size--)
+        {
+            spi_write_read_byte(*data);
+            data++;
+        }
+
+    } while (count);
+
+    gpio_set_value_hi(SPI_CS);
+
+    f_close(&file);
+
+    if (count!=length)
+        return false;
+
+    return(true);
+}
+
 
 void UC8177_LUTR(u8 *lutr)  // LUT for Reagle(lutr)
 {
