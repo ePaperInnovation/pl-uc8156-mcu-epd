@@ -121,7 +121,7 @@ void UC8177_DRF(u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6
 void UC8177_DTM2(u8 param1, u8 *image_data, size_t size)  // Data Start Transmission 2
 {
     spi_write_command_param_and_bulk_data(0x13, param1, image_data, size);
-    spi_write_only_command(0x04);
+    spi_write_only_command(0x11);
 }
 
 void UC8177_AWM1(u8 param1)  // Auto Waveform Mode 1
@@ -141,9 +141,9 @@ void UC8177_LUTC(u8 *waveform_lutc)     // VCOM LUT(LUTC)
 }
 
 
-void UC8177_LUTD(u8 param1, u8 *lutd)  // LUT for Frame Data (LUTD)
+void UC8177_LUTD(u8 param1, u8 *lutd, size_t size)  // LUT for Frame Data (LUTD)
 {
-    spi_write_command_param_and_bulk_data(0x21, param1, lutd, 4);
+    spi_write_command_param_and_bulk_data(0x21, param1, lutd, size);
 }
 
 
@@ -298,9 +298,21 @@ void UC8177_GDOS(u8 param1, u8 param2)  // GD Order Setting
 
 
 
+void UC8177_set_Vcom(int Vcom_mv_value)  // eg: -4V ---> 4000
+{
+    u8 Vcom_register_value = (u8)Vcom_mv_value/50;
+    UC8177_VDCS(Vcom_register_value);
+}
 
+u8 UC8177_BUSY_N_check(void)
+{
 
+    u8 *flag_byte_array = UC8177_FLG();
+    u8 busy_status_byte = flag_byte_array[0] & 0x01;
 
+    return busy_status_byte ;
+
+}
 
 
 

@@ -32,12 +32,19 @@
 #include "msp430-gpio.h"
 
 #include "config_display_type.h"
-
+//#define WAVEFORM_LENGTH_UC8177 61696    // 3856 (0x0F10) * 16
 
 
 
 void UC8177_basic_flow(void)
 {
+
+
+    char PATH[64]; //global variable
+   // set_display_type(S021_T1_1);
+    strcpy(PATH, "S028_T1.1");
+
+    char path[64];
 
         UC8177_wait_for_BUSY_inactive(); // wait for power-up completed
 
@@ -48,6 +55,22 @@ void UC8177_basic_flow(void)
 
         // optional -> verifies successful power-up
         UC8177_check_RevID();
+
+
+
+        int VCOM_Setting = 4000;  // for -4 V
+        UC8177_set_Vcom(VCOM_Setting);
+        sprintf(path, "/%s/%s", PATH, "display/TestUC8177.uc8177_lut");
+
+        /////////////////////////////////////////////////////////////////////////// waveform too big for msp430
+//         long WAVEFORM_LENGTH_UC8177 = 61696;
+//        u8 waveform_from_file[WAVEFORM_LENGTH_UC8177];                      // maybe buffer here not enough for waveform UC8177, should slide to 2 parts
+//        if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH_UC8177))
+//            {
+
+//            UC8177_LUTD(60, waveform_from_file, 61696 );
+//            }
+        ///////////////////////////////////////////////////////////////////////
 
         UC8177_Eink_ini();
 }

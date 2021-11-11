@@ -54,7 +54,8 @@ void MSP430_gpio_init();
 
 int main(void)
 {
-	int sd_int = sdcard_init(); // initialize SD-card using FatFS
+
+    int sd_int = sdcard_init(); // initialize SD-card using FatFS
 
 	MSP430_clock_init(); // set MSP430 clock to 20MHz
 
@@ -67,11 +68,11 @@ int main(void)
 	mdelay(100);
 
 
-	//eval_kit_flow();
 
 
 ///////// main function for UC8156
-
+    //print_WfVersion_read_from_MTP();
+  //  eval_kit_flow();   // slideshow the image
 //	image_eval_flow_SD(0);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
    //  image_eval_flow_flash(color_red);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 

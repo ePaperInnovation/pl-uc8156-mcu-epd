@@ -35,7 +35,7 @@ void UC8177_DTM2(u8 param1, u8 *image_data, size_t size);
 void UC8177_AWM1(u8 param1);
 void UC8177_AWM2(u8 param1, u8 param2, u8 param3, u8 param4);
 void UC8177_LUTC(u8 *waveform_lutc);
-void UC8177_LUTD(u8 param1, u8 *lutd);
+void UC8177_LUTD(u8 param1, u8 *lutd, size_t size);
 void UC8177_LUTR(u8 *lutr);
 void UC8177_PS(u8 param1);
 void UC8177_MISCS1(u8 param1);
@@ -61,8 +61,8 @@ void UC8177_LEDDS(u8 param1, u8 param2);
 void UC8177_PBC(u8 param1);
 u8 UC8177_PBCS(void);
 void UC8177_GDOS(u8 param1, u8 param2);
-
-
+void UC8177_set_Vcom(int Vcom_mv_value);
+u8 UC8177_BUSY_N_check(void);
 
 
 

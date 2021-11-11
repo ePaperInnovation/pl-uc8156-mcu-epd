@@ -15,7 +15,7 @@
 #include "UC8177C_MTP.h"
 #include "read-sd.h"
 
-
+#include "msp430-gpio.h"
 
 
 void UC8177_Eink_ini(void)    // first all settings according to datasheet with default
@@ -32,14 +32,97 @@ void UC8177_Eink_ini(void)    // first all settings according to datasheet with 
     UC8177_TCON(0x08, 0x08, 0x08);
     UC8177_TRES(0x01, 0xE0, 0x02, 0x58);
     UC8177_DAM(0x00);
-    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
     UC8177_EDS(0x00);
     UC8177_XONS(0x00, 0x00, 0x00, 0x63, 0x00, 0x1E);
     UC8177_GDOS(0x00, 0xFF);
 }
 
 
+void UC8177_image_update( u8 *image_data)
+{
+    UC8177_PON();    // power on
+   // UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);       // data window setting
+   // DTM1                                                               // write image pixel
+    spi_write_only_command(0x11);
+    UC8177_wait_for_BUSY_inactive();                                  // check from busy pin
 
+   // UC8177_DRF();
+    UC8177_wait_for_BUSY_inactive();
+    UC8177_POF();
+
+
+}
+
+void UC8177_white_update(void)  // update all white
+{
+    UC8177_PON();    // power on
+   // UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);       // data window setting
+
+
+
+    //////////////////////////DTM1////////////////////
+    gpio_set_value_lo(SPI_CS);
+    u8 command = 0x10;
+    command &= ~0x80;
+    spi_write_read_byte(command);
+    u8 cur_bpp = 0x00;  // 00b: 1bpp
+    spi_write_read_byte(cur_bpp);
+    const unsigned long sum =  36000;
+      unsigned long i;
+      for (i = 0; i < sum; i++ )
+      {
+          spi_write_read_byte(0xFF);
+      }
+
+    gpio_set_value_hi(SPI_CS);// write image pixel
+    spi_write_only_command(0x11);                                                              // write image pixel
+    //////////////////////////DTM1////////////////////
+    UC8177_wait_for_BUSY_inactive();                                  // check from busy pin
+
+    UC8177_DRF(0x00, 0x00, 0x00, 0x00, 0x01, 0xE0, 0x02, 0x58   );
+    UC8177_wait_for_BUSY_inactive();
+    UC8177_POF();
+
+
+}
+
+void UC8177_black_update(void)  // update all black
+{
+    UC8177_PON();    // power on
+   // UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);       // data window setting
+
+
+
+//////////////////////////DTM1////////////////////
+    gpio_set_value_lo(SPI_CS);
+    u8 command = 0x10;
+    command &= ~0x80;
+    u8 cur_bpp = 0x00;  // 00b: 1bpp
+    spi_write_read_byte(command);
+    spi_write_read_byte(cur_bpp);
+
+
+    const unsigned long sum =  36000;
+     unsigned long i;
+     for (i = 0; i < sum; i++ )
+     {
+         spi_write_read_byte(0x00);
+     }
+
+    gpio_set_value_hi(SPI_CS);// write image pixel
+    UC8177_wait_for_BUSY_inactive();                                  // check from busy pin
+
+    spi_write_only_command(0x11);                                                              // write image pixel
+
+    //////////////////////////DTM1////////////////////
+
+    UC8177_wait_for_BUSY_inactive();
+    UC8177_DRF(0x00, 0x00, 0x00, 0x00, 0x01, 0xE0, 0x02, 0x58 );
+    UC8177_wait_for_BUSY_inactive();
+    UC8177_POF();
+
+
+}
 
 
 

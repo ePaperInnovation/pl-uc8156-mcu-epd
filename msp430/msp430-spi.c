@@ -530,7 +530,6 @@ void spi_write_command_param_and_bulk_data(u8 command, u8 param1, u8 *buffer, si
 
 
 
-
 void spi_write_command_and_bulk_data_GL0(u8 command, u8 *buffer, size_t size)
 {
     gpio_set_value_lo(SPI_CS);
@@ -678,4 +677,8 @@ void spi_write_command_byte_repeat_slave(u8 command, u8 data, size_t size)
     }
 	gpio_set_value_hi(SPI_CS_SLAVE);
 }
+
+
+
+
 
