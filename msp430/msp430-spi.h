@@ -61,8 +61,8 @@ void spi_write_command_8params(u8 command, u8 param1, u8 param2, u8 param3, u8 p
 void spi_write_command(u8 command, u8 *params, int count);
 
 u8 spi_read_command_1param(u8 command);
-void spi_read_command_2params1(u8 command, u8 *);
-u8* spi_read_command_2params(u8 command);
+void spi_read_command_2params1(u8 command, u8 * return_value);
+//void spi_read_command_2params(u8 command, u8 * data);
 u8* spi_read_command_3params(u8 command);
 u8* spi_read_command_4params(u8 command);
 int spi_read_command(u8 command, u8 *read_values_p, int count);
@@ -104,7 +104,16 @@ void UC8179_spi_write_parameter(u8 byte) ;
 void UC8179_spi_write_command(u8 byte);
 
 void spi_write_command_param_and_bulk_data(u8 command, u8 param1, u8 *buffer, size_t size);
-
-
-
+void UC8177_spi_write_command_9params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8, u8 param9 );
+void UC8177_spi_write_command_8params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8 );
+void UC8177_spi_write_command_6params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6);
+void UC8177_spi_write_command_1param(u8 command, u8 param1);
+void UC8177_spi_write_command_2params(u8 command, u8 param1, u8 param2);
+void UC8177_spi_write_command_4params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4);
+void UC8177_spi_write_command_3params(u8 command, u8 param1, u8 param2, u8 param3);
+void UC8177_spi_write_only_command(u8 command);
+void UC8177_spi_write_command_param_and_bulk_data(u8 command, u8 param1, u8 *buffer, size_t size);
+u8 UC8177_spi_read_command_1param(u8 command);
+void UC8177_spi_read_command_2params1(u8 command, u8 *return_value);
+void UC8177_spi_write_command_and_bulk_data(u8 command, u8 *buffer, size_t size);
 #endif /* MSP430_SPI_H_ */

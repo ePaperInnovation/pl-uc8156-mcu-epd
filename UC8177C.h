@@ -30,7 +30,7 @@ void UC8177_DPC(u8 param1);
 void UC8177_DSLP(u8 param1);
 void UC8177_BTST(u8 param1, u8 param2, u8 param3);
 void UC8177_DTM1(u8 param1, u8 *image_data, size_t size);
-void UC8177_DRF(u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8);
+void UC8177_DRF(u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8, u8 param9);
 void UC8177_DTM2(u8 param1, u8 *image_data, size_t size);
 void UC8177_AWM1(u8 param1);
 void UC8177_AWM2(u8 param1, u8 param2, u8 param3, u8 param4);
@@ -49,9 +49,9 @@ void UC8177_S8S9SPI(void);
 void UC8177_TCON(u8 param1, u8 param2, u8 param3);
 void UC8177_TRES(u8 param1, u8 param2, u8 param3, u8 param4);
 void UC8177_DAM(u8 param1);
-u8* UC8177_FLG(void);
-u8* UC8177_PIPE_COL_FLG(void);
-u8* UC8177_PIPE_BUSY_FLG(void);
+void UC8177_FLG(u8 * data);
+//u8* UC8177_PIPE_COL_FLG(void);
+//u8* UC8177_PIPE_BUSY_FLG(void);
 void UC8177_AMV(u8 param1);
 u8 UC8177_VV(void);
 void UC8177_VDCS(u8 param1);
@@ -63,7 +63,7 @@ void UC8177_PBC(u8 param1);
 u8 UC8177_PBCS(void);
 void UC8177_GDOS(u8 param1, u8 param2);
 void UC8177_set_Vcom(int Vcom_mv_value);
-u8 UC8177_BUSY_N_check(void);
+//u8 UC8177_BUSY_N_check(void);
 
 
 

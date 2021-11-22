@@ -20,6 +20,7 @@
 void UC8177_Eink_ini(void);
 void UC8177_black_update(void);
 void UC8177_white_update(void);
+u8 flag_check(u8 flag_byte);
 
 
 

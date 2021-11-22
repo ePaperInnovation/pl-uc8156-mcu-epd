@@ -54,13 +54,15 @@ void UC8177_basic_flow(void)
         UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
 
         // optional -> verifies successful power-up
-        UC8177_check_RevID();
+       // UC8177_check_RevID();
+      //  UC8177_PON();
+        mdelay(5);
+        flag_check(0);
 
 
-
-        int VCOM_Setting = 4000;  // for -4 V
-        UC8177_set_Vcom(VCOM_Setting);
-        sprintf(path, "/%s/%s", PATH, "display/Eink_S028.uc8177_lut");
+       // int VCOM_Setting = 4000;  // for -4 V
+       // UC8177_set_Vcom(VCOM_Setting);
+        sprintf(path, "/%s/%s", PATH, "display/Eink_S028_double.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut
 
         /////////////////////////////////////////////////////////////////////////// waveform too big for msp430
 //         long WAVEFORM_LENGTH_UC8177 = 61696;
@@ -68,9 +70,19 @@ void UC8177_basic_flow(void)
 //        if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH_UC8177))
 //            {
 
-        UC8177_Send_WaveformFile_to_LUTD(path);
+        bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD(path);
+
+           printf("%s\n", Waveform_read_finish ? "true" : "false");
+
+       // UC8177_Send_WaveformFile_to_LUTD(path);
+       // flag_check(0);
+     //   UC8177_DRF(0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xC0, 0x02, 0x1C);
+     //   flag_check(0);
 //            }
         ///////////////////////////////////////////////////////////////////////
 
         UC8177_Eink_ini();
+        //UC8177_white_update();
+        UC8177_black_update();
+
 }
