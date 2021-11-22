@@ -36,7 +36,7 @@ void UC8177_AWM1(u8 param1);
 void UC8177_AWM2(u8 param1, u8 param2, u8 param3, u8 param4);
 void UC8177_LUTC(u8 *waveform_lutc);
 void UC8177_LUTD(u8 param1, u8 *lutd, size_t size);
-void UC8177_Send_WaveformFile_to_LUTD(char *wf_path);
+bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path);
 void UC8177_LUTR(u8 *lutr);
 void UC8177_PS(u8 param1);
 void UC8177_MISCS1(u8 param1);
