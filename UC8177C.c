@@ -148,10 +148,13 @@ void UC8177_LUTD(u8 param1, u8 *lutd, size_t size)  // LUT for Frame Data (LUTD)
 bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUTD)
 {
     FIL file;
-    static int BUFFER_LENGTH = 64;
-    u8 *data = (u8 *) malloc(BUFFER_LENGTH);
+    const int BUFFER_LENGTH = 64;
+  //  u8 *data = (u8 *) malloc(BUFFER_LENGTH);
+
+    u8 data[64];
     uint16_t count;
     uint16_t size;
+    uint16_t data_index = 0;
 
     if (f_open(&file, wf_path, FA_READ))
         return false;
@@ -159,7 +162,7 @@ bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUT
     gpio_set_value_lo(SPI_CS);
 
     //command
-    u8 command = 0x21;
+    const u8 command = 0x21;
     spi_write_read_byte(command);
 
     //frame number
@@ -177,20 +180,28 @@ bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUT
 
         size = count;
 
+//        while (size--)
+//        {
+//            spi_write_read_byte(*data);
+//            data++;
+//        }
         while (size--)
-        {
-            spi_write_read_byte(*data);
-            data++;
-        }
+              {
+                  spi_write_read_byte(data[data_index]);
+                  data_index++;
+              }
 
+        data_index = 0;
     } while (count);
 
-    gpio_set_value_hi(SPI_CS);
+
 
     f_close(&file);
 
-    if (count!=BUFFER_LENGTH)
-        return false;
+    mdelay(5);
+    gpio_set_value_hi(SPI_CS);
+//    if (count!=BUFFER_LENGTH)
+//        return false;
 
     return(true);
 }
@@ -362,5 +373,55 @@ void UC8177_set_Vcom(int Vcom_mv_value)  // eg: -4V ---> 4000
 //
 //}
 
+bool UC8177_image_read_from_sd(char *image_path)  // LUT for Frame Data (LUTD)
+{
+    FIL file;
+    static int BUFFER_LENGTH = 64;
+  //  u8 *data = (u8 *) malloc(BUFFER_LENGTH);
+    u8 data[64];
+    uint16_t count;
+    uint16_t size;
+    uint16_t data_index = 0;
+    if (f_open(&file, image_path, FA_READ))
+        return false;
 
+    gpio_set_value_lo(SPI_CS);
+
+    //command
+    u8 command = 0x10;
+    spi_write_read_byte(command);
+    u8 cur_bpp = 0x00;  // 00b: 1bpp
+    spi_write_read_byte(cur_bpp);
+
+    do
+    {
+        if (f_read(&file, data, BUFFER_LENGTH, &count) != FR_OK)
+            return false;
+
+        size = count;
+
+//        while (size--)
+//        {
+//            spi_write_read_byte(*data);
+//            data++;
+//        }
+        while (size--)
+              {
+                  spi_write_read_byte(data[data_index]);
+                 // spi_write_read_byte(0x00);
+                  data_index++;
+              }
+
+        data_index = 0;
+    } while (count);
+    f_close(&file);
+    gpio_set_value_hi(SPI_CS);
+
+
+
+//    if (count!=BUFFER_LENGTH)
+//        return false;
+
+    return(true);
+}
 
