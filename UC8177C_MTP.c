@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <float.h>
 #include "msp430/msp430-spi.h"
 #include "UC8177C.h"
 #include "UC8177C_MTP.h"
@@ -67,15 +67,17 @@ void UC8177_white_update(void)  // update all white
     mdelay(5);
 
     UC8177_wait_for_BUSY_inactive();
-    mdelay(5);
-    flag_check(0);
+//    mdelay(5);
+//    flag_check(0);
 
     //////////////////////////DTM1////////////////////
                                // check from busy pin
 
     UC8177_DRF(0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0x60, 0x01, 0xE0);
     UC8177_wait_for_BUSY_inactive();
-    mdelay(5);
+ //   mdelay(5);
+//    flag_check(0);
+//    mdelay(5);
     UC8177_POF();
 
 
@@ -102,11 +104,11 @@ void UC8177_black_update(void)  // update all black
 
     gpio_set_value_hi(SPI_CS);// write image pixel
     UC8177_PON();    // power on
-    mdelay(5);
+  //  mdelay(5);
 
     UC8177_wait_for_BUSY_inactive();
-    mdelay(5);
-    flag_check(0);
+//    mdelay(5);
+//    flag_check(0);
     //////////////////////////DTM1////////////////////
                                // check from busy pin
 
@@ -155,8 +157,8 @@ void UC8177_test_update(void)  // update all black
     mdelay(5);
 
     UC8177_wait_for_BUSY_inactive();
-    mdelay(5);
-    flag_check(0);
+//    mdelay(5);
+//    flag_check(0);
     //////////////////////////DTM1////////////////////
                                // check from busy pin
 
@@ -208,14 +210,16 @@ u8 flag_check(u8 flag_byte)    //
 }
 
 
-//u8 flag_check1(u8 flag_byte)
-//{
-//    u8 check_flag = 0;
-//    u8 *flag_buffer;
-//    flag_buffer = UC8177_FLG();
-//    check_flag = flag_buffer[1];
-//    return check_flag;
-//
-//}
+void temp_check(void)    //
+{
 
+    u8 temp_buffer[2];
+    UC8177_TSC(temp_buffer);
+    int temp_TS = (temp_buffer[0] << 1) + (temp_buffer[1]>>7);
+   int temp_real = temp_TS / 2;
+    printf("Temp  = %d °C \n", temp_real );
+
+
+
+}
 

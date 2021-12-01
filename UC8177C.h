@@ -41,7 +41,7 @@ void UC8177_LUTR(u8 *lutr);
 void UC8177_PS(u8 param1);
 void UC8177_MISCS1(u8 param1);
 void UC8177_PLL(u8 param1);
-void UC8177_TSC(u8 param1, u8 param2);
+void UC8177_TSC(u8 *data);
 void UC8177_TSE(u8 param1, u8 param2);
 void UC8177_CDI(u8 param1, u8 param2);
 u8 UC8177_LPD(void);

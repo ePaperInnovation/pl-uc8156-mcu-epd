@@ -82,11 +82,21 @@ void UC8177_basic_flow(void)
 
         printf("%s\n", Waveform_read_finish ? "true" : "false");
 
+   do{
 
-        // UC8177_white_update();
-       //UC8177_black_update();
-        UC8177_test_update();
+//        UC8177_white_update();
+//        mdelay(5000);
+//
+//        UC8177_black_update();
+//        mdelay(5000);
+//
+
+//        UC8177_test_update();
+//        mdelay(5000);
+       temp_check();
+       mdelay(2000);
 
         // UC8177_image_update(image_path);
+   }while(1);
 
 }

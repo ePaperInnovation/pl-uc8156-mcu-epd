@@ -149,12 +149,12 @@ bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUT
 {
     FIL file;
     const int BUFFER_LENGTH = 64;
-  //  u8 *data = (u8 *) malloc(BUFFER_LENGTH);
+    u8 *data = (u8 *) malloc(BUFFER_LENGTH);
 
-    u8 data[64];
+   // u8 data[64];
     uint16_t count;
     uint16_t size;
-    uint16_t data_index = 0;
+  //  uint16_t data_index = 0;
 
     if (f_open(&file, wf_path, FA_READ))
         return false;
@@ -180,18 +180,18 @@ bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUT
 
         size = count;
 
-//        while (size--)
-//        {
-//            spi_write_read_byte(*data);
-//            data++;
-//        }
         while (size--)
-              {
-                  spi_write_read_byte(data[data_index]);
-                  data_index++;
-              }
-
-        data_index = 0;
+        {
+            spi_write_read_byte(*data);
+            data++;
+        }
+//        while (size--)
+//              {
+//                  spi_write_read_byte(data[data_index]);
+//                  data_index++;
+//              }
+//
+//        data_index = 0;
     } while (count);
 
 
@@ -230,9 +230,9 @@ void UC8177_PLL(u8 param1)  // PLL Control
 }
 
 
-void UC8177_TSC(u8 param1, u8 param2)  // Temperature sensor calibration
+void UC8177_TSC(u8 *data)  // Temperature sensor calibration
 {
-    UC8177_spi_write_command_2params(0x40, param1, param2);
+    UC8177_spi_read_command_2params1(0x40, data);
 }
 
 
