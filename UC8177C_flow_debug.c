@@ -47,7 +47,8 @@ void UC8177_basic_flow(void)
     strcpy(PATH, "S028_T1.1");
 
     char path[64];
-    char image_path[64];
+    char image_path1[64];
+    char image_path2[64];
     char path_new[64];
         UC8177_wait_for_BUSY_inactive(); // wait for power-up completed
 
@@ -66,9 +67,10 @@ void UC8177_basic_flow(void)
        // int VCOM_Setting = 4000;  // for -4 V
        // UC8177_set_Vcom(VCOM_Setting);
         sprintf(path, "/%s/%s", PATH, "display/Eink_S028_16GL.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
-        sprintf(path_new, "/%s/%s", PATH, "display/Eink_S028_double.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
-        sprintf(image_path, "/%s/%s", PATH, "img/LedgerLogo_608x480_BW1.pgm");
-        printf("%s\n", image_path);
+      //  sprintf(path_new, "/%s/%s", PATH, "display/Eink_S028_16GL.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
+        sprintf(image_path1, "/%s/%s", PATH, "img/LedgerLogo_608x480_Black.pgm");
+        sprintf(image_path2, "/%s/%s", PATH, "img/LedgerLogo_608x480_White.pgm");
+
         /////////////////////////////////////////////////////////////////////////// waveform too big for msp430
 //         long WAVEFORM_LENGTH_UC8177 = 61696;
 //        u8 waveform_from_file[WAVEFORM_LENGTH_UC8177];                      // maybe buffer here not enough for waveform UC8177, should slide to 2 parts
@@ -84,14 +86,14 @@ void UC8177_basic_flow(void)
         bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
 
         printf("%s\n", Waveform_read_finish ? "true" : "false");
-        Waveform_read_finish = false;
-        Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path_new);
 
-        printf("%s\n", Waveform_read_finish ? "true" : "false");
+
+
+
 
 //                 UC8177_white_update();
 //                 mdelay(5000);
-//         UC8177_black_update();
+        UC8177_black_update();
 //         mdelay(5000);
 //         buffer_check();
    do{
@@ -99,23 +101,31 @@ void UC8177_basic_flow(void)
 
 
        printf("black update start \n");
-       mdelay(1000);
         UC8177_black_update();
-        mdelay(5000);
+
+
+        mdelay(3000);
         printf("white update start \n");
-        mdelay(1000);
         UC8177_white_update();
-        mdelay(5000);
+
+
+        mdelay(3000);
 //        UC8177_white_update();
 //        mdelay(5000);
 //        UC8177_test_update();
 //        mdelay(5000);
 //      // temp_check();
 //       mdelay(2000);
-        printf("image update start \n");
-        mdelay(1000);
-         UC8177_image_update(image_path, data_buffer);
-               mdelay(5000);
+        printf("image1 update start \n");
+         UC8177_image_update(image_path1, data_buffer);
+               mdelay(3000);
+
+               UC8177_black_update();
+               mdelay(3000);
+               printf("image2 update start \n");
+         UC8177_image_update(image_path2, data_buffer);
+                     mdelay(3000);
+
    }while(1);
 
 }

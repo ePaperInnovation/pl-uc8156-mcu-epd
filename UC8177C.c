@@ -467,7 +467,7 @@ void UC8177_set_Vcom(int Vcom_mv_value)  // eg: -4V ---> 4000
 
 #define BUFFER_SOURCE_LINE 600
 #define BUFFER_GATE_LINE 480
-bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // LUT for Frame Data (LUTD)
+bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // read image from SD-Card
 {
     FIL file;
 
@@ -483,14 +483,6 @@ bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // LUT for Fr
     if (pnm_read_header(&file, &hdr) < 0)
         abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
 
-
-
-
-
-
-
-
-
     //command
     u8 command = 0x10;
     spi_write_read_byte(command);
@@ -499,7 +491,7 @@ bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // LUT for Fr
 
      int j;
       //  if (f_read(&file, data_buffer_test, BUFFER_LENGTH, &count) != FR_OK)
-   for(j = 80; j > 0; j--)
+   for(j = 480; j > 0; j--)
    {
        if (f_read(&file, data_buffer_test, BUFFER_SOURCE_LINE, &count) != FR_OK)
         {

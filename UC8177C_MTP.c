@@ -172,7 +172,7 @@ void UC8177_test_update(void)  // update all black
 void UC8177_image_update(char *image_path, u8 *data_buff)  // update all black
 {
     UC8177_PON();    // power on
-    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);       // data window setting    608 x 480
+    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0x60, 0x01, 0xE0);       // data window setting    608 x 480
 
 
     gpio_set_value_lo(SPI_CS);
@@ -189,7 +189,7 @@ void UC8177_image_update(char *image_path, u8 *data_buff)  // update all black
     //////////////////////////DTM1////////////////////
                                // check from busy pin
 
-    UC8177_DRF(0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);
+    UC8177_DRF(0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0x60, 0x01, 0xE0);
     UC8177_wait_for_BUSY_inactive();
     UC8177_POF();
 }
