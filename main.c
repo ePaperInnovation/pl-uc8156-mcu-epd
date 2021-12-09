@@ -81,6 +81,7 @@ int main(void)
 
 	///////// main function for UC8179
 
+
 ////////////////////////////////////////////
 //	int diplay_mode_choose = 2;
 //	switch(diplay_mode_choose)

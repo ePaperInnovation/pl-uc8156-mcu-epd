@@ -21,8 +21,9 @@ void UC8177_Eink_ini(void);
 void UC8177_black_update(void);
 void UC8177_white_update(void);
 void UC8177_test_update(void);
-void UC8177_image_update(char *image_path);
+void UC8177_image_update(char *image_path, u8 *data_buff);
 u8 flag_check(u8 flag_byte);
+void buffer_check(void);
 void temp_check(void);
 
 

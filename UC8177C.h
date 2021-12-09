@@ -37,6 +37,7 @@ void UC8177_AWM2(u8 param1, u8 param2, u8 param3, u8 param4);
 void UC8177_LUTC(u8 *waveform_lutc);
 void UC8177_LUTD(u8 param1, u8 *lutd, size_t size);
 bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path);
+bool UC8177_Send_WaveformFile_to_LUTD_static(char *wf_path);  // LUT for Frame Data (LUTD);
 void UC8177_LUTR(u8 *lutr);
 void UC8177_PS(u8 param1);
 void UC8177_MISCS1(u8 param1);
@@ -63,7 +64,7 @@ void UC8177_PBC(u8 param1);
 u8 UC8177_PBCS(void);
 void UC8177_GDOS(u8 param1, u8 param2);
 void UC8177_set_Vcom(int Vcom_mv_value);
-bool UC8177_image_read_from_sd(char *image_path);
+bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer);
 //u8 UC8177_BUSY_N_check(void);
 
 

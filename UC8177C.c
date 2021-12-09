@@ -15,7 +15,12 @@
 #include "utils.h"
 #include <math.h>
 #include <UC8177C.h>
+#include "pnm-utils.h"
 
+
+u8 *data_buffer;
+const int BUFFER_LENGTH = 64;
+u8 data_buffer_static[64];
 
 
 void UC8177_hardware_reset(void)
@@ -148,8 +153,8 @@ void UC8177_LUTD(u8 param1, u8 *lutd, size_t size)  // LUT for Frame Data (LUTD)
 bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUTD)
 {
     FIL file;
-    const int BUFFER_LENGTH = 64;
-    u8 *data = (u8 *) malloc(BUFFER_LENGTH);
+
+
 
    // u8 data[64];
     uint16_t count;
@@ -166,8 +171,8 @@ bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUT
     spi_write_read_byte(command);
 
     //frame number
-    f_read(&file, data, 1, &count);
-    u8 frame_number = *data;
+    f_read(&file, data_buffer, 1, &count);
+    u8 frame_number = *data_buffer;
     spi_write_read_byte(frame_number);
 
     //jump (over LUTC) to LUTD
@@ -175,15 +180,15 @@ bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUT
 
     do
     {
-        if (f_read(&file, data, BUFFER_LENGTH, &count) != FR_OK)
+        if (f_read(&file, data_buffer, BUFFER_LENGTH, &count) != FR_OK)
             return false;
 
         size = count;
 
         while (size--)
         {
-            spi_write_read_byte(*data);
-            data++;
+            spi_write_read_byte(*data_buffer);
+            data_buffer++;
         }
 //        while (size--)
 //              {
@@ -194,17 +199,104 @@ bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUT
 //        data_index = 0;
     } while (count);
 
+  //  free(data_buffer);
 
-
-    f_close(&file);
-
+    if( f_close(&file) != FR_OK)
+    {    return false;
+    }
     mdelay(5);
     gpio_set_value_hi(SPI_CS);
-//    if (count!=BUFFER_LENGTH)
-//        return false;
+
 
     return(true);
 }
+
+
+
+
+
+
+
+
+bool UC8177_Send_WaveformFile_to_LUTD_static(char *wf_path)  // LUT for Frame Data (LUTD)
+{
+    FIL file;
+
+    uint16_t count;
+    uint16_t size;
+    uint16_t data_index = 0;
+
+    if (f_open(&file, wf_path, FA_READ))
+        return false;
+
+    gpio_set_value_lo(SPI_CS);
+
+    //command
+    const u8 command = 0x21;
+    spi_write_read_byte(command);
+
+    //frame number
+    u8 data_frame[2];
+    f_read(&file, data_frame, 1, &count);
+    u8 frame_number = data_frame[0];
+    spi_write_read_byte(frame_number);
+
+    //jump (over LUTC) to LUTD
+    f_lseek(&file, 16 + (frame_number/64 + 1) * 16);
+
+    do
+    {
+        if (f_read(&file, data_buffer_static, BUFFER_LENGTH, &count) != FR_OK)
+            return false;
+
+        size = count;
+
+//        while (size--)
+//        {
+//            spi_write_read_byte(*data_buffer);
+//            data_buffer++;
+//        }
+        while (size--)
+              {
+                  spi_write_read_byte(data_buffer_static[data_index]);
+                  data_index++;
+              }
+
+        data_index = 0;
+    } while (count);
+
+  //  free(data_buffer);
+
+    if( f_close(&file) != FR_OK)
+    {    return false;
+    }
+    mdelay(5);
+    gpio_set_value_hi(SPI_CS);
+
+
+    return(true);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void UC8177_LUTR(u8 *lutr)  // LUT for Reagle(lutr)
@@ -373,19 +465,31 @@ void UC8177_set_Vcom(int Vcom_mv_value)  // eg: -4V ---> 4000
 //
 //}
 
-bool UC8177_image_read_from_sd(char *image_path)  // LUT for Frame Data (LUTD)
+#define BUFFER_SOURCE_LINE 600
+#define BUFFER_GATE_LINE 480
+bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // LUT for Frame Data (LUTD)
 {
     FIL file;
-    static int BUFFER_LENGTH = 64;
-  //  u8 *data = (u8 *) malloc(BUFFER_LENGTH);
-    u8 data[64];
-    uint16_t count;
-    uint16_t size;
-    uint16_t data_index = 0;
-    if (f_open(&file, image_path, FA_READ))
-        return false;
 
-    gpio_set_value_lo(SPI_CS);
+    u8 data_buffer_test[BUFFER_SOURCE_LINE];
+
+    uint16_t count;
+
+    struct pnm_header hdr;
+
+    if (f_open(&file, image_path, FA_READ) != FR_OK)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open", ABORT_SD_CARD);
+
+    if (pnm_read_header(&file, &hdr) < 0)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
+
+
+
+
+
+
+
+
 
     //command
     u8 command = 0x10;
@@ -393,34 +497,32 @@ bool UC8177_image_read_from_sd(char *image_path)  // LUT for Frame Data (LUTD)
     u8 cur_bpp = 0x00;  // 00b: 1bpp
     spi_write_read_byte(cur_bpp);
 
-    do
-    {
-        if (f_read(&file, data, BUFFER_LENGTH, &count) != FR_OK)
-            return false;
+     int j;
+      //  if (f_read(&file, data_buffer_test, BUFFER_LENGTH, &count) != FR_OK)
+   for(j = 80; j > 0; j--)
+   {
+       if (f_read(&file, data_buffer_test, BUFFER_SOURCE_LINE, &count) != FR_OK)
+        {
+           printf("read error j = %x\n", j);
+           return false;
+        }
+       else
+       {
+        u8 data_buffer_2bit[75];
+        pack_8bpp(data_buffer_test, data_buffer_2bit, BUFFER_SOURCE_LINE);
+        int i;
+        for (i = 75; i> 0; i--)
+        // for (i = 0; i<3750; i++)
+        {
+            spi_write_read_byte(data_buffer_2bit[75-i]);
 
-        size = count;
+        }
+        // printf("read i = %x\n", i);
+       }
+   }
+   printf("read j = %x\n", j);
 
-//        while (size--)
-//        {
-//            spi_write_read_byte(*data);
-//            data++;
-//        }
-        while (size--)
-              {
-                  spi_write_read_byte(data[data_index]);
-                 // spi_write_read_byte(0x00);
-                  data_index++;
-              }
-
-        data_index = 0;
-    } while (count);
     f_close(&file);
-    gpio_set_value_hi(SPI_CS);
-
-
-
-//    if (count!=BUFFER_LENGTH)
-//        return false;
 
     return(true);
 }
