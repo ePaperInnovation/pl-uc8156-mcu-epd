@@ -18,7 +18,7 @@
 #include "pnm-utils.h"
 
 
-u8 *data_buffer;
+
 const int BUFFER_LENGTH = 64;
 u8 data_buffer_static[64];
 
@@ -150,68 +150,68 @@ void UC8177_LUTD(u8 param1, u8 *lutd, size_t size)  // LUT for Frame Data (LUTD)
    // spi_write_command_param_and_bulk_data(0x21, param1, lutd, size);
 }
 
-bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUTD)
-{
-    FIL file;
-
-
-
-   // u8 data[64];
-    uint16_t count;
-    uint16_t size;
-  //  uint16_t data_index = 0;
-
-    if (f_open(&file, wf_path, FA_READ))
-        return false;
-
-    gpio_set_value_lo(SPI_CS);
-
-    //command
-    const u8 command = 0x21;
-    spi_write_read_byte(command);
-
-    //frame number
-    f_read(&file, data_buffer, 1, &count);
-    u8 frame_number = *data_buffer;
-    spi_write_read_byte(frame_number);
-
-    //jump (over LUTC) to LUTD
-    f_lseek(&file, 16 + (frame_number/64 + 1) * 16);
-
-    do
-    {
-        if (f_read(&file, data_buffer, BUFFER_LENGTH, &count) != FR_OK)
-            return false;
-
-        size = count;
-
-        while (size--)
-        {
-            spi_write_read_byte(*data_buffer);
-            data_buffer++;
-        }
-//        while (size--)
-//              {
-//                  spi_write_read_byte(data[data_index]);
-//                  data_index++;
-//              }
+//bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUTD)
+//{
+//    FIL file;
 //
-//        data_index = 0;
-    } while (count);
-
-  //  free(data_buffer);
-
-    if( f_close(&file) != FR_OK)
-    {    return false;
-    }
-    mdelay(5);
-    gpio_set_value_hi(SPI_CS);
-
-
-    return(true);
-}
-
-
+//
+//
+//   // u8 data_buffer[64];
+//    uint16_t count;
+//    uint16_t size;
+//  //  uint16_t data_index = 0;
+//
+//    if (f_open(&file, wf_path, FA_READ))
+//        return false;
+//
+//    gpio_set_value_lo(SPI_CS);
+//
+//    //command
+//    const u8 command = 0x21;
+//    spi_write_read_byte(command);
+//
+//    //frame number
+//    f_read(&file, data_buffer, 1, &count);
+//    u8 frame_number = *data_buffer;
+//    spi_write_read_byte(frame_number);
+//
+//    //jump (over LUTC) to LUTD
+//    f_lseek(&file, 16 + (frame_number/64 + 1) * 16);
+//
+//    do
+//    {
+//        if (f_read(&file, data_buffer, BUFFER_LENGTH, &count) != FR_OK)
+//            return false;
+//
+//        size = count;
+//
+//        while (size--)
+//        {
+//            spi_write_read_byte(*data_buffer);
+//            data_buffer++;
+//        }
+////        while (size--)
+////              {
+////                  spi_write_read_byte(data[data_index]);
+////                  data_index++;
+////              }
+////
+////        data_index = 0;
+//    } while (count);
+//
+//  //  free(data_buffer);
+//
+//    if( f_close(&file) != FR_OK)
+//    {    return false;
+//    }
+//    mdelay(5);
+//    gpio_set_value_hi(SPI_CS);
+//
+//
+//    return(true);
+//}
+//
+//
 
 
 
@@ -490,7 +490,7 @@ bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // read image
     spi_write_read_byte(cur_bpp);
 
      int j;
-      //  if (f_read(&file, data_buffer_test, BUFFER_LENGTH, &count) != FR_OK)
+
    for(j = 480; j > 0; j--)
    {
        if (f_read(&file, data_buffer_test, BUFFER_SOURCE_LINE, &count) != FR_OK)
@@ -500,13 +500,13 @@ bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // read image
         }
        else
        {
-        u8 data_buffer_2bit[75];
-        pack_8bpp(data_buffer_test, data_buffer_2bit, BUFFER_SOURCE_LINE);
+        u8 data_buffer_1bpp[75];
+        pack_1bpp(data_buffer_test, data_buffer_1bpp, BUFFER_SOURCE_LINE);
         int i;
         for (i = 75; i> 0; i--)
         // for (i = 0; i<3750; i++)
         {
-            spi_write_read_byte(data_buffer_2bit[75-i]);
+            spi_write_read_byte(data_buffer_1bpp[75-i]);
 
         }
         // printf("read i = %x\n", i);
@@ -518,4 +518,114 @@ bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer)  // read image
 
     return(true);
 }
+
+bool UC8177_image_read_from_sd_1bpp(char *image_path, u16 source_length, u16 gate_length)  // read image from SD-Card
+{
+    FIL file;
+
+    u8 data_buffer_test[source_length];
+
+    uint16_t count;
+
+    struct pnm_header hdr;
+
+    if (f_open(&file, image_path, FA_READ) != FR_OK)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open", ABORT_SD_CARD);
+
+    if (pnm_read_header(&file, &hdr) < 0)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
+
+    //command
+    u8 command = 0x10;
+    spi_write_read_byte(command);
+    u8 cur_bpp = 0x00;  // 00b: 1bpp
+    spi_write_read_byte(cur_bpp);
+
+     int j;
+
+   for(j = gate_length; j > 0; j--)
+   {
+       if (f_read(&file, data_buffer_test, source_length, &count) != FR_OK)
+        {
+           printf("read error j = %x\n", j);
+           return false;
+        }
+       else
+       {
+        u8 data_buffer_1bpp[source_length/8];                                           //1 byte for 8 pixel
+        pack_1bpp(data_buffer_test, data_buffer_1bpp, source_length);
+        int i;
+        for (i = source_length/8; i> 0; i--)
+        // for (i = 0; i<3750; i++)
+        {
+            spi_write_read_byte(data_buffer_1bpp[source_length/8-i]);
+
+        }
+        // printf("read i = %x\n", i);
+       }
+   }
+   printf("read j = %x\n", j);
+
+    f_close(&file);
+
+    return(true);
+}
+
+
+
+
+bool UC8177_image_read_from_sd_4bpp(char *image_path, u16 source_length, u16 gate_length)  // read image from SD-Card
+{
+    FIL file;
+
+    u8 data_buffer_test[source_length];
+
+    uint16_t count;
+
+    struct pnm_header hdr;
+
+    if (f_open(&file, image_path, FA_READ) != FR_OK)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open", ABORT_SD_CARD);
+
+    if (pnm_read_header(&file, &hdr) < 0)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
+
+    //command
+    u8 command = 0x10;
+    spi_write_read_byte(command);
+    u8 cur_bpp = 0x03;  // 11b: 4bpp, 16 GL
+    spi_write_read_byte(cur_bpp);
+
+     int j;
+
+   for(j = gate_length; j > 0; j--)
+   {
+       if (f_read(&file, data_buffer_test, source_length, &count) != FR_OK)
+        {
+           printf("read error j = %x\n", j);
+           return false;
+        }
+       else
+       {
+        u8 data_buffer_4bpp[source_length/2];                                           //1 byte for 2 pixel
+        pack_4bpp(data_buffer_test, data_buffer_4bpp, source_length);
+        int i;
+        for (i = source_length/2; i> 0; i--)
+        // for (i = 0; i<3750; i++)
+        {
+            spi_write_read_byte(data_buffer_4bpp[source_length/2-i]);
+
+        }
+        // printf("read i = %x\n", i);
+       }
+   }
+   printf("read j = %x\n", j);
+
+    f_close(&file);
+
+    return(true);
+}
+
+
+
 

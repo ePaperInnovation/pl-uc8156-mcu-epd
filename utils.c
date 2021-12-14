@@ -242,8 +242,23 @@ void pack_2bpp(u8 *in, u8 *out, int in_count)
 }
 
 
-/*Converts image data to 1 Byte per 8 pixels data */
-void pack_8bpp(u8 *in, u8 *out, int in_count)
+
+/*Converts image data to 4 bit per pixel data */
+void pack_4bpp(u8 *in, u8 *out, int in_count)
+{
+    while (in_count > 0) {
+        *out = (u8)(( (in[0]  >> 4) << 4 ) | (in[1]  >> 4));
+        in += 2;
+        out++;
+        in_count -= 2;
+    }
+}
+
+
+
+
+/*Converts image data to 1 Byte per 8 pixels data, 1bpp */
+void pack_1bpp(u8 *in, u8 *out, int in_count)
 {
     while (in_count > 0) {
         *out = (u8)((in[0] & 0x80)  | ((in[1] & 0x80) >> 1) | ((in[2] & 0x80) >> 2) | (in[3] & 0x80>> 3) | (in[4] & 0x80>> 4) | (in[5] & 0x80>> 5) | (in[6] & 0x80>> 6) | (in[7] & 0x80>> 7));

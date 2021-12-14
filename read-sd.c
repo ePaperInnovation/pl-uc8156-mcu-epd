@@ -385,7 +385,7 @@ int read_image_data_from_file_S041_T1(FIL *f, u8 *image_buffer)
     {
         if (f_read(f, image_file_data, BUFFER_LENGTH_S041_T1, &count) != FR_OK)
             return -1;
-        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
     }
     return 0;
 }
@@ -410,7 +410,7 @@ int read_image_data_from_file_S036_T1_part1(FIL *f, u8 *image_buffer)
     {
         if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
             return -1;
-        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
     }
     return 0;
 }
@@ -436,7 +436,7 @@ int read_image_data_from_file_S036_T1_part2(FIL *f, u8 *image_buffer)
     {
         if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
             return -1;
-        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
     }
     return 0;
 }
@@ -460,7 +460,7 @@ int read_image_data_from_file_S036_T1_part3(FIL *f, u8 *image_buffer)
     {
         if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
             return -1;
-        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
     }
     return 0;
 }
@@ -484,7 +484,7 @@ int read_image_data_from_file_S036_T1_part4(FIL *f, u8 *image_buffer)
     {
         if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
             return -1;
-        pack_8bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
     }
     return 0;
 }
