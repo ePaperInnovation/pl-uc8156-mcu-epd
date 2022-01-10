@@ -20,4 +20,6 @@
 
 
 void UC8177_basic_flow(void);
+void external_flash_test(void);
+int external_flash_waveform_save();
 #endif /* UC8177C_FLOW_DEBUG_H_ */

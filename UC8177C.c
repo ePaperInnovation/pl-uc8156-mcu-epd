@@ -37,7 +37,7 @@ unsigned int UC8177_wait_for_BUSY_inactive()
     {
         mdelay(1);
         counter++; // BUSY loop
-        if (counter>2000) abort_now("Busy-Loop Timeout", ABORT_UC8177_INIT);
+        if (counter>20000) abort_now("Busy-Loop Timeout", ABORT_UC8177_INIT);
     }
     return counter;
 }
@@ -433,7 +433,7 @@ void UC8177_PBC(u8 param1)  // Panel Break check
     UC8177_spi_write_command_1param(0x91, param1);
 }
 
-u8 UC8177_PBCS(void) // Panel break check status
+u8 UC8177_PBCS() // Panel break check status
 {
     u8 PBCS = UC8177_spi_read_command_1param(0x92) & 0x01;
     return PBCS;

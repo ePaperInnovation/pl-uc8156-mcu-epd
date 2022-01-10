@@ -20,7 +20,7 @@
 
 void UC8177_Eink_ini(void)    // first all settings according to datasheet with default
 {
-    UC8177_PSR(0x21, 0x00);
+    UC8177_PSR(0x61, 0x00);
     UC8177_PWR(0x03, 0x04, 0x00, 0x00);
     UC8177_PFS(0x03);
 
@@ -103,8 +103,8 @@ void UC8177_black_update(void)  // update all black
       }
 
     gpio_set_value_hi(SPI_CS);// write image pixel
-    UC8177_PON();    // power on
-  //  mdelay(5);
+    //UC8177_PON();    // power on
+    mdelay(50);
 
     UC8177_wait_for_BUSY_inactive();
 //    mdelay(5);
@@ -114,7 +114,7 @@ void UC8177_black_update(void)  // update all black
 
     UC8177_DRF(0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);
     UC8177_wait_for_BUSY_inactive();
-    UC8177_POF();
+    //UC8177_POF();
 
 
 

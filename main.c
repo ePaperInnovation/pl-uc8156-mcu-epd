@@ -27,7 +27,7 @@
 #include <msp430.h>
 
 #include "msp430/msp430-spi.h"
-#include "msp430/msp430-i2c.h"
+//#include "msp430/msp430-i2c.h"
 #include "msp430/msp430-gpio.h"
 #include "msp430/hal_pmm.h"
 
@@ -112,6 +112,7 @@ int main(void)
 
 
 	///////////////////UC 8177C Test////
+
 	UC8177_basic_flow();
 
 //////////////////////////////////////////

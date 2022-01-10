@@ -61,7 +61,7 @@ void UC8177_EDS(u8 param1);
 void UC8177_XONS(u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6);
 void UC8177_LEDDS(u8 param1, u8 param2);
 void UC8177_PBC(u8 param1);
-u8 UC8177_PBCS(void);
+u8 UC8177_PBCS();
 void UC8177_GDOS(u8 param1, u8 param2);
 void UC8177_set_Vcom(int Vcom_mv_value);
 bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer);
