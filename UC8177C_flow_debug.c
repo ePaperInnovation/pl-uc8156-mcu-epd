@@ -7,6 +7,7 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <msp430.h>
 #include <time.h>
@@ -34,6 +35,8 @@
 #include "msp430-nvm-spi.h"
 
 #include "config_display_type.h"
+
+#include "waveform.h"
 //#define WAVEFORM_LENGTH_UC8177 61696    // 3856 (0x0F10) * 16
 
 
@@ -63,43 +66,18 @@ void UC8177_basic_flow(void)
         // optional -> verifies successful power-up
         UC8177_check_RevID();
 
-//        do{
-//            temp_check();
-//            mdelay(2000);
-//        }
-//        while(1);
+
 
         UC8177_Eink_ini();
 
 
         UC8177_DAM(0x01);
-    //   MX25U4033E_check_prod_code();
 
 
 
+     //   waveform_sd_to_externalFlash();    // external flash waveform write
 
 
-     // external_flash_test();
-
-       external_flash_waveform_save();
-
-        //UC8177_MISCS1(0x25); //Gate Pol
-      //  UC8177_VDCS(0x60);
-
-      //  u8 pbcs;
-
-//        pbcs = UC8177_PBCS;
-//        printf("pbcs: %d\n", pbcs);
-//
-//        UC8177_PBC(1);
-//
-//        pbcs = UC8177_PBCS;
-//                printf("pbcs: %d\n", pbcs);
-//
-//        UC8177_PBC(0);
-//
-//        pbcs = UC8177_PBCS;
-//                printf("pbcs: %d\n", pbcs);
 
 
 
@@ -116,19 +94,21 @@ void UC8177_basic_flow(void)
         flag_check(0);
 
 
-       // int VCOM_Setting = 4000;  // for -4 V
-       // UC8177_set_Vcom(VCOM_Setting);
-        sprintf(path, "/%s/%s", PATH, "display/Eink_S028_double.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut; external flash: Eink_S028_Waveform.bin
-        //sprintf(path_new, "/%s/%s", PATH, "display/Eink_S028_16GL.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
 
-        bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
+//        sprintf(path, "/%s/%s", PATH, "display/Eink_S028_double.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut; external flash: Eink_S028_Waveform.bin
+//        //sprintf(path_new, "/%s/%s", PATH, "display/Eink_S028_16GL.uc8177_lut"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
+//
+//        bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
 
-        do{
+
+
+
+        UC8177_LUTD(0x2E, WF_UC8177_LUTD, 16384 );
+
             UC8177_white_update();
             //sprintf(image_path1, "/%s/%s", PATH, "img/LedgerLogo_600x480_Black.pgm");
             mdelay(1000);
-        }
-        while(1);
+
 
         sprintf(image_path2, "/%s/%s", PATH, "img/LedgerLogo_600x480_White.pgm");
         sprintf(image_path3, "/%s/%s", PATH, "img/TestPic.pgm");
@@ -147,19 +127,14 @@ void UC8177_basic_flow(void)
 
         //bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
 
-        printf("%s\n", Waveform_read_finish ? "true" : "false");
 
 
 
 
 
-//                 UC8177_white_update();
-//                 mdelay(5000);
-        UC8177_black_update();
-//         mdelay(5000);
-//         buffer_check();
-//        Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path_new);
-//        printf("%s\n", Waveform_read_finish ? "true" : "false");
+
+
+              UC8177_black_update();
 
 
 
@@ -173,110 +148,287 @@ void UC8177_basic_flow(void)
                 printf("image3 update start \n");
                 UC8177_image_update(image_path3);
                 mdelay(3000);
-//   do{
-//
-//
-//
-//       printf("black update start \n");
-//        UC8177_black_update();
-//
-//
-//        mdelay(3000);
-//        printf("white update start \n");
+   do{
+
+
+
+       printf("black update start \n");
+        UC8177_black_update();
+
+
+        mdelay(3000);
+        printf("white update start \n");
+        UC8177_white_update();
+
+
+        mdelay(3000);
 //        UC8177_white_update();
-//
-//
-//        mdelay(3000);
-////        UC8177_white_update();
-////        mdelay(5000);
-////        UC8177_test_update();
-////        mdelay(5000);
-////      // temp_check();
-////       mdelay(2000);
+//        mdelay(5000);
+//        UC8177_test_update();
+//        mdelay(5000);
+//      // temp_check();
+//       mdelay(2000);
 //        printf("image1 update start \n");
 //        UC8177_image_update(image_path1);
 //        mdelay(3000);
-//
-//        printf("black update start \n");
-//        UC8177_black_update();
-//        mdelay(3000);
-//
-//        printf("image2 update start \n");
-//        UC8177_image_update(image_path2);
-//        mdelay(3000);
-//
-//        printf("black update start \n");
-//        UC8177_black_update();
-//        mdelay(3000);
-//
-//        printf("image3 update start \n");
-//        UC8177_image_update(image_path3);
-//        mdelay(3000);
-//
-//   }while(1);
+
+        printf("black update start \n");
+        UC8177_white_update();
+        mdelay(3000);
+
+        printf("image2 update start \n");
+        UC8177_image_update(image_path2);
+        mdelay(3000);
+
+        printf("black update start \n");
+        UC8177_white_update();
+        mdelay(3000);
+
+        printf("image3 update start \n");
+        UC8177_image_update(image_path3);
+        mdelay(3000);
+
+   }while(1);
 
 }
 
 
 
-
-void external_flash_test(void)
+int waveform_sd_to_externalFlash()
 {
 
-    uint8_t reg[3];
-    nvm_MX25U4033E_spi_read(0x000000,reg, 3 );
 
-    printf("ex-flash read: 0x%x 0x%x 0x%x \n", reg[0], reg[1], reg[2]);
+    char PATH[64]; //global variable
+      // set_display_type(S021_T1_1);
+       strcpy(PATH, "S028_T1.1");
 
-    MX25U4033E_chip_erase();
-    nvm_MX25U4033E_spi_read(0x000000,reg, 3 );
+       char wf_path[64];
 
-    printf("ex-flash read: 0x%x 0x%x 0x%x \n", reg[0], reg[1], reg[2]);
 
-    uint8_t reg_write[3];
+       sprintf(wf_path, "/%s/%s", PATH, "display/random_waveform.bin");     //test: random_waveform.bin;    full waveform: Eink_S028_Waveform.bin
+       printf("wf path = %s \n", wf_path);
 
-    reg_write[0] = 0x17;
-    reg_write[1] = 0x18;
-    reg_write[2] = 0x19;
 
-    uint8_t reg_check[3];
-    nvm_MX25U4033E_spi_pgm(0x000000,reg_write, 3 );
-    nvm_MX25U4033E_spi_read(0x000000,reg_check, 3 );
-    printf("ex-flash read: 0x%x 0x%x 0x%x \n", reg_check[0], reg_check[1], reg_check[2]);
 
+
+
+       if(  MX25U4033E_chip_erase() == 0)
+
+       {
+           printf("external flash erase successful.  \n");
+       }
+       else
+       {
+           printf("external flash erase failed!!!.  \n");
+           return -1;
+       }
+
+       if(waveform_sd_to_externalFlash_part(wf_path,WF_SIZE_PART1_START, WF_SIZE_MAX))
+           return -1;
+
+
+        waveform_check(wf_path, WF_SIZE_PART1_START);
+
+
+
+
+     return 0;
 }
 
 
-//
-int external_flash_waveform_save()
+int waveform_sd_to_externalFlash_part(char *wf_path, size_t address_start,uint32_t buffer_to_read_length)
 {
-
-
-    if(MX25U4033E_wait_idle())
-    {
-        printf("Wait for idle after chip erase failed.");
+    FIL file;
+    if (f_open(&file, wf_path, FA_READ))
         return -1;
-    }
-    int len = 2000;
-    uint8_t reg_write[2000];
-    int i =  len;
+
+    if(f_lseek(&file,  address_start))
+        return -1;
+    uint32_t bytes_to_transfer = buffer_to_read_length;
+
+    static const int chunkSize = 1024;
+    u8 data_buffer[1024];
+
+    uint16_t count;
+    uint32_t register_address = address_start;
+    uint32_t byte_offset = 0;
+
+    uint8_t data[1024];
     do
-    {
-        reg_write[2000-i] = 0x05;
-        i--;
-    }while(i);
+      {
+
+            size_t transferChunkSize = (bytes_to_transfer >= chunkSize) ? chunkSize : bytes_to_transfer;   // choose the bigger one from chunkSize and bytes_to_transfer
+
+                  f_read(&file, data_buffer, transferChunkSize, &count);                     // file, buffer_array[], buffer_length, sum
+
+                  if(nvm_MX25U4033E_spi_pgm(register_address, data_buffer,  transferChunkSize, data) != 0)
+                  {
+                      printf("register_address stoped in %ld \n", register_address);
+                      printf("rest bytes_to_transfer = %ld \n", bytes_to_transfer);
+                      f_close(&file);
+                      return -1;
+
+                  }
 
 
-    int stat = -1;
-    stat =  nvm_MX25U4033E_spi_pgm(0x008000, reg_write, len);
-    if(stat != 0)
-    {
-        printf("waveform save error. \n");
-    }
+            byte_offset += transferChunkSize;
+            register_address += transferChunkSize;
+            bytes_to_transfer -= transferChunkSize;
 
-    return stat;
+      }    while(bytes_to_transfer > 0);
 
+
+
+      printf("byte_offset = %ld \n", byte_offset);
+      printf("register_address = %ld \n", register_address);
+      printf("bytes_to_transfer = %ld \n", bytes_to_transfer);
+      printf("external flash saved successfully!!!.  \n");
+
+    f_close(&file);
+
+
+    return 0;
 }
+
+
+
+int waveform_sd_to_externalFlash_part_no_check(char *wf_path, size_t address_start,uint32_t buffer_to_read_length)
+{
+    FIL file;
+    if (f_open(&file, wf_path, FA_READ))
+        return -1;
+
+    if(f_lseek(&file,  address_start))
+        return -1;
+    uint32_t bytes_to_transfer = buffer_to_read_length;
+
+    static const int chunkSize = 1024;
+    u8 data_buffer[1024];
+
+    uint16_t count;
+    uint32_t register_address = address_start;
+    uint32_t byte_offset = 0;
+
+    uint8_t data[1024];
+    do
+      {
+
+            size_t transferChunkSize = (bytes_to_transfer >= chunkSize) ? chunkSize : bytes_to_transfer;   // choose the bigger one from chunkSize and bytes_to_transfer
+
+                  f_read(&file, data_buffer, chunkSize, &count);                     // file, buffer_array[], buffer_length, sum
+
+                  if(nvm_MX25U4033E_spi_pgm_no_check(register_address, data_buffer,  chunkSize, data) != 0)
+                  {
+                      printf("register_address stoped in %ld \n", register_address);
+                      printf("rest bytes_to_transfer = %ld \n", bytes_to_transfer);
+                      f_close(&file);
+                      return -1;
+
+                  }
+
+
+            byte_offset += transferChunkSize;
+            register_address += transferChunkSize;
+            bytes_to_transfer -= transferChunkSize;
+
+      }    while(bytes_to_transfer > 0);
+
+
+
+      printf("byte_offset = %ld \n", byte_offset);
+      printf("register_address = %ld \n", register_address);
+      printf("bytes_to_transfer = %ld \n", bytes_to_transfer);
+      printf("external flash saved successfully!!!.  \n");
+
+    f_close(&file);
+
+
+    return 0;
+}
+
+
+int waveform_check(char *wf_path, uint32_t register_address_start )
+{
+
+    FIL file;
+      if (f_open(&file, wf_path, FA_READ))
+          return -1;
+
+
+      uint32_t bytes_to_transfer = WF_SIZE_MAX;
+
+      static const int chunkSize = 1024;
+      u8 blob[1024];
+
+      uint16_t count;
+      uint32_t register_address = register_address_start ;
+      uint32_t byte_offset = 0;
+      if(f_lseek(&file,  register_address))
+          return -1;
+      uint8_t data_read[1024];
+      uint8_t cmp_blob[1024];
+      printf("check start \n");
+      do
+        {
+
+              size_t transferChunkSize = (bytes_to_transfer >= chunkSize) ? chunkSize : bytes_to_transfer;   // choose the bigger one from chunkSize and bytes_to_transfer
+
+                    f_read(&file, blob, transferChunkSize, &count);                     // file, buffer_array[], buffer_length, sum
+
+                if (   nvm_MX25U4033E_spi_read(register_address, cmp_blob, transferChunkSize, data_read) != -1)
+                {
+                            if (memcmp(blob, cmp_blob, transferChunkSize) != 0)
+                            {
+
+                                printf("blob[0] = %X, %X \n", blob[0], cmp_blob[0]);
+                                printf("blob[1] = %X, %X \n", blob[1], cmp_blob[1]);
+                                printf("blob[2] = %X, %X \n", blob[2], cmp_blob[2]);
+
+
+                                printf("register_address stoped in %ld \n", register_address);
+                                printf("rest bytes_to_transfer = %ld \n", bytes_to_transfer);
+                                f_close(&file);
+
+                                return -1;
+                            }
+                }
+                else
+
+                {
+                    printf("register_address stoped in %ld \n", register_address);
+                    printf("rest bytes_to_transfer = %ld \n", bytes_to_transfer);
+                    f_close(&file);
+                    return -1;
+
+                }
+
+              byte_offset += transferChunkSize;
+              register_address += transferChunkSize;
+              bytes_to_transfer -= transferChunkSize;
+
+        }    while(bytes_to_transfer > 0);
+
+
+
+        printf("byte_offset = %ld \n", byte_offset);
+        printf("register_address = %ld \n", register_address);
+        printf("bytes_to_transfer = %ld \n", bytes_to_transfer);
+        printf("external flash saved successfully!!!.  \n");
+
+      f_close(&file);
+
+
+
+
+
+    return 0;
+}
+
+
+
+
+
+
 
 
 

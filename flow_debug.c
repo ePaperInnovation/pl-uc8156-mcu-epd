@@ -30,7 +30,7 @@
 #include "verification_functions.h"
 #include "read-sd.h"
 #include "pattern.h"
-#include "waveform.h"
+//#include "waveform.h"
 #include "slideshow.h"
 #include <msp430-spi.h>
 #include <msp430-gpio.h>

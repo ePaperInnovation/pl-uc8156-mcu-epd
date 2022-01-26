@@ -147,7 +147,7 @@ void UC8177_LUTC(u8 *waveform_lutc)     // VCOM LUT(LUTC)
 
 void UC8177_LUTD(u8 param1, u8 *lutd, size_t size)  // LUT for Frame Data (LUTD)
 {
-   // spi_write_command_param_and_bulk_data(0x21, param1, lutd, size);
+    UC8177_spi_write_command_param_and_bulk_data(0x21, param1, lutd, size);
 }
 
 //bool UC8177_Send_WaveformFile_to_LUTD(char *wf_path)  // LUT for Frame Data (LUTD)

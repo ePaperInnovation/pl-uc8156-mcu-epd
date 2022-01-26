@@ -11,6 +11,14 @@
 #include "types.h"
 #include <stddef.h>
 
+#define WF_SIZE_MAX 1158747   //1158747; Test max 1158400
+#define WF_SIZE_PART1_START 0
+#define WF_SIZE_PART2_START 400000
+#define WF_SIZE_PART3_START 800000
+#define WF_SIZE_PART_LENGTH1 400000
+#define WF_SIZE_PART_LENGTH2 358747
+
+
 
 unsigned int UC8177_wait_for_BUSY_inactive();
 unsigned long UC8177_wait_for_PowerON_ready();

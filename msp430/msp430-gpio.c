@@ -192,7 +192,7 @@ int gpio_init()
 	//stat |= gpio_request(PIN_3V3_ENABLE, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
 	//stat |= gpio_request(PIN_RESET, PIN_GPIO | PIN_OUTPUT | PIN_INIT_HIGH);
 	stat |= gpio_request(PIN_3V3_ENABLE, PIN_GPIO | PIN_OUTPUT);
-    stat |= gpio_request(MFCSB, PIN_GPIO | PIN_OUTPUT);
+   // stat |= gpio_request(MFCSB, PIN_GPIO | PIN_OUTPUT);
 	stat |= gpio_request(PIN_RESET, PIN_GPIO | PIN_OUTPUT);
 	stat |= gpio_request(PIN_BUSY, PIN_GPIO | PIN_INPUT);
 	stat |= gpio_request(PIN_BUSY_SLAVE, PIN_GPIO | PIN_INPUT);

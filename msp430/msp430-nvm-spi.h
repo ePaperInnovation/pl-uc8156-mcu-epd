@@ -36,8 +36,9 @@ uint8_t read_para();
 int MX25U4033E_check_prod_code();
 int MX25U4033E_wait_idle();
 int MX25U4033E_chip_erase();
-int nvm_MX25U4033E_spi_read(unsigned int addr, uint8_t * blob, int len);
-int nvm_MX25U4033E_spi_pgm(unsigned int addr, uint8_t * blob, int len);     // write the program to the external flash
+int nvm_MX25U4033E_spi_read(uint32_t addr, uint8_t * blob, int len ,  uint8_t *data_read);
+int nvm_MX25U4033E_spi_pgm(uint32_t addr, uint8_t * blob, int len ,  uint8_t *data);     // write the program to the external flash
+int nvm_MX25U4033E_spi_pgm_no_check(uint32_t addr, uint8_t * blob, int len , uint8_t * data) ;
 
 
 

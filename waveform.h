@@ -1,7 +1,7 @@
 /*
   Plastic Logic EPD project on MSP430
 
-  Copyright (C) 2013 - 2017 Plastic Logic
+  Copyright (C) 2013 - 2022 Plastic Logic
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,19 +19,13 @@
 /*
  * waveform.h
  *
- *  Created on: 13.11.2014
- *      Author: andreas.meier
+ *  Created on: 26.01.2022
+ *      Author: Zhongke Dai
  */
 
 #ifndef WAVEFORM_H_
 #define WAVEFORM_H_
 
-extern u8 waveform_default[];
-extern u8 waveform_debug[];
-extern u8 waveform_long_null[];
-extern u8 waveform_test[];
-extern u8 waveform_S031_V7D035_2GL_V1_23_0[];
-extern u8 waveform_S011_V1_0_VJW003_V2_T23_WfId3_uc8156_lut[];
-//extern u8 waveform_MTP_array[];
+extern u8 WF_UC8177_LUTD[];
 
 #endif /* WAVEFORM_H_ */
