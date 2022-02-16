@@ -27,4 +27,7 @@ int waveform_sd_to_externalFlash();
 int waveform_sd_to_externalFlash_part(char *wf_path, size_t address_start,uint32_t buffer_to_read_length);
 int waveform_sd_to_externalFlash_part_no_check(char *wf_path, size_t address_start,uint32_t buffer_to_read_length);
 int waveform_check(char *wf_path , uint32_t register_address_start );
+
+int external_flash_setting(bool write_WF);
+int WF_read_from_external_flash(uint32_t register_address_start);
 #endif /* UC8177C_FLOW_DEBUG_H_ */

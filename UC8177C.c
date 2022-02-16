@@ -455,6 +455,11 @@ void UC8177_set_Vcom(int Vcom_mv_value)  // eg: -4V ---> 4000
     UC8177_VDCS(Vcom_register_value);
 }
 
+void UC8177_NTRS(void)
+{
+    UC8177_spi_write_command_13params(0x94, 0x1a, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64, 0x64);
+}
+
 //u8 UC8177_BUSY_N_check(void)
 //{
 //
@@ -625,6 +630,84 @@ bool UC8177_image_read_from_sd_4bpp(char *image_path, u16 source_length, u16 gat
 
     return(true);
 }
+
+
+
+
+
+
+bool UC8177_read_LUTD_static(char *wf_path)  // LUT for Frame Data (LUTD)
+{
+    FIL file;
+
+    uint16_t count;
+    uint16_t size;
+    uint16_t data_index = 0;
+
+    if (f_open(&file, wf_path, FA_READ))
+        return false;
+
+    gpio_set_value_lo(SPI_CS);
+
+    //command
+    const u8 command = 0x21;
+    spi_write_read_byte(command);
+
+    //frame number
+    u8 data_frame[2];
+    f_read(&file, data_frame, 1, &count);
+    u8 frame_number = data_frame[0];
+    spi_write_read_byte(frame_number);
+
+    //jump (over LUTC) to LUTD
+
+
+    do
+    {
+        if (f_read(&file, data_buffer_static, BUFFER_LENGTH, &count) != FR_OK)
+            return false;
+
+        size = count;
+
+//        while (size--)
+//        {
+//            spi_write_read_byte(*data_buffer);
+//            data_buffer++;
+//        }
+        while (size--)
+              {
+                  spi_write_read_byte(data_buffer_static[data_index]);
+                  data_index++;
+              }
+
+        data_index = 0;
+    } while (count);
+
+  //  free(data_buffer);
+
+    if( f_close(&file) != FR_OK)
+    {    return false;
+    }
+    mdelay(5);
+    gpio_set_value_hi(SPI_CS);
+
+
+    return(true);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

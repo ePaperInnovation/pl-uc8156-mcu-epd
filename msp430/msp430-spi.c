@@ -454,6 +454,26 @@ void UC8177_spi_write_command_9params(u8 command, u8 param1, u8 param2, u8 param
 
 
 
+void UC8177_spi_write_command_13params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8, u8 param9, u8 param10, u8 param11, u8 param12, u8 param13 )
+{
+    gpio_set_value_lo(SPI_CS);
+   // command &= ~0x80;
+    spi_write_read_byte(command);
+    spi_write_read_byte(param1);
+    spi_write_read_byte(param2);
+    spi_write_read_byte(param3);
+    spi_write_read_byte(param4);
+    spi_write_read_byte(param5);
+    spi_write_read_byte(param6);
+    spi_write_read_byte(param7);
+    spi_write_read_byte(param8);
+    spi_write_read_byte(param9);
+    spi_write_read_byte(param10);
+    spi_write_read_byte(param11);
+    spi_write_read_byte(param12);
+    spi_write_read_byte(param13);
+    gpio_set_value_hi(SPI_CS);
+}
 
 
 
