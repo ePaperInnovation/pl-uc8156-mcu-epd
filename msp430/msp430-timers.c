@@ -19,7 +19,7 @@
 /*
  * msp430-timers.c -- MSP430 timer functions
  *
- * Authors: Nick Terry <nick.terry@plasticlogic.com>
+ * Authors: Zhongke Dai <zhongke.dai@plasticlogic.com>
  *
  */
 
