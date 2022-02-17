@@ -69,6 +69,7 @@ void slideshow_run(int mode, u16 delay_ms)
 		}else{
 			show_image_from_SDcard_dual(full_path, mode);
 		}
+
 		mdelay(delay_ms);
 
 	} while (result >= 0);

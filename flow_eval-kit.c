@@ -138,14 +138,12 @@ void eval_kit_flow(void)
 		}
 
 	}
+    clear_display();
 
-	clear_display();
+
 	slideshow_run(FULL_UPDATE, 2000);
 
-//	while(1)
-//	{
-//		slideshow_run(FULL_UPDATE, 2000);
-//	}
+
 }
 
 
