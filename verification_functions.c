@@ -25,12 +25,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <UC8156.h>
+#include <UC8156_MTP.h>
 
 #include "verification_functions.h"
 #include "msp430/msp430-spi.h"
-#include "UC8156.h"
-#include "UC8156_MTP.h"
-#include "waveform.h"
+//#include "waveform.h"
 #include "image.h"
 #include "pattern.h"
 #include "display_functions.h"
@@ -77,7 +77,7 @@ void read_and_print_LUT()
 {
 	u8 *LUT = read_waveform_LUT();
 
-	int i=0,j=0;
+	uint16_t i=0,j=0;
 	printf("\n");
 	for(i=0;i<30;i++)
 	{
@@ -132,35 +132,35 @@ void check_temperature_sensor()
 	printf("temperature (R08h) = %dd\n", return_value);
 }
 
-void drift_test(u8 *waveform_p)
-{
-	UC8156_HVs_on();
-
-	send_drift_test_image();
-	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
-
-	send_drift_test_image();
-	UC8156_set_Vcom(3600);
-	UC8156_send_waveform(waveform_long_null);
-	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
-
-	send_drift_test_image();
-	//UC8156_set_Vcom(4000);
-	UC8156_send_waveform(waveform_p);
-	spi_write_command_4params(0x0c, 0x00, 80, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
-	spi_write_command_3params(0x18, 0x40, 0x02, 0x34); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
-	//spi_write_command_4params(0x0c, 0x00, SOURCE_LINES/2/8*8-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
-	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
-
-	spi_write_command_4params(0x0c, 0x00, SOURCE_LINES, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
-
-	UC8156_HVs_off();
-
-}
+//void drift_test(u8 *waveform_p)
+//{
+//	UC8156_HVs_on();
+//
+//	send_drift_test_image();
+//	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
+//
+//	send_drift_test_image();
+//	UC8156_set_Vcom(3600);
+//	UC8156_send_waveform(waveform_long_null);
+//	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
+//
+//	send_drift_test_image();
+//	//UC8156_set_Vcom(4000);
+//	UC8156_send_waveform(waveform_p);
+//	spi_write_command_4params(0x0c, 0x00, 80, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
+//	spi_write_command_3params(0x18, 0x40, 0x02, 0x34); //BPCOM=GND, TPCOM=Hi-Z after update, gate_out=VGH after update
+//	//spi_write_command_4params(0x0c, 0x00, SOURCE_LINES/2/8*8-1, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
+//	UC8156_update_display(FULL_UPDATE, NORMAL_4GL);
+//
+//	spi_write_command_4params(0x0c, 0x00, SOURCE_LINES, GATE_LINES_MAX-GATE_LINES, GATE_LINES_MAX-1); // Panel resolution setting --> SOURCE_E needs to be SOURCELINE instead of SOURCELINE-1 for 180x100, don't know why
+//
+//	UC8156_HVs_off();
+//
+//}
 
 void send_drift_test_image()
 {
-	  int i;
+    uint16_t i;
 
 	  for(i=0;i<PIXEL_COUNT/4/2;i++)
 		  image_data[i]=0x00;
@@ -231,7 +231,7 @@ void measure_vcom()
 #define MEAS_COUNT MEAS_TIME * 1000 / MEAS_RESOLUTION + 10
 
 	u8 meas_value[MEAS_COUNT][2], status_reg[MEAS_COUNT];
-	int i;
+	uint16_t i;
 
 	u8 status = 	spi_read_command_1param(0x15);
 	printf("Status Register = %x\n", status);
@@ -261,9 +261,9 @@ void measure_vcom()
 
 	for (i=0; i<MEAS_COUNT; i++)
 	{
-		if (meas_value[i][0]!=0)
+	//	if (meas_value[i][0]!=0)
 //			printf("Vkb[%dms] = %3d - %f\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03);
-			printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
+//			printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*279)*0.03, status_reg[i]);
 	}
 }
 
@@ -276,7 +276,7 @@ void measure_vcom_new(int meas_time)
 #define MEAS_COUNT 1
 
 	u8 meas_value[MEAS_COUNT][2], status_reg[MEAS_COUNT];
-	int i;
+	uint16_t i;
 
 	UC8156_HVs_on();
 
@@ -295,9 +295,9 @@ void measure_vcom_new(int meas_time)
 
 	UC8156_HVs_off();
 
-	for (i=0; i<MEAS_COUNT; i++)
+//	for (i=0; i<MEAS_COUNT; i++)
 //		printf("Vkb[%dms] = %d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i], meas_value[i]*0.03, status_reg[i]);
-		printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*256)*0.03, status_reg[i]);
+//		printf("Vkb[%dms] = %3d - %3d - %f - %d\n", (i+1)*MEAS_RESOLUTION, meas_value[i][0], meas_value[i][1], (meas_value[i][0]+meas_value[i][1]*279)*0.03, status_reg[i]);
 }
 
 void WF_type2_update_verification()

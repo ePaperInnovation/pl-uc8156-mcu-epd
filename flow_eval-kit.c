@@ -25,15 +25,15 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <UC8156.h>
+#include <UC8156_MTP.h>
 #include "types.h"
-#include "UC8156.h"
 #include "FatFs/ff.h"
 #include "display_functions.h"
 #include "read-sd.h"
 #include "slideshow.h"
 #include "config_display_type.h"
-#include "UC8156_MTP.h"
+
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable
@@ -45,15 +45,17 @@ void eval_kit_flow(void)
 	char path[64];
 	// 1st try to read display-type from MTP
 	display_type = read_display_type_from_MTP();
+
 	if (display_type == UNKNOWN)
 	{
 		// 2nd try to read display-type from SD-Card
 		display_type = sdcard_read_display_type("display-type.txt");
 		if (display_type == UNKNOWN)
 			// finally: set display-type to default (1.38'')
-			display_type = S014_T1_1;
+			display_type = S025_T1_1;
 
 	}
+	//display_type = S025_T1_1;
 	set_display_type(display_type);
 	if(single_display){
 
@@ -61,7 +63,7 @@ void eval_kit_flow(void)
 
 		// optional: additional hardware reset after 5ms delay
 		mdelay(5);
-		UC8156_hardware_reset(); // UC8156 hardware reset
+		UC8156_hardware_reset(); // UC8179 hardware reset
 		UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 		// optional -> verifies successful power-up
@@ -80,11 +82,11 @@ void eval_kit_flow(void)
 		//write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
 
 		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
-
+		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
 		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
 		{
 			UC8156_send_waveform(waveform_from_file);
-			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
 		}
 
 	}else{
@@ -138,11 +140,12 @@ void eval_kit_flow(void)
 	}
 
 	clear_display();
+	slideshow_run(FULL_UPDATE, 2000);
 
-	while(1)
-	{
-		slideshow_run(FULL_UPDATE, 2000);
-	}
+//	while(1)
+//	{
+//		slideshow_run(FULL_UPDATE, 2000);
+//	}
 }
 
 

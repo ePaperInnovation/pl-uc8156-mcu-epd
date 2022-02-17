@@ -24,6 +24,7 @@
 #include "types.h"
 
 int sdcard_init(void);
+void flash_load_image(char *image_name, u8 *image_data);
 void sdcard_load_image(char *image_name, u8 *image_data);
 bool sdcard_load_vcom(int *value);
 bool sdcard_load_waveform(char *waveform_file_name, u8 *waveform_data, UINT length);
@@ -32,7 +33,15 @@ enum DISPLAY_TYPE sdcard_read_display_type(const char *config_file_name);
 int read_image_data_from_file_default(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_S031_T1(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S025_T1(FIL *f, u8 *image_buffer);
 int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S011_T1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S014_T1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S041_T1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part1(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part2(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part3(FIL *f, u8 *image_buffer);
+int read_image_data_from_file_S036_T1_part4(FIL *f, u8 *image_buffer);
 extern int (* read_image_data_from_file) (FIL *f, u8 *image_buffer);
 
 #endif /*READ_SD_H_*/

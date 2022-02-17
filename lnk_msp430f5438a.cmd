@@ -136,25 +136,32 @@ SECTIONS
 {
     .bss        : {} > RAM                /* GLOBAL & STATIC VARS              */
     .data       : {} > RAM                /* GLOBAL & STATIC VARS              */
+    //    .data       : {} > FLASH2                /* GLOBAL & STATIC VARS              */
     .sysmem     : {} > RAM                /* DYNAMIC MEMORY ALLOCATION AREA    */
+      //  .sysmem     : {} >  FLASH2               /* DYNAMIC MEMORY ALLOCATION AREA    */
     .stack      : {} > RAM (HIGH)         /* SOFTWARE SYSTEM STACK             */
 
     .text       : {}>> FLASH | FLASH2     /* CODE                              */
     .text:_isr  : {} > FLASH              /* ISR CODE SPACE                    */
     .cinit      : {} > FLASH              /* INITIALIZATION TABLES             */
-//#ifdef (__LARGE_DATA_MODEL__)
-    .const      : {} > FLASH | FLASH2     /* CONSTANT DATA                     */
-//#else
-//    .const      : {} > FLASH              /* CONSTANT DATA                     */
-//#endif
+#ifdef __LARGE_DATA_MODEL__
+    .const      : {} >> FLASH | FLASH2     /* CONSTANT DATA                     */
+#else
+    .const      : {} > FLASH              /* CONSTANT DATA                     */
+#endif
     .cio        : {} > RAM                /* C I/O BUFFER                      */
 
     .pinit      : {} > FLASH              /* C++ CONSTRUCTOR TABLES            */
     .init_array : {} > FLASH              /* C++ CONSTRUCTOR TABLES            */
     .mspabi.exidx : {} > FLASH            /* C++ CONSTRUCTOR TABLES            */
     .mspabi.extab : {} > FLASH            /* C++ CONSTRUCTOR TABLES            */
-
+    .myArray    : {} > FLASH2
+    .myRegsetting    : {} > FLASH2
+    .myImage    : {} > FLASH2
+    .myUC8179Setting    : {} > FLASH2
+    .myImageBuffer    : {} > FLASH
     .infoA     : {} > INFOA              /* MSP430 INFO FLASH MEMORY SEGMENTS */
+
     .infoB     : {} > INFOB
     .infoC     : {} > INFOC
     .infoD     : {} > INFOD

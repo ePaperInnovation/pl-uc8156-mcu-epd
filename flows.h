@@ -28,6 +28,6 @@
 
 	void eval_kit_flow(void);
 	void debug_flow(void);
-	void basic_flow(void);
+
 
 #endif /* FLOWS_H_ */

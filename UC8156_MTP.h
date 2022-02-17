@@ -42,6 +42,8 @@ void print_WfVersion_read_from_MTP();
 void print_Display_Type_read_from_MTP();
 void print_MagicWord_read_from_MTP();
 
+
+
 enum DISPLAY_TYPE read_display_type_from_MTP();
 
 enum DISPLAY_TYPE convert_string_to_DISPLAY_TYPE(const char *display_type_string);

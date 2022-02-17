@@ -20,10 +20,10 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <UC8179.h>
+#include <UC8156.h>
 #include "types.h"
 #include "FatFs/ff.h"
-#include "UC8156.h"
 #include "utils.h"
 #include "display_functions.h"
 #include "config_display_type.h"
@@ -40,7 +40,7 @@ void slideshow_run(int mode, u16 delay_ms)
 	FILINFO fno;
 	char path[MAX_PATH_LEN];
 	char full_path[MAX_PATH_LEN];
-	int result = 0;
+    const int result = 0;
 
 	sprintf(path, "/%s/%s", PATH, "img");
 
@@ -62,7 +62,10 @@ void slideshow_run(int mode, u16 delay_ms)
 
 		sprintf(full_path, "%s/%s", path, fno.fname);
 		if(single_display){
+
 			show_image_from_SDcard(full_path, mode);
+
+
 		}else{
 			show_image_from_SDcard_dual(full_path, mode);
 		}

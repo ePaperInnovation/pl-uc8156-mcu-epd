@@ -26,16 +26,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "types.h"
-#include "UC8156.h"
 #include "display_functions.h"
 #include "verification_functions.h"
 #include "read-sd.h"
-#include "UC8156_MTP.h"
 #include "pattern.h"
-#include "waveform.h"
+//#include "waveform.h"
 #include "slideshow.h"
 #include <msp430-spi.h>
 #include <msp430-gpio.h>
+#include <UC8156.h>
+#include <UC8156_MTP.h>
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable

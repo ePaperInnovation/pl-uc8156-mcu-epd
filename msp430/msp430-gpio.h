@@ -51,6 +51,7 @@ enum PinDefs {
 #define PIN_BUSY 		GPIO(2,6) 	// BUSY_N pin
 #define PIN_BUSY_SLAVE	GPIO(2,5) 	// BUSY_N_2 pin
 #define PIN_3V3_ENABLE 	GPIO(1,7) 	// 3V3_Enable pin
+//#define MFCSB           GPIO(5,4)   // origal: BB I2C SCL, right now for Ledger external flash MFCSB
 
 #define PIN_RUDDOCK_5V_ENABLE 	GPIO(5,1) 	// if Parrot board is used on Ruddock board BB_SHUTDOWN needs to be high in order to enable the 5V Vmain
 #define	PIN_ERROR_LED  GPIO(7,7) // Parrot board "User" LED1

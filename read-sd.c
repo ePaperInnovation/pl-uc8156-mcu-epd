@@ -70,7 +70,7 @@ u8 charToHex(char upper, char lower)
 /*Parses char values to integer*/
 int parsevalue(char* str, int start, int length)
 {
-	int i;
+    uint16_t i;
 	int pot=1;
 	int ret=0;
 
@@ -98,7 +98,7 @@ int parsevalue(char* str, int start, int length)
 
 int parser_read_config_file_line(FIL *f, char *buffer, int max_length)
 {
-	size_t count;
+    uint16_t count;
 	char *out;
 	int i;
 
@@ -138,6 +138,9 @@ bool sdcard_load_waveform(char *path, u8 *waveform_data, UINT length)
 	FIL file;
 	UINT count=0;
 
+
+
+
 	if (f_open(&file, path, FA_READ))
 		return false;
 
@@ -170,13 +173,13 @@ bool sdcard_load_vcom(int *value)
 	return true;
 }
 
-#define BUFFER_LENGTH 256 //1024
+#define BUFFER_LENGTH 148 //1024
 
 // reads image data from PMG image file - part of load_image function
 int read_image_data_from_file_default(FIL *f, u8 *image_buffer)
 {
 	static u8 data[BUFFER_LENGTH];
-	size_t count;
+	uint16_t count;
 
 	do {
 		if (f_read(f, data, BUFFER_LENGTH, &count) != FR_OK)
@@ -186,10 +189,11 @@ int read_image_data_from_file_default(FIL *f, u8 *image_buffer)
 
 		image_buffer+=count/4;
 
-	} while (count);
 
+	} while (count);
 	return 0;
 }
+
 
 
 
@@ -197,25 +201,26 @@ int read_image_data_from_file_default(FIL *f, u8 *image_buffer)
 #define BUFFER_LENGTH_S031_T1 148
 int read_image_data_from_file_S031_T1(FIL *f, u8 *image_buffer)
 {
-	u8 data[BUFFER_LENGTH_S031_T1];
-	u8 data_scrambled[BUFFER_LENGTH_S031_T1];
-	size_t count;
-	int i;
+    u8 data[BUFFER_LENGTH_S031_T1];
+    u8 data_scrambled[BUFFER_LENGTH_S031_T1];
 
-	do {
-		if (f_read(f, data, BUFFER_LENGTH_S031_T1, &count) != FR_OK)
-			return -1;
 
-		for(i=0; i<BUFFER_LENGTH_S031_T1/2; i++)
-		{
-			data_scrambled[i*2]   = data[BUFFER_LENGTH_S031_T1/2+i];
-			data_scrambled[i*2+1] = data[i];
-		}
+       uint16_t count;
+       uint16_t i,j;
 
-		pack_2bpp(data_scrambled, image_buffer, count);
+       for (j=0; j<156; j++)    // 312/2   Gate
+       {
+           if (f_read(f, data, BUFFER_LENGTH_S031_T1, &count) != FR_OK)
+               return -1;
 
-		image_buffer+=count/4;
-	} while (count);
+           for(i=0; i<BUFFER_LENGTH_S031_T1/2; i++)   // 74  Source
+               {
+                   data_scrambled[i*2]   = data[BUFFER_LENGTH_S031_T1/2+i];
+                   data_scrambled[i*2+1] = data[i];
+               }
+           pack_2bpp(data_scrambled, image_buffer+j*148/4, 148);
+       }
+
 
 	return 0;
 }
@@ -225,8 +230,9 @@ int read_image_data_from_file_D011_T1(FIL *f, u8 *image_buffer)
 {
 	u8 image_file_data[BUFFER_LENGTH_D011_T1];
 	u8 data_scrambled[240];
-	size_t count;
-	int i,j;
+	uint16_t count;
+	uint16_t i;
+	int   j;
 
 	for (j=0; j<GATE_LINES; j++)
 	{
@@ -269,8 +275,16 @@ int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
     u8 image_file_data[BUFFER_LENGTH_S021_T1];
     u8 data_scrambled[240];
 
-    size_t count;
-    int i,j;
+    uint16_t count = 0;
+    uint16_t i,j;
+
+    long file_size = f_size(f);
+    printf("file size = %lu \n", file_size);
+
+
+    int head_size = file_size -GATE_LINES * SOURCE_LINES;
+    f_lseek(f, head_size);
+
 
     for (j=0; j<GATE_LINES; j++)
     {
@@ -291,6 +305,192 @@ int read_image_data_from_file_S021_T1(FIL *f, u8 *image_buffer)
     return 0;
 }
 
+
+
+
+
+#define BUFFER_LENGTH_S011_T1 148
+int read_image_data_from_file_S011_T1(FIL *f, u8 *image_buffer)
+{
+    u8 image_file_data[BUFFER_LENGTH_S011_T1];
+
+
+    uint16_t count;
+    int j;
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S011_T1, &count) != FR_OK)
+            return -1;
+
+//        for(i=0; i<BUFFER_LENGTH_S011_T1/2; i++)
+//        {
+//            data_scrambled[239-i] = image_file_data[i];
+//            data_scrambled[i] = image_file_data[i+BUFFER_LENGTH_S021_T1/2];
+//        }
+
+        pack_2bpp(image_file_data, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
+    }
+
+//    UC8156_send_image_data(image_buffer);
+
+    return 0;
+}
+
+
+
+
+#define BUFFER_LENGTH_S014_T1 100
+int read_image_data_from_file_S014_T1(FIL *f, u8 *image_buffer)
+{
+    u8 image_file_data[BUFFER_LENGTH_S014_T1];
+    uint16_t count;
+    int j;
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S014_T1, &count) != FR_OK)
+            return -1;
+
+        pack_2bpp(image_file_data, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
+    }
+
+    return 0;
+}
+
+#define BUFFER_LENGTH_S025_T1 240
+int read_image_data_from_file_S025_T1(FIL *f, u8 *image_buffer)
+{
+    u8 image_file_data[BUFFER_LENGTH_S025_T1];
+    uint16_t count;
+    int j;
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S025_T1, &count) != FR_OK)
+            return -1;
+
+        pack_2bpp(image_file_data, image_buffer+j*SOURCE_LINES/4, SOURCE_LINES);
+    }
+
+    return 0;
+}
+
+
+#define BUFFER_LENGTH_S041_T1 104 //source 104 UC8171
+int read_image_data_from_file_S041_T1(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S041_T1];
+    uint16_t count;
+    int j;
+
+    for (j=0; j<GATE_LINES; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S041_T1, &count) != FR_OK)
+            return -1;
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
+
+
+#define BUFFER_LENGTH_S036_T1 640 //source 640 UC8179
+int read_image_data_from_file_S036_T1_part1(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
+
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
+
+
+
+
+int read_image_data_from_file_S036_T1_part2(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
+
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size + 64000;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
+
+
+int read_image_data_from_file_S036_T1_part3(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
+
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size + 128000;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
+
+
+int read_image_data_from_file_S036_T1_part4(FIL *f, u8 *image_buffer)
+{
+    static u8 image_file_data[BUFFER_LENGTH_S036_T1];
+    uint16_t count = 0;
+    int j;
+
+
+        long file_size = f_size(f);
+        printf("file size = %lu \n", file_size);
+        int head_size = file_size -GATE_LINES * SOURCE_LINES;
+        long file_start = head_size + 192000;
+        f_lseek(f, file_start);
+
+
+    for (j=0; j<100; j++)
+    {
+        if (f_read(f, image_file_data, BUFFER_LENGTH_S036_T1, &count) != FR_OK)
+            return -1;
+        pack_1bpp(image_file_data, image_buffer+j*SOURCE_LINES/8, SOURCE_LINES);
+    }
+    return 0;
+}
+
+
+
 /* Reads an image from SD Card */
 void sdcard_load_image(char *image_name, u8 *image_data)
 {
@@ -304,10 +504,33 @@ void sdcard_load_image(char *image_name, u8 *image_data)
 		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
 
 	if (read_image_data_from_file(&image_file, image_data) != 0)
-		abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data", ABORT_SD_CARD);
+	    //if (read_image_data_from_file_S031_T1(&image_file, image_data) != 0)
+	    abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> read_image_data", ABORT_SD_CARD);
 
 	f_close(&image_file);
 }
+
+
+
+
+void flash_load_image(char *image_name, u8 *image_data)
+{
+    FIL image_file;
+
+
+
+
+    if (read_image_data_from_file(&image_file, image_data) != 0)
+        //if (read_image_data_from_file_S031_T1(&image_file, image_data) != 0)
+        abort_now("Fatal error in: read-sd.c -> memeory_load_image -> read_image_data", ABORT_SD_CARD);
+
+    f_close(&image_file);
+}
+
+
+
+
+
 
 void read_directory_list(const char *path)
 {

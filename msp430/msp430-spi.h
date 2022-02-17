@@ -36,8 +36,12 @@
 #define	SPI_SIMO		GPIO(3,4)
 #define	SPI_SOMI		GPIO(3,5)
 #define	SPI_CLK			GPIO(3,0)
-#define SPI_CS GPIO(3,6)
+#define SPI_CS          GPIO(3,6)
+#define SPI_CD          GPIO(1,3)   // Command/Data
 #define SPI_CS_SLAVE	GPIO(1,6)
+
+
+
 
 #define SPI_MODE_0 (UCCKPH)                            /* CPOL=0 CPHA=0 */
 #define SPI_MODE_1 (0)                         /* CPOL=0 CPHA=1 */
@@ -51,11 +55,15 @@ void spi_write_command_1param(u8 command, u8 param);
 void spi_write_command_2params(u8 command, u8 param1, u8 param2);
 void spi_write_command_3params(u8 command, u8 param1, u8 param2, u8 param3);
 void spi_write_command_4params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4);
+void spi_write_command_5params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5);
+void spi_write_command_6params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6);
+void spi_write_command_8params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8);
+
 void spi_write_command(u8 command, u8 *params, int count);
 
 u8 spi_read_command_1param(u8 command);
-void spi_read_command_2params1(u8 command, u8 *);
-u8* spi_read_command_2params(u8 command);
+void spi_read_command_2params1(u8 command, u8 * return_value);
+//void spi_read_command_2params(u8 command, u8 * data);
 u8* spi_read_command_3params(u8 command);
 u8* spi_read_command_4params(u8 command);
 int spi_read_command(u8 command, u8 *read_values_p, int count);
@@ -78,5 +86,36 @@ void print_spi_read_command_slave(u8 command, int count);
 void spi_write_command_and_bulk_data_slave(u8 command, u8 *buffer, size_t size);
 void spi_read_command_and_bulk_data_slave(u8 command, u8 *buffer, size_t size);
 void spi_write_command_byte_repeat_slave(u8 command, u8 data, size_t size);
+u8 spi_write_read_byte_GL0();
+u8 spi_write_read_byte_GL4();
+u8 spi_write_read_byte_GL11();
+u8 spi_write_read_byte_GL15();
+u8 spi_write_read_byte(u8 byte);
+u8 spi_write_read_byte_inv(u8 byte);
+void spi_write_command_and_bulk_data_inv(u8 command, u8 *buffer, size_t size);
 
+void spi_write_command_and_bulk_data_GL0(u8 command, u8 *buffer, size_t size);
+void spi_write_command_and_bulk_data_GL4(u8 command, u8 *buffer, size_t size);
+void spi_write_command_and_bulk_data_GL11(u8 command, u8 *buffer, size_t size);
+void spi_write_command_and_bulk_data_GL15(u8 command, u8 *buffer, size_t size);
+void spi_write_only_command(u8 command);
+
+u8 UC8179_spi_read_parameter();
+void UC8179_spi_write_parameter(u8 byte) ;
+void UC8179_spi_write_command(u8 byte);
+
+void spi_write_command_param_and_bulk_data(u8 command, u8 param1, u8 *buffer, size_t size);
+void UC8177_spi_write_command_13params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8, u8 param9, u8 param10, u8 param11, u8 param12, u8 param13 );
+void UC8177_spi_write_command_9params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8, u8 param9 );
+void UC8177_spi_write_command_8params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6, u8 param7, u8 param8 );
+void UC8177_spi_write_command_6params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4, u8 param5, u8 param6);
+void UC8177_spi_write_command_1param(u8 command, u8 param1);
+void UC8177_spi_write_command_2params(u8 command, u8 param1, u8 param2);
+void UC8177_spi_write_command_4params(u8 command, u8 param1, u8 param2, u8 param3, u8 param4);
+void UC8177_spi_write_command_3params(u8 command, u8 param1, u8 param2, u8 param3);
+void UC8177_spi_write_only_command(u8 command);
+void UC8177_spi_write_command_param_and_bulk_data(u8 command, u8 param1, u8 *buffer, size_t size);
+u8 UC8177_spi_read_command_1param(u8 command);
+void UC8177_spi_read_command_2params1(u8 command, u8 *return_value);
+void UC8177_spi_write_command_and_bulk_data(u8 command, u8 *buffer, size_t size);
 #endif /* MSP430_SPI_H_ */

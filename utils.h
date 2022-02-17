@@ -66,6 +66,8 @@ enum led_error_code {
 	                          * Also depends on preprocessor settings */
 	ABORT_HV_INIT,	        /* Error initialising HVs */
 	ABORT_UC8156_INIT, 		 /* Error initialising UC8156 (e.g. Read_RevID or Read_StatReg) */
+    ABORT_UC8179_INIT,       /* Error initialising UC8179 (e.g. Read_RevID or Read_StatReg) */
+    ABORT_UC8177_INIT,       /* Error initialising UC8177 (e.g. Read_RevID or Read_StatReg) */
 	ABORT_APPLICATION,       /* Failed while running application. Multiple
 	                          * causes for this, depending on application
 	                          * that is running. Most likely failures are
@@ -118,8 +120,11 @@ extern void dump_hex(const void *data, uint16_t len);
 /* --  Other display related utilities */
 
 /* Converts image data to 4 bit per pixel data */
+void pack_4bpp(u8 *in, u8 *out, int in_count);
 void pack_2bpp(u8 *in, u8 *out, int in_count);
 
+
+void pack_1bpp(u8 *in, u8 *out, int in_count);
 /* aborts the program in case of a fatal error and prints an error message */
 void abort_now(const char *error_string, enum led_error_code error_code);
 

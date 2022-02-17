@@ -30,6 +30,8 @@
 #include "msp430/msp430-gpio.h"
 #include "types.h"
 #include "utils.h"
+#include <math.h>
+
 
 //global variables
 u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
@@ -122,7 +124,7 @@ unsigned long UC8156_wait_for_PowerON_ready_slave()
 void UC8156_wait_for_PowerON_ready_debug()
  {
 	unsigned long counter = UC8156_wait_for_PowerON_ready();
- 	printf("PowerOn loop counter = %d\n", counter);
+ 	//printf("PowerOn loop counter = %d\n", counter);
  }
 
 // UC8156 change registers which need values different from power-up values
@@ -280,6 +282,23 @@ void UC8156_set_Vcom(int Vcom_mv_value)
 	spi_write_command_2params(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
 }
 
+void UC8156_set_Vcom_Acep(int Vcom_mv_value)
+{
+    u16 Vcom_register_value;
+    if(Vcom_mv_value >= -3300 )
+    {
+      Vcom_register_value = (float)(Vcom_mv_value + 3300)/(float)30.0;
+      spi_write_command_2params(0x1B, (u8)Vcom_register_value, (u8)((Vcom_register_value>>8)&0x03));
+    }
+    else
+    {
+        Vcom_register_value = (float)(Vcom_mv_value + 3300)/(float)30.0*(float)-1;
+        u8 byte_h = (u8)(((Vcom_register_value>>8) | 4) & 0x03);
+        spi_write_command_2params(0x1B, (u8)Vcom_register_value, byte_h);
+    }
+
+}
+
 // send Vcom value (in mV) to UC8156
 void UC8156_set_Vcom_slave(int Vcom_mv_value)
 {
@@ -327,6 +346,37 @@ void UC8156_send_image_data(u8 *image_data)
 {
 	spi_write_command_and_bulk_data(0x10, image_data, PIXEL_COUNT/4);
 }
+
+
+void UC8156_send_image_data_inv(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_inv(0x10, image_data, PIXEL_COUNT/4);
+}
+
+
+void UC8156_send_image_data_GL0(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL0(0x10, image_data, PIXEL_COUNT/4);
+}
+
+
+void UC8156_send_image_data_GL4(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL4(0x10, image_data, PIXEL_COUNT/4);
+}
+
+void UC8156_send_image_data_GL11(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL11(0x10, image_data, PIXEL_COUNT/4);
+}
+
+void UC8156_send_image_data_GL15(u8 *image_data)
+{
+    spi_write_command_and_bulk_data_GL15(0x10, image_data, PIXEL_COUNT/4);
+}
+
+
+
 
 void UC8156_send_image_data_slave(u8 *image_data)
 {
@@ -377,6 +427,17 @@ void UC8156_update_display(u8 update_mode, u8 waveform_mode)
 	//UC8156_wait_for_BUSY_inactive_debug();
 }
 
+void UC8156_update_display_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select)
+{
+    spi_write_command_1param(0x40, spi_read_command_1param(0x40) | waveform_mode);
+
+   // spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select | 0x01); // 0x20 for area update
+    spi_write_command_1param(0x14, UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM | update_mode | 1 | transparency_key_value | transparency_display_enable | display_mode_select | 0x03); //for Acep
+    UC8156_wait_for_BUSY_inactive();
+
+}
+
+
 //update display and wait for BUSY-pin low
 void UC8156_update_display_slave_only(u8 update_mode, u8 waveform_mode)
 {
@@ -405,6 +466,16 @@ void UC8156_update_display_with_power_on_off(u8 update_mode, u8 waveform_mode)
       UC8156_HVs_off();
 }
 
+
+void UC8156_update_display_with_power_on_off_all_set(u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select)
+{
+      UC8156_HVs_on();
+      UC8156_update_display_all_set(update_mode, waveform_mode, transparency_key_value, transparency_display_enable, display_mode_select);
+      UC8156_HVs_off();
+}
+
+
+
 void UC8156_update_display_with_power_on_off_dual(u8 update_mode, u8 waveform_mode)
 {
 	  UC8156_HVs_on_dual();
@@ -417,6 +488,52 @@ void UC8156_show_image(u8 *image_data, u8 update_mode, u8 waveform_mode)
 	  UC8156_send_image_data(image_data);
 
 	  UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
+}
+
+
+void UC8156_show_image_inv(u8 *image_data, u8 update_mode, u8 waveform_mode)
+{
+      UC8156_send_image_data_inv(image_data);
+
+      UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
+}
+
+
+
+void UC8156_show_image_all_set(u8 *image_data, u8 update_mode, u8 waveform_mode, u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_enable)
+{
+    if(inv_enable)
+    {
+        UC8156_send_image_data_inv(image_data);
+    }
+    else if (!inv_enable)
+    {
+        UC8156_send_image_data(image_data);
+    }
+      UC8156_update_display_with_power_on_off_all_set(update_mode,  waveform_mode, transparency_key_value, transparency_display_enable,  display_mode_select);
+}
+
+
+
+
+void UC8156_show_image_GL(u8 *image_data, u8 update_mode, u8 waveform_mode, int GL_name)
+{
+        switch(GL_name)
+        {
+           case 0:
+               UC8156_send_image_data_GL0(image_data);
+               break;
+           case 4:
+               UC8156_send_image_data_GL4(image_data);
+               break;
+           case 11:
+               UC8156_send_image_data_GL11(image_data);
+               break;
+           case 15:
+               UC8156_send_image_data_GL15(image_data);
+               break;
+        }
+      UC8156_update_display_with_power_on_off(update_mode, waveform_mode);
 }
 
 void UC8156_show_image_dual(u8 *image_data, u8 update_mode, u8 waveform_mode)
@@ -473,8 +590,8 @@ void UC8156_measure_Vcom_curve()
 	for (i=0;i<(int)(counter/DIVIDER)+1;i++)
 	{
 		//printf("%f sec = %f V\n", i*0.25, value[i][0] * 0.03);
-		if (value[i][0]>0)
-			printf("%f sec = %f V\n", i*DIVIDER/1000.0, value[i][0] * 0.03);
+//		if (value[i][0]>0)
+//			printf("%f sec = %f V\n", i*DIVIDER/1000.0, value[i][0] * 0.03);
 	}
 }
 
@@ -484,10 +601,11 @@ void print_temperature_sensor_value()
 	printf("Temperatur sensor value read from Reg[08h] = 0x%x\n", return_value);
 }
 
-void print_current_VCOM()
+u8 print_current_VCOM()
 {
 	u8 return_value = spi_read_command_1param(0x1b);
-	printf("Vcom read from Reg[1Bh] = 0x%x = %.3fV\n", return_value, return_value*0.03);
+	return return_value;
+//	printf("Vcom read from Reg[1Bh] = 0x%x = %.3fV\n", return_value, return_value*0.03);
 }
 
 void UC8156_check_status_register(u8 expected_value)
@@ -552,5 +670,31 @@ float UC8156_measure_VCOM()
 
 void print_measured_VCOM()
 {
-	printf("Vcom measured = %.3fV\n", UC8156_measure_VCOM());
+//	printf("Vcom measured = %.3fV\n", UC8156_measure_VCOM());
 }
+
+
+void drive_voltage_setting(u8 vg_lv, u8 vs_lv)
+{
+    spi_write_command_2params(0x02, vg_lv, vs_lv);
+}
+
+void drive_voltage_setting_Acep(int v)
+{
+
+    v = round(v/1000);
+
+    int x = (v-8)/1*2 << 4;
+    x = x | (v-8)/1*2;
+    spi_write_command_2params(0x02, 0x25, x);
+}
+
+void tcom_timing_setting(u8 gap, u8 s2g)
+{
+    spi_write_command_2params(0x06, gap, s2g);
+}
+
+
+
+
+

@@ -23,9 +23,11 @@
  *      Author: andreas.meier
  */
 
+
+#include <UC8156.h>
+
 #include "msp430/msp430-spi.h"
 
-#include "UC8156.h"
 #include "display_functions.h"
 
 extern u16 SOURCE_LINES, GATE_LINES, PIXEL_COUNT;
@@ -87,9 +89,9 @@ void diagonale()
 
 	UC8156_send_image_data(image_data);
 
-//	UC8156_HVs_on();
-//	UC8156_update_display(FULL_UPDATE);
-//    UC8156_HVs_off();
+//	uc8156_HVs_on();
+//	uc8156_update_display(FULL_UPDATE);
+//    uc8156_HVs_off();
 }
 
 void alt_source_SOO_0()
@@ -323,7 +325,7 @@ void pixel_00_update()
 		image_data[i]=0xff;
 
 	image_data[0]=0x00;
-//	image_data[156/4]=0x00;
+//	image_data[179/4]=0x00;
 
 //	for (i=0; i<200; i++)
 //		image_data[i]=0x00;
@@ -351,7 +353,7 @@ void pixel_00_update_windowed()
 	spi_write_command_and_bulk_data(0x10, image_data, 3);
 	print_spi_read_command(0x0e, 2);
 
-	//UC8156_send_image_data(image_data);
+	//uc8156_send_image_data(image_data);
 
 	UC8156_update_display_with_power_on_off(FULL_UPDATE, NORMAL_4GL);
 }

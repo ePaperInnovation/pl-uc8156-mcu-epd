@@ -27,6 +27,7 @@
 #include <msp430.h>
 
 #include "msp430/msp430-spi.h"
+//#include "msp430/msp430-i2c.h"
 #include "msp430/msp430-gpio.h"
 #include "msp430/hal_pmm.h"
 
@@ -35,6 +36,11 @@
 #include "config_display_type.h"
 #include "read-sd.h"
 #include "utils.h"
+#include "flow_basis.h"
+#include "UC8179_flow_debug.h"
+#include "UC8177C_flow_debug.h"
+#include "touchscreen.h"
+
 
 #define DEBUG_PRINTOUTS 0
 
@@ -45,9 +51,11 @@ void MSP430_HBZ9_3V3_disable();
 void MSP430_spi_init();
 void MSP430_gpio_init();
 
+
 int main(void)
 {
-	sdcard_init(); // initialize SD-card using FatFS
+
+    int sd_int = sdcard_init(); // initialize SD-card using FatFS
 
 	MSP430_clock_init(); // set MSP430 clock to 20MHz
 
@@ -59,17 +67,10 @@ int main(void)
 
 	mdelay(100);
 
-	eval_kit_flow();
-
-	debug_flow();
-
-<<<<<<< Updated upstream
-	basic_flow();
-=======
 
 ///////// main function for UC8156
     //print_WfVersion_read_from_MTP();
-    eval_kit_flow();   // slideshow the image
+  //  eval_kit_flow();   // slideshow the image
 //	image_eval_flow_SD(0);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
    //  image_eval_flow_flash(color_red);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 
@@ -110,10 +111,9 @@ int main(void)
 
 	///////////////////UC 8177C Test////
 
-//	UC8177_basic_flow();
+	UC8177_basic_flow();
 
 //////////////////////////////////////////
->>>>>>> Stashed changes
 }
 
 int _system_pre_init(void) {

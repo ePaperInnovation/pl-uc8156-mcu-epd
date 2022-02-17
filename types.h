@@ -198,6 +198,15 @@ extern void mdelay(u16 ms);
 extern void msleep(u16 ms);
 
 
+extern unsigned long millis(void);
+extern void timerbStart(unsigned int countVal);
+extern unsigned long int timerbRead(void);
+extern void timerbWait(void);
+extern bool timerbFinished(void);
+extern unsigned long int timerbInit(void);
+extern unsigned long int timerbStop(void);
+
+
 /* -- Other display related utilities -- */
 
 extern int util_read_vcom(void);
@@ -205,7 +214,7 @@ extern int util_read_vcom(void);
 typedef struct {
 	u8 addr;
 	int valCount;
-	u8 val[4];
+	u8 val[5];
 } regSetting_t;
 
 #endif /* TYPES_H_ */

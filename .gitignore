@@ -1,0 +1,11 @@
+.project
+.cproject
+.ccsproject
+.settings
+.launches
+lnk_*.cmd
+targetConfigs
+Debug
+Release
+*.pdf
+doc
