@@ -95,11 +95,6 @@ void UC8177_basic_flow(void)
                         printf("write WF to flash successfully \n");
                     }
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> dev_uc8177c
                 }
                 else
                 {
@@ -117,14 +112,10 @@ void UC8177_basic_flow(void)
 
                 }
 
-<<<<<<< HEAD
-
-=======
 ////////////////////////////////////////
 //        UC8177_DAM(0x01);
 //        WF_read_from_external_flash(0x0);
 ////////////////////////////////////////
->>>>>>> dev_uc8177c
             mdelay(1000);
 
 
@@ -135,8 +126,7 @@ void UC8177_basic_flow(void)
 
 
         UC8177_TSE(0x40, 0x03);
-<<<<<<< HEAD
-=======
+
         //bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
 
 //
@@ -148,7 +138,7 @@ void UC8177_basic_flow(void)
 //               mdelay(2000);
 //
 //          }while(1);
->>>>>>> dev_uc8177c
+
 
 
 
@@ -450,13 +440,7 @@ int external_flash_setting(bool write_WF)
     UC8177_PSR(0x41, 0x00);   //  0x61: LUT from Register; 0x41: LUT from external flash
     UC8177_MISCS1(0x15);  // 0x15: auto LUTT enable; 0x05 auto LUTT disable
     UC8177_PLL(0x04);
-<<<<<<< HEAD
 
-
-=======
-//    UC8177_TSE(0x40, 0x1A);
-//    UC8177_NTRS();
->>>>>>> dev_uc8177c
     if(write_WF)
     {
         if(waveform_sd_to_externalFlash() )   // external flash waveform write
