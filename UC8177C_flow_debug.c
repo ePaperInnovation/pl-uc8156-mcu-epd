@@ -81,7 +81,7 @@ void UC8177_basic_flow(void)
         UC8177_Eink_ini();
 
 //
-                const bool read_WF_from_external_flash = true;
+                const bool read_WF_from_external_flash = false;
                 const bool write_WF = false;
 
 
@@ -149,20 +149,24 @@ void UC8177_basic_flow(void)
                printf("black update start \n");
                 UC8177_black_update();
 
-
+                timerbInit();
                 mdelay(3000);
+                timerbStop();
                 printf("white update start \n");
                 UC8177_white_update();
                 printf("image3 update start \n");
+                timerbInit();
                 UC8177_image_update(image_path3);
+                timerbStop();
                 mdelay(3000);
    do{
 
 
 
        printf("black update start \n");
-        UC8177_black_update();
-
+       timerbInit();
+       UC8177_black_update();
+       timerbStop();
 
         mdelay(1000);
         printf("white update start \n");
@@ -443,6 +447,7 @@ int external_flash_setting(bool write_WF)
 
     if(write_WF)
     {
+        UC8177_DAM(0x01);  // 0: external flash disable; 1: enable
         if(waveform_sd_to_externalFlash() )   // external flash waveform write
 
             return -1;

@@ -40,6 +40,8 @@
 #include "UC8179_flow_debug.h"
 #include "UC8177C_flow_debug.h"
 #include "touchscreen.h"
+#include "msp430-i2c.h"
+
 
 
 #define DEBUG_PRINTOUTS 0
@@ -49,6 +51,7 @@ static void MSP430_clock_init();
 void MSP430_HBZ9_3V3_enable();
 void MSP430_HBZ9_3V3_disable();
 void MSP430_spi_init();
+void MSP430_i2c_init();
 void MSP430_gpio_init();
 
 
@@ -61,17 +64,20 @@ int main(void)
 
 	MSP430_spi_init(0,16); // initialize SPI interface towards the display
 
+	//MSP430_i2c_init();
+
 	MSP430_gpio_init(); // initialize GPIO's used for display communication
 
 	MSP430_HBZ9_3V3_enable(); // switch on 3.3V power supply for the UC8156 on the HB_Z9 board
 
 	mdelay(100);
 
+//	touchscreen_test();
 
-///////// main function for UC8156
+///////// main function for UC8156+
     //print_WfVersion_read_from_MTP();
-  eval_kit_flow();   // slideshow the image
-//	image_eval_flow_SD(0);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
+    eval_kit_flow();   // slideshow the image
+	//image_eval_flow_SD(0x02);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
    //  image_eval_flow_flash(color_red);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 
 
@@ -161,6 +167,17 @@ void MSP430_spi_init() // initialize SPI interface towards the display
 		abort_now("Fatal error in MSP430_spi_init()", ABORT_MSP430_INIT);
 	}
 }
+
+
+
+
+void MSP430_i2c_init() // initialize SPI interface towards the display
+{
+    if(i2c_init()){
+        abort_now("Fatal error in MSP430_i2c_init()", ABORT_MSP430_INIT);
+    }
+}
+
 
 void MSP430_gpio_init() // initialize GPIO's used for display communication
 {

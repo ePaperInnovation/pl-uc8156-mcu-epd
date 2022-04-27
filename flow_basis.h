@@ -45,6 +45,7 @@ void image_acep_update(u8 *image_buffer, u8 image_type);
 void Data_Entry_Mode_Setting(bool previous);
 void Write_Previous_Buffer(u8 *image_buffer, u8 EDP_Clear_TYPE);
 void red_color_test(u8 *image_buffer);
+void waveform_lectum_flash_function(void);
 void waveform_type1_flash_function(void);
 void waveform_type2_flash_function(void);
 void HTS_test(void);

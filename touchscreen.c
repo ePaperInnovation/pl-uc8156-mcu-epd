@@ -6,40 +6,22 @@
  */
 
 #include <msp430.h>
-#include "msp430/msp430-i2c.h"
+#include <stddef.h>
+#include <types.h>
+#include <stdint.h>
+#include "msp430-touch-i2c.h"
+#include "msp430-i2c.h"
+
 
 
 unsigned char timercounter;
-unsigned char array[40] = { 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb };
-unsigned char store[40] = { 13, 13, 13, 13, 13, 13, 13, 0, 0, 0};
+uint8_t array[10] = { 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa };
+uint8_t store[40] = { 13, 13, 13, 13, 13, 13, 13, 0, 0, 0};
 
 
 
 void touchscreen_test(void)
 {
-    WDTCTL = WDTPW + WDTHOLD;                 // Stop WDT
-
-
-
-    _EINT();
-
-    TI_USCI_I2C_transmitinit(0x28,0x12);  // init transmitting with USCI
-      while ( TI_USCI_I2C_notready() );
-    TI_USCI_I2C_transmit(4,array);       // start transmitting
-//    while ( TI_USCI_I2C_notready() );         // wait for bus to be free
-//    if ( TI_USCI_I2C_slave_present(0x50) )    // slave address may differ from
-//    {                                         // initialization
-//      TI_USCI_I2C_receiveinit(0x50,0x12);   // init receiving with USCI
-//      while ( TI_USCI_I2C_notready() );         // wait for bus to be free
-//      TI_USCI_I2C_receive(4,store);
-//      while ( TI_USCI_I2C_notready() );         // wait for bus to be free
-//
-//      TI_USCI_I2C_transmitinit(0x50,0x12);  // init transmitting with
-//      while ( TI_USCI_I2C_notready() );         // wait for bus to be free
-//      TI_USCI_I2C_transmit(4,array);       // start transmitting
-//    }
-
-   // LPM3;
-
-
+    TOUCH_SENSOR_SendI2cRaw(array, 10);
+    TOUCH_SENSOR_SendI2cRaw(store, 40);
 }

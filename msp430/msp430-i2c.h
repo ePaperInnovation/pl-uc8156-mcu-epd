@@ -13,8 +13,9 @@
 #include <stdint.h>
 
 
-#define SDA_PIN 0x02                                  // msp430x261x UCB0SDA pin
-#define SCL_PIN 0x04                                  // msp430x261x UCB0SCL pin
+//#define SDA_PIN 0x02                                  // msp430x261x UCB0SDA pin
+//#define SCL_PIN 0x04                                  // msp430x261x UCB0SCL pin
+
 
 
 #define I2C_INT         GPIO(1,0)    // I2C Interrupt test  // BB_PMIC_POK
@@ -23,19 +24,23 @@
 
 
 
-void i2c_ini(void);
+
+enum pl_i2c_flags {
+    PL_I2C_NO_STOP  = 1 << 0,       /**< Do not generate stop bit */
+    PL_I2C_NO_START = 1 << 1,       /**< Do not generate start bit */
+};
+
+
+
+
+int i2c_init(void);
+
+
 void i2c_close(void);
 
-//void TI_USCI_I2C_receiveinit(unsigned char slave_address, unsigned char prescale);
-void TI_USCI_I2C_transmitinit(unsigned char slave_address, unsigned char prescale);
 
-
-void TI_USCI_I2C_receive(unsigned char byteCount, unsigned char *field);
-void TI_USCI_I2C_transmit(unsigned char byteCount, unsigned char *field);
-
-
-//unsigned char TI_USCI_I2C_slave_present(unsigned char slave_address);
-unsigned char TI_USCI_I2C_notready();
+int msp430_i2c_read(uint8_t i2c_addr, uint8_t *data, uint8_t count, uint8_t flags);
+void msp430_i2c_write(uint8_t i2c_addr, const uint8_t *data, uint8_t count);
 
 
 

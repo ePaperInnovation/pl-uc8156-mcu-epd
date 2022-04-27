@@ -76,7 +76,7 @@ void image_eval_flow_SD(int display_color)
 //                display_type = S014_T1_1;
 //
 //        }
-    display_type = S025_T1_1;
+    display_type = S021_T1_1;
 
     set_display_type(display_type);             // display tp by tricolor is 2.1
     mdelay(100);
@@ -392,18 +392,41 @@ void tricolor_red(int mode, u8 waveform_place)
     tcom_timing_setting(0x67, 0x55);
     UC8156_set_Vcom(current_vcom);
 
+////////////////image update///////////////////////////////////////////////////
+//    waveformType1_choose(waveform_place);
+//    slideshow_tricolor_run(mode, 4, full_path, false); // false for original, true for inverse
+//
+//    waveformType2_choose(waveform_place);
+//    slideshow_tricolor_run(mode, 2, full_path, false); // false for original, true for inverse
+//
+//
+//    waveformType1_choose(waveform_place);
+//    slideshow_tricolor_run(mode, 4, full_path, true); // false for original, true for inverse
+//    //////////////image update///////////////////////////////////////////////////
 
-    waveformType1_choose(waveform_place);
-    slideshow_tricolor_run(mode, 4, full_path, false); // false for original, true for inverse
-
-    waveformType2_choose(waveform_place);
-    slideshow_tricolor_run(mode, 2, full_path, false); // false for original, true for inverse
 
 
-    waveformType1_choose(waveform_place);
-    //invertieren hier
+//
+    //////////////clear update///////////////////////////////////////////////////
+        waveformType1_choose(waveform_place);
+        slideshow_tricolor_run_GL(mode, 4, 0);
 
-    slideshow_tricolor_run(mode, 4, full_path, true); // false for original, true for inverse
+
+        waveformType2_choose(waveform_place);
+        slideshow_tricolor_run_GL(mode, 2, 0);
+
+
+        waveformType1_choose(waveform_place);
+        slideshow_tricolor_run_GL(mode, 4, 0);
+        //////////////clear update///////////////////////////////////////////////////
+
+
+
+
+
+
+
+
 
 
 
@@ -1223,6 +1246,15 @@ void Write_Previous_Buffer(u8 *image_buffer, u8 EDP_Clear_TYPE)
     }
     Data_Entry_Mode_Setting(false);
 }
+
+
+
+void waveform_lectum_flash_function(void)
+{
+        UC8156_send_waveform(waveform_lectum);
+}
+
+
 
 
 
