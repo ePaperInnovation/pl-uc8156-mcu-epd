@@ -71,12 +71,13 @@ int main(void)
 	MSP430_HBZ9_3V3_enable(); // switch on 3.3V power supply for the UC8156 on the HB_Z9 board
 
 	mdelay(100);
+	// MTP_test();
 
-//	touchscreen_test();
+
 
 ///////// main function for UC8156+
-    //print_WfVersion_read_from_MTP();
-    eval_kit_flow();   // slideshow the image
+   // print_WfVersion_read_from_MTP();
+  eval_kit_flow();   // slideshow the image
 	//image_eval_flow_SD(0x02);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
    //  image_eval_flow_flash(color_red);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 
@@ -87,7 +88,7 @@ int main(void)
 
 
 ////////////////////////////////////////////
-//	int diplay_mode_choose = 2;
+//	int diplay_mode_choose = 4;
 //	switch(diplay_mode_choose)
 //	{
 //	case 0:
@@ -101,6 +102,9 @@ int main(void)
 //        break;
 //    case 3:
 //        UC8171_basic_flow();
+//        break;
+//    case 4:
+//        UC8179_VCOM_Test();
 //        break;
 //	}
 
@@ -117,7 +121,7 @@ int main(void)
 
 	///////////////////UC 8177C Test////
 
-	//UC8177_basic_flow();
+//	UC8177_basic_flow();
 
 //////////////////////////////////////////
 }

@@ -81,7 +81,7 @@ void UC8177_basic_flow(void)
         UC8177_Eink_ini();
 
 //
-                const bool read_WF_from_external_flash = false;
+                const bool read_WF_from_external_flash = true;
                 const bool write_WF = false;
 
 

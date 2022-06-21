@@ -150,7 +150,7 @@ SECTIONS
     .const      : {} > FLASH              /* CONSTANT DATA                     */
 #endif
     .cio        : {} > RAM                /* C I/O BUFFER                      */
-
+   // .cio        : {} > FLASH                 /* C I/O BUFFER                      */
     .pinit      : {} > FLASH              /* C++ CONSTRUCTOR TABLES            */
     .init_array : {} > FLASH              /* C++ CONSTRUCTOR TABLES            */
     .mspabi.exidx : {} > FLASH            /* C++ CONSTRUCTOR TABLES            */

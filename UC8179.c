@@ -466,9 +466,8 @@ bool UC8179_GET_STATUS(u8 STATUS_FLAG)
 }
 
 
-void UC8179_AUTO_MEASURE_VCOM(u8 AMVT, u8 XON, u8 AMVS)
+void UC8179_AUTO_MEASURE_VCOM(u8 value)
 {
-    u8 value = AMVT | XON | AMVS;
     UC8179_spi_write_command(0x80);
     UC8179_spi_write_parameter(value);
 }
@@ -484,8 +483,8 @@ u8 UC8179_VCOM_VALUE_READ()
 void UC8179_VCOM_DC_SETTING(int VCOM_DC)
 {
     u8 value;
-    value = ((-VCOM_DC) -10)/5;
-    printf("vcom_DC_value = %d\n", value);
+    value = ((VCOM_DC) -10)/5;
+    printf("vcom_DC_value = %x\n", value);
     UC8179_spi_write_command(0x82);
     UC8179_spi_write_parameter(value);
 
