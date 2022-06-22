@@ -106,6 +106,8 @@ int main(void)
 //    case 4:
 //        UC8179_VCOM_Test();
 //        break;
+ //   case 5:
+ //     break;
 //	}
 
 ////////////////////////////////////////
