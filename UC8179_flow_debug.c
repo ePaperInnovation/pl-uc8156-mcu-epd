@@ -907,7 +907,7 @@ void UC8179_VCOM_Test(void)
 {
 
 
-    display_KWR = true;
+    display_KWR = false;
        set_display_type(S036_T1_1);
        int show_BW = SHOW_BLACK;
       // int show_BW = SHOW_IMAGE;
@@ -929,18 +929,18 @@ void UC8179_VCOM_Test(void)
          //    printf("temp read = %x\n", temp_read);
              mdelay(500);
 
-
+             printf("VCOM automeasurement start\n");
              UC8179_POWER_ON();
 
              UC8179_BUSY_N_CHECK();
-             UC8179_AUTO_MEASURE_VCOM(0x10);
+             UC8179_AUTO_MEASURE_VCOM(0x31);
 
              UC8179_BUSY_N_CHECK();
              UC8179_POWER_OFF();
              UC8179_BUSY_N_CHECK();
              u8 vcom_Value = UC8179_VCOM_VALUE_READ();
              printf("vcom_Value1 = %x\n", vcom_Value);
-
+             printf("VCOM automeasurement finish\n");
        mdelay(500);
 
 

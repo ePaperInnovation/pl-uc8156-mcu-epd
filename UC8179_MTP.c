@@ -630,7 +630,7 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
           UC8179_LUTOPT_PARAMETER(0x00, 0x00 );       // LUTOPT  DKE: 0x00, 0x00
           UC8179_PTYPE(); // for PL P-type Display
 
-          UC8179_VDCS_PARAMETER( 0x1E );       // VDCS  DKE: 0x1E
+          //UC8179_VDCS_PARAMETER( 0x1E );       // VDCS  DKE: 0x1E
 
           UC8179_LUT_INI_SETTING(lutbd_array, lut_C_array, lut_WW_array, lut_KW_array, lut_WK_array, lut_KK_array);  // KW LUT Data
 
