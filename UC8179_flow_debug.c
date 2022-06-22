@@ -939,7 +939,7 @@ void UC8179_VCOM_Test(void)
              UC8179_POWER_OFF();
              UC8179_BUSY_N_CHECK();
              u8 vcom_Value = UC8179_VCOM_VALUE_READ();
-             printf("vcom_Value1 = %x\n", vcom_Value);
+             printf("vcom_Value1 = %d\n", vcom_Value);
              printf("VCOM automeasurement finish\n");
        mdelay(500);
 
