@@ -43,6 +43,7 @@ void UC8177_Eink_ini(void)    // first all settings according to datasheet with 
 
 
 
+
 void UC8177_white_update(void)  // update all white
 {
 
@@ -265,10 +266,37 @@ void buffer_check(void)
         printf("j = %x\n", j);
 
     }
-
-
-
-
 }
+
+    void UC8177_image_update_partial(char *image_path)  // update all black
+    {
+        UC8177_PON();    // power on
+        UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);       // data window setting    608 x 480
+
+
+        gpio_set_value_lo(SPI_CS);
+        //////////////////////////DTM1////////////////////
+
+       // bool image_read_finish =   UC8177_image_read_from_sd(image_path, data_buff);
+
+
+        bool image_read_finish =   UC8177_image_read_from_sd_4bpp_partial_update(image_path, 600, 480);
+
+        printf("image_read_finish: %s\n", image_read_finish ? "true" : "false");
+
+        gpio_set_value_hi(SPI_CS);// write image pixel
+        //mdelay(5);
+
+        UC8177_wait_for_BUSY_inactive();
+        mdelay(5);
+        //////////////////////////DTM1////////////////////
+                                   // check from busy pin
+
+        UC8177_DRF(0x0C, 0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);       // UPD_CPY_TO_PRE:1; DN_EN:1
+        UC8177_wait_for_BUSY_inactive();
+        UC8177_POF();
+    }
+
+
 
 

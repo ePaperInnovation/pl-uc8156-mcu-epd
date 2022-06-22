@@ -76,6 +76,7 @@ void UC8177_set_Vcom(int Vcom_mv_value);
 bool UC8177_image_read_from_sd(char *image_path, u8 *data_buffer);
 bool UC8177_image_read_from_sd_1bpp(char *image_path, u16 source_length, u16 gate_length);
 bool UC8177_image_read_from_sd_4bpp(char *image_path, u16 source_length, u16 gate_length);
+bool UC8177_image_read_from_sd_4bpp_partial_update(char *image_path, u16 source_length, u16 gate_length);
 bool UC8177_read_LUTD_static(char *wf_path) ;
 //u8 UC8177_BUSY_N_check(void);
 

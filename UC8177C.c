@@ -696,6 +696,57 @@ bool UC8177_read_LUTD_static(char *wf_path)  // LUT for Frame Data (LUTD)
 }
 
 
+bool UC8177_image_read_from_sd_4bpp_partial_update(char *image_path, u16 source_length, u16 gate_length)  // read image from SD-Card
+{
+    FIL file;
+
+    u8 data_buffer_test[source_length];
+
+    uint16_t count;
+
+    struct pnm_header hdr;
+
+    if (f_open(&file, image_path, FA_READ) != FR_OK)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> f_open", ABORT_SD_CARD);
+
+    if (pnm_read_header(&file, &hdr) < 0)
+        abort_now("Fatal error in: read-sd.c -> sdcard_load_image -> pnm_read_header", ABORT_SD_CARD);
+
+    //command
+    u8 command = 0x13;
+    spi_write_read_byte(command);
+    u8 cur_bpp = 0x03;  // 11b: 4bpp, 16 GL
+    spi_write_read_byte(cur_bpp);
+
+     int j;
+
+   for(j = gate_length; j > 0; j--)
+   {
+       if (f_read(&file, data_buffer_test, source_length, &count) != FR_OK)
+        {
+           printf("read error j = %x\n", j);
+           return false;
+        }
+       else
+       {
+        u8 data_buffer_4bpp[source_length/2];                                           //1 byte for 2 pixel
+        pack_4bpp(data_buffer_test, data_buffer_4bpp, source_length);
+        int i;
+        for (i = source_length/2; i> 0; i--)
+        // for (i = 0; i<3750; i++)
+        {
+            spi_write_read_byte(data_buffer_4bpp[source_length/2-i]);
+
+        }
+        // printf("read i = %x\n", i);
+       }
+   }
+   printf("read j = %x\n", j);
+
+    f_close(&file);
+
+    return(true);
+}
 
 
 

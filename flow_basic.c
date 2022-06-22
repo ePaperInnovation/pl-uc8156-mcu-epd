@@ -76,7 +76,7 @@ void image_eval_flow_SD(int display_color)
 //                display_type = S014_T1_1;
 //
 //        }
-    display_type = S025_T1_1;
+    display_type = S021_T1_1;
 
     set_display_type(display_type);             // display tp by tricolor is 2.1
     mdelay(100);
@@ -392,18 +392,41 @@ void tricolor_red(int mode, u8 waveform_place)
     tcom_timing_setting(0x67, 0x55);
     UC8156_set_Vcom(current_vcom);
 
+////////////////image update///////////////////////////////////////////////////
+//    waveformType1_choose(waveform_place);
+//    slideshow_tricolor_run(mode, 4, full_path, false); // false for original, true for inverse
+//
+//    waveformType2_choose(waveform_place);
+//    slideshow_tricolor_run(mode, 2, full_path, false); // false for original, true for inverse
+//
+//
+//    waveformType1_choose(waveform_place);
+//    slideshow_tricolor_run(mode, 4, full_path, true); // false for original, true for inverse
+//    //////////////image update///////////////////////////////////////////////////
 
-    waveformType1_choose(waveform_place);
-    slideshow_tricolor_run(mode, 4, full_path, false); // false for original, true for inverse
-
-    waveformType2_choose(waveform_place);
-    slideshow_tricolor_run(mode, 2, full_path, false); // false for original, true for inverse
 
 
-    waveformType1_choose(waveform_place);
-    //invertieren hier
+//
+    //////////////clear update///////////////////////////////////////////////////
+        waveformType1_choose(waveform_place);
+        slideshow_tricolor_run_GL(mode, 4, 0);
 
-    slideshow_tricolor_run(mode, 4, full_path, true); // false for original, true for inverse
+
+        waveformType2_choose(waveform_place);
+        slideshow_tricolor_run_GL(mode, 2, 0);
+
+
+        waveformType1_choose(waveform_place);
+        slideshow_tricolor_run_GL(mode, 4, 0);
+        //////////////clear update///////////////////////////////////////////////////
+
+
+
+
+
+
+
+
 
 
 
@@ -1226,6 +1249,15 @@ void Write_Previous_Buffer(u8 *image_buffer, u8 EDP_Clear_TYPE)
 
 
 
+void waveform_lectum_flash_function(void)
+{
+        UC8156_send_waveform(waveform_lectum);
+}
+
+
+
+
+
 void waveform_type1_flash_function(void)
 {
         UC8156_send_waveform(waveformType1);
@@ -1566,7 +1598,55 @@ void tricolor_red_Techlab(int mode, u8 waveform_place)
 }
 
 
+void MTP_test(void)
+{
 
+    display_type = S031_T1_1;
+    set_display_type(display_type);             // display tp by tricolor is 2.1
+    mdelay(100);
+
+
+    UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+
+    // optional: additional hardware reset after 5ms delay
+    mdelay(5);
+    UC8156_hardware_reset(); // UC8156 hardware reset
+    UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+
+
+
+    u16 address_MTP =0;
+//    while(address_MTP < 10)
+//    {
+//
+//        read_MTP_address_and_print(address_MTP);
+//        address_MTP++;
+//        mdelay(1000);
+//    }
+
+
+
+//    char path_MTP[64];
+//   // sprintf(path_MTP, "/%s/%s", PATH, "display/S031_T1.1_VJW012_V0_X.uc8156");
+//    sprintf(path_MTP, "/%s/%s", PATH, "display/waveform.bin");
+//    printf("path_MTP = %s \n", path_MTP);
+//
+//    write_single_waveform_table_to_MTP(path_MTP);
+   //// write_complete_waveform_library_to_MTP_from_file(path_MTP);
+
+
+    address_MTP =0x04BA;
+    while(address_MTP < 0x0500)
+    {
+
+        read_MTP_address_and_print(address_MTP);
+        address_MTP++;
+        mdelay(200);
+    }
+
+
+
+}
 
 
 

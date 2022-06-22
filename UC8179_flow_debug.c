@@ -38,7 +38,7 @@
 
 
 #define MAX_PATH_LEN 64
-char path[64];
+//char path[64];
 bool UC8179_sd_exist = true;
 extern char PATH[64]; //global variable
 extern u8 *image_data;
@@ -47,7 +47,7 @@ extern u16 SOURCE_LINES; //global variable
 extern bool display_KWR;
 
 
-char full_path[MAX_PATH_LEN];
+//char full_path[MAX_PATH_LEN];
 enum UC8179_KWR_TEST {SHOW_BLACK=0x00, SHOW_WHITE=0x01, SHOW_RED = 0x02, SHOW_IMAGE = 0x03};
 
 void UC8179_basic_flow()
@@ -208,7 +208,8 @@ void UC8179_path_find(void)
 {
     DIR dir;
     FILINFO fno;
-
+    char path[64];
+    char full_path[MAX_PATH_LEN];
     sprintf(path, "/%s/%s", PATH, "img");
     bool pbm_find = false;
     if (f_opendir(&dir, path) != FR_OK)
@@ -542,7 +543,7 @@ void UC8179_BW_TEST(void)
 
       printf("RevID = %x\n", revID);
 
-      int show_BW = SHOW_BLACK;
+      int show_BW = SHOW_WHITE;
 //      UC8179_TRES_PARAMETER(0x02, 0x88, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
 //      UC8179_GSST_PARAMETER(0x00, 0x00, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
      // UC8179_PTL_PARAMETER(0x00, 0x30, 0x00, 0x97, 0x00, 0x00, 0x01, 0xE0, 0x01);
@@ -550,61 +551,79 @@ void UC8179_BW_TEST(void)
       bool PTL_flag = UC8179_GET_STATUS(PTL_FLAG);
 
       printf("%s\n", PTL_flag ? "true" : "false");
-      switch(show_BW)
-                      {
-                          case SHOW_BLACK:
-
-
-
-                                     UC8179_image_BLACK2();
-                                     UC8179_POWER_ON();
-                                     UC8179_BUSY_N_CHECK();
-                                     UC8179_DISPLAY_REFRESH();
-                                     UC8179_BUSY_N_CHECK();
-                                    // UC8179_PTOUT_PARAMETER();
-                                     UC8179_POWER_OFF();
-                                     UC8179_BUSY_N_CHECK();
-
-
-                              break;
-                          case SHOW_WHITE:
-
-                              UC8179_image_WHITE2();
-                              UC8179_POWER_ON();
-                              UC8179_BUSY_N_CHECK();
-                              UC8179_DISPLAY_REFRESH();
-                              UC8179_BUSY_N_CHECK();
-                             // UC8179_PTOUT_PARAMETER();
-                              UC8179_POWER_OFF();
-                              UC8179_BUSY_N_CHECK();
-
-
-                             // UC8171_image_clear();
-                              break;
-                          case SHOW_IMAGE:
-                              UC8171_image_update_S041_flash();
-                              break;
-
-
-                          default:
-                              UC8171_image_WHITE2();
-                            //  UC8179_image_WHITE2();
-                              break;
-                      }
-//      do{
-//          UC8179_PTIN_PARAMETER();
-//          UC8171_image_update_S041_flash();
-//          UC8179_PTIN_PARAMETER();
-//          UC8171_image_clear();
+//      switch(show_BW)
+//                      {
+//                          case SHOW_BLACK:
 //
-//      } while(1);
-//      UC8179_POWER_ON();
-//      UC8179_BUSY_N_CHECK();
-//      UC8179_DISPLAY_REFRESH();
-//      UC8179_BUSY_N_CHECK();
-//      UC8179_PTOUT_PARAMETER();
-//      UC8179_POWER_OFF();
-//      UC8179_BUSY_N_CHECK();
+//
+//
+//                                     UC8179_image_BLACK2();
+//                                     UC8179_POWER_ON();
+//                                     UC8179_BUSY_N_CHECK();
+//                                     UC8179_DISPLAY_REFRESH();
+//                                     UC8179_BUSY_N_CHECK();
+//                                    // UC8179_PTOUT_PARAMETER();
+//                                     UC8179_POWER_OFF();
+//                                     UC8179_BUSY_N_CHECK();
+//
+//
+//                              break;
+//                          case SHOW_WHITE:
+//
+//                              UC8179_image_WHITE2();
+//                              UC8179_POWER_ON();
+//                              UC8179_BUSY_N_CHECK();
+//                              UC8179_DISPLAY_REFRESH();
+//                              UC8179_BUSY_N_CHECK();
+//                             // UC8179_PTOUT_PARAMETER();
+//                              UC8179_POWER_OFF();
+//                              UC8179_BUSY_N_CHECK();
+//
+//
+//                             // UC8171_image_clear();
+//                              break;
+//                          case SHOW_IMAGE:
+//                              UC8171_image_update_S041_flash();
+//                              break;
+//
+//
+//                          default:
+//                              UC8171_image_WHITE2();
+//                            //  UC8179_image_WHITE2();
+//                              break;
+//                      }
+
+
+while(1)
+{
+                                           UC8179_image_BLACK2();
+                                           UC8179_POWER_ON();
+                                           UC8179_BUSY_N_CHECK();
+                                           UC8179_DISPLAY_REFRESH();
+                                           UC8179_BUSY_N_CHECK();
+                                          // UC8179_PTOUT_PARAMETER();
+                                           UC8179_POWER_OFF();
+                                           UC8179_BUSY_N_CHECK();
+
+
+
+
+
+      mdelay(2000);
+
+
+                                    UC8179_image_WHITE2();
+                                    UC8179_POWER_ON();
+                                    UC8179_BUSY_N_CHECK();
+                                    UC8179_DISPLAY_REFRESH();
+                                    UC8179_BUSY_N_CHECK();
+                                   // UC8179_PTOUT_PARAMETER();
+                                    UC8179_POWER_OFF();
+                                    UC8179_BUSY_N_CHECK();
+                                    mdelay(2000);
+
+}
+
 
 }
 
@@ -688,7 +707,7 @@ void UC8179_basic_flow_from_SD(void)
 {
     display_KWR = false;
     set_display_type(S036_T1_1);
-    int show_BW = SHOW_IMAGE;
+    int show_BW = SHOW_BLACK;
     //int show_BW = SHOW_IMAGE;
     if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
     {
@@ -738,6 +757,7 @@ void UC8179_basic_flow_from_SD(void)
 
 
     UC8179_path_find();
+    char full_path[MAX_PATH_LEN];
     printf("full_path = %s\n", full_path);
 
 
@@ -850,7 +870,7 @@ void UC8179_image_update_S0357_SD(void)
 
 
 
-
+    char full_path[MAX_PATH_LEN];
 
     timerbInit();
     sdcard_load_image(full_path, image_data);
@@ -883,5 +903,52 @@ void UC8179_image_update_S0357_SD(void)
 
 }
 
+void UC8179_VCOM_Test(void)
+{
+
+
+    display_KWR = false;
+       set_display_type(S036_T1_1);
+       int show_BW = SHOW_BLACK;
+      // int show_BW = SHOW_IMAGE;
+   //    if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
+   //    {
+   //        display_KWR = false;
+   //    }
+
+
+
+             mdelay(500);
+             UC8179_ini();
+
+             u8 revID = UC8179_READ_REVID();
+
+             printf("RevID = %x\n", revID);
+
+         //    u8 temp_read = UC8179_TEMPERATUR_READ_INTER();
+         //    printf("temp read = %x\n", temp_read);
+             mdelay(500);
+
+             printf("VCOM automeasurement start\n");
+             UC8179_POWER_ON();
+
+             UC8179_BUSY_N_CHECK();
+             UC8179_AUTO_MEASURE_VCOM(0x31);
+
+             UC8179_BUSY_N_CHECK();
+             UC8179_POWER_OFF();
+             UC8179_BUSY_N_CHECK();
+             u8 vcom_Value = UC8179_VCOM_VALUE_READ();
+             printf("vcom_Value1 = %d\n", vcom_Value);
+             printf("VCOM automeasurement finish\n");
+       mdelay(500);
+
+
+
+
+
+
+
+}
 
 

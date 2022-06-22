@@ -127,11 +127,10 @@ void write_complete_waveform_library_to_MTP(u8 *waveform_data)
 
 void write_complete_waveform_library_to_MTP_from_file(char *filename)
 {
-	u8 waveform_data[WF_LIBRARY_LENGTH];
+	u8 waveform_data[2560];
 
 	// load complete waveform library (2 types, size=0xA00) from SD-card
-	sdcard_load_waveform(filename, waveform_data, WF_LIBRARY_LENGTH);
-
+	sdcard_load_waveform(filename, waveform_data, 2560);
 	write_complete_waveform_library_to_MTP(waveform_data);
 }
 
@@ -178,8 +177,9 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 	UC8156_HVs_on();
 
 	//switch internal VPP on (VSH)
-	u8 return_value = spi_read_command_1param(0x03);
-	spi_write_command_1param(0x03, return_value|0x08);
+	u8 return_value = spi_read_command_1param(0x03);     //0xD1
+	spi_write_command_1param(0x03, return_value|0x08);   //0xD1|0x08
+    u8 return_value_0fh = spi_read_command_1param(0x0f);     //0xD1
 	mdelay(100);
 
 	//start MTP program
@@ -210,9 +210,9 @@ u8 read_MTP_address(const u16 address)
 u8 read_MTP_address_and_print(const u16 address)
 {
 	u8 return_value = read_MTP_address(address);
-#ifdef	DEBUG_PRINTOUTS_ON
+//#ifdef	DEBUG_PRINTOUTS_ON
 	printf("MTP addr %x = %x\n", address, return_value);
-#endif
+//#endif
 	return return_value;
 }
 

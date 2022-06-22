@@ -76,6 +76,7 @@ void UC8179_image_WHITE2(void)
 {
     UC8179_spi_write_command(0x13);
    const unsigned long sum =  60000;
+   //const  unsigned long sum = 32000;
     unsigned long i;
     for (i = 0; i < sum; i++ )
     {
@@ -558,7 +559,7 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
 
   if(display_KWR)
   {
-    UC8179_PSR_PARAMETER( 0x07 );      // PSR: 0x07 | 0x20 (LUT from Register)
+    UC8179_PSR_PARAMETER( 0x27 );      // PSR: 0x07 | 0x20 (LUT from Register)
     UC8179_BTST_PARAMETER(0x27, 0x27, 0x28, 0x17);      // BTST  DKE: 0x27, 0x27, 0x28, 0x17
 
 
@@ -629,7 +630,7 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
           UC8179_LUTOPT_PARAMETER(0x00, 0x00 );       // LUTOPT  DKE: 0x00, 0x00
           UC8179_PTYPE(); // for PL P-type Display
 
-          UC8179_VDCS_PARAMETER( 0x1E );       // VDCS  DKE: 0x1E
+          //UC8179_VDCS_PARAMETER( 0x1E );       // VDCS  DKE: 0x1E
 
           UC8179_LUT_INI_SETTING(lutbd_array, lut_C_array, lut_WW_array, lut_KW_array, lut_WK_array, lut_KK_array);  // KW LUT Data
 

@@ -33,7 +33,7 @@
 #include "read-sd.h"
 #include "slideshow.h"
 #include "config_display_type.h"
-
+#include "flow_basis.h"
 
 extern u8 UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM;
 extern char PATH[64]; //global variable
@@ -82,12 +82,13 @@ void eval_kit_flow(void)
 		//write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
 
 		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
-		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
-		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
-		{
-			UC8156_send_waveform(waveform_from_file);
-			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
-		}
+		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+//		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
+//		{
+//			UC8156_send_waveform(waveform_from_file);
+//			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+//		}
+	    waveform_lectum_flash_function();
 
 	}else{
 		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed

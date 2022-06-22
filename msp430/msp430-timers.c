@@ -399,6 +399,7 @@ unsigned long int timerbStop(void)
   {
       printf("please check timerbInit()");
   }
+  millisecSinceBegin = 0;
   return time_end_ms;
 
 }
