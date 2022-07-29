@@ -30,4 +30,5 @@ int waveform_check(char *wf_path , uint32_t register_address_start );
 
 int external_flash_setting(bool write_WF);
 int WF_read_from_external_flash(uint32_t register_address_start);
+int UC8177_VCOM_Test();
 #endif /* UC8177C_FLOW_DEBUG_H_ */

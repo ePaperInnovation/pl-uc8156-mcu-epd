@@ -82,7 +82,7 @@ void UC8177_basic_flow(void)
 
 //
                 const bool read_WF_from_external_flash = true;
-                const bool write_WF = false;
+                const bool write_WF = true;
 
 
 
@@ -513,6 +513,43 @@ int WF_read_from_external_flash(uint32_t register_address_start)
         return 0;
 
 }
+
+int UC8177_VCOM_Test()
+{
+
+    UC8177_wait_for_BUSY_inactive(); // wait for power-up completed
+
+    // optional: additional hardware reset after 5ms delay
+    mdelay(5);
+    UC8177_hardware_reset(); // UC8179 hardware reset
+    UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
+
+    UC8177_check_RevID();
+
+    mdelay(5);
+
+    UC8177_Eink_ini();
+
+
+
+    printf("UC8177 VCOM automeasurement start\n");
+    UC8177_PON();
+
+    UC8177_wait_for_BUSY_inactive();
+    UC8177_AMV(0x31);
+
+    UC8177_wait_for_BUSY_inactive();
+    UC8177_POF();
+    UC8177_wait_for_BUSY_inactive();
+    u8 vcom_Value = UC8177_VV();
+    printf("UC8177 vcom_Value1 = %d\n", vcom_Value);
+    printf("UC8177 VCOM automeasurement finish\n");
+
+
+
+return 0;
+}
+
 
 
 

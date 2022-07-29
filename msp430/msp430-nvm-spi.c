@@ -70,11 +70,11 @@ uint8_t write_pgm(u8 *data, int transferSize)
 
     gpio_set_value_hi(SPI_CS_SLAVE);
 
- //   printf("Manufacture/Device ID: 0x%x 0x%x 0x%x \n", rdid[0], rdid[1], rdid[2]);
+    printf("Manufacture/Device ID: 0x%x 0x%x 0x%x \n", rdid[0], rdid[1], rdid[2]);
 
-//    uint32_t id = rdid[0] << 16;
-//    id |= rdid[1] << 8;
-//    id |= rdid[2];
+    uint32_t id = rdid[0] << 16;
+    id |= rdid[1] << 8;
+    id |= rdid[2];
 //
     if ( ((rdid[0] == 0xff) && (rdid[1] == 0xff) && (rdid[2] == 0xff))    || ((rdid[0] == 0x00) && (rdid[1] == 0x00) && (rdid[2] == 0x00)) ) {
         printf("Invalid Manufacture/Device ID. \n");

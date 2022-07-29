@@ -82,7 +82,7 @@ void eval_kit_flow(void)
 		//write waveform from SD card data to LUT -> if "/[display_type]/display/waveform.bin" exist
 
 		sprintf(path, "/%s/%s", PATH, "display/waveform.bin");
-		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
+		UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_MTP;
 //		if (sdcard_load_waveform(path, waveform_from_file, WAVEFORM_LENGTH))
 //		{
 //			UC8156_send_waveform(waveform_from_file);
