@@ -48,10 +48,10 @@ void UC8177_basic_flow(void)
 
     char PATH[64]; //global variable
    // set_display_type(S021_T1_1);
-    strcpy(PATH, "S028_T1.1");
+    strcpy(PATH, "S039_T1.1");
 
-    char path[64];
-  //  char path_new[64];
+    char path_LUTD[64];
+    char path_LUTC[64];
    // char image_path1[64];
     char image_path2[64];
     char image_path3[64];
@@ -73,16 +73,16 @@ void UC8177_basic_flow(void)
 
 
 
-
+        UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
 
 
         mdelay(5);
         flag_check(0);
         UC8177_Eink_ini();
 
-//
-                const bool read_WF_from_external_flash = true;
-                const bool write_WF = true;
+       UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
+                const bool read_WF_from_external_flash = false;
+                const bool write_WF = false;
 
 
 
@@ -98,16 +98,24 @@ void UC8177_basic_flow(void)
                 }
                 else
                 {
-                    sprintf(path, "/%s/%s", PATH, "display/WF_EINK_RT_GLD16.bin"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut; external flash: Eink_S028_Waveform.bin
+                    sprintf(path_LUTD, "/%s/%s", PATH, "display/W7_VSD014_V0_GC16_LUTD_ACVOM.uc8177_lut"); // W7_VSD014_V0_DU_LUTD_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTD_DCVOM.uc8177_lut
+
+
                     //        sprintf(path_new, "/%s/%s", PATH, "display/Eink_S028_Waveform.bin"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
                     //
                     ////        bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
                     //
                     //
-                    bool Waveform_read_finish = UC8177_read_LUTD_static(path);
-                    if(!Waveform_read_finish)
+                    sprintf(path_LUTC, "/%s/%s", PATH, "display/W7_VSD014_V0_GC16_LUTC_ACVOM.uc8177_lut");  // W7_VSD014_V0_DU_LUTC_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTC_DCVOM.uc8177_lut
+                    bool Waveform_read_finish_LUTD  = UC8177_read_LUTD_static(path_LUTD);
+                    bool Waveform_read_finish_LUTC = UC8177_read_LUTC_static(path_LUTC);
+                    if(!Waveform_read_finish_LUTD)
                     {
-                        printf("read WF error \n");
+                        printf("read WF LUTD error \n");
+                    }
+                    if(!Waveform_read_finish_LUTC)
+                    {
+                        printf("read WF LUTC error \n");
                     }
 
                 }
@@ -119,14 +127,8 @@ void UC8177_basic_flow(void)
             mdelay(1000);
 
 
-        sprintf(image_path2, "/%s/%s", PATH, "img/LedgerLogo_600x480_White.pgm");
-        sprintf(image_path3, "/%s/%s", PATH, "img/TestPic.pgm");
 
-
-
-
-        UC8177_TSE(0x40, 0x03);
-
+            UC8177_spi_write_command_2params(0x29, 0x0C, 0x0F);
         //bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
 
 //
@@ -141,66 +143,84 @@ void UC8177_basic_flow(void)
 
 
 
-
-              UC8177_black_update();
-
-
-
+//
+//              UC8177_black_update();
+//
+//
+//
                printf("black update start \n");
                 UC8177_black_update();
-
-                timerbInit();
-                mdelay(3000);
-                timerbStop();
                 printf("white update start \n");
-                UC8177_white_update();
-                printf("image3 update start \n");
-                timerbInit();
-                UC8177_image_update(image_path3);
-                timerbStop();
-                mdelay(3000);
-   do{
+//                UC8177_white_update();
+//                printf("image3 update start \n");
+//
+//
+//
+//
+//
+//
+//
+////                timerbInit();
+////                UC8177_image_update(image_path3);
+////                timerbStop();
+////                mdelay(3000);
+////
+////
+//                UC8177_black_partial_update(0, 0, 104, 104 );
+//                UC8177_black_partial_update(104, 104, 104, 104 );
+//                UC8177_black_partial_update(208, 208, 104, 104 );
+//                UC8177_black_partial_update(316, 316, 104, 104 );
+//                mdelay(3000);
+//                UC8177_white_update();
+//                UC8177_black_update();
+//                UC8177_white_partial_update(0, 0, 104, 104 );
+//                UC8177_white_partial_update(104, 104, 104, 104 );
+//                UC8177_white_partial_update(208, 208, 104, 104 );
+//                UC8177_white_partial_update(316, 316, 104, 104 );
+//                UC8177_black_update();
 
-
-
-       printf("black update start \n");
-       timerbInit();
-       UC8177_black_update();
-       timerbStop();
-
-        mdelay(1000);
-        printf("white update start \n");
-        UC8177_white_update();
-
-
-//        mdelay(3000);
+//   do{
+//
+//
+//
+//       printf("black update start \n");
+//       timerbInit();
+//       UC8177_black_update();
+//       timerbStop();
+//
+//        mdelay(1000);
+//        printf("white update start \n");
+//        UC8177_white_update();
+//
+//
+////        mdelay(3000);
+//////        UC8177_white_update();
+//////        mdelay(5000);
+//////        UC8177_test_update();
+//////        mdelay(5000);
+//////      // temp_check();
+//////       mdelay(2000);
+//////        printf("image1 update start \n");
+//////        UC8177_image_update(image_path1);
+//////        mdelay(3000);
+////
+////        printf("black update start \n");
 ////        UC8177_white_update();
-////        mdelay(5000);
-////        UC8177_test_update();
-////        mdelay(5000);
-////      // temp_check();
-////       mdelay(2000);
-////        printf("image1 update start \n");
-////        UC8177_image_update(image_path1);
+////        mdelay(3000);
+////
+////        printf("image2 update start \n");
+////        UC8177_image_update(image_path2);
+////        mdelay(3000);
+////
+////        printf("black update start \n");
+////        UC8177_white_update();
+////        mdelay(3000);
+////
+////        printf("image3 update start \n");
+////        UC8177_image_update(image_path3);
 ////        mdelay(3000);
 //
-//        printf("black update start \n");
-//        UC8177_white_update();
-//        mdelay(3000);
-//
-//        printf("image2 update start \n");
-//        UC8177_image_update(image_path2);
-//        mdelay(3000);
-//
-//        printf("black update start \n");
-//        UC8177_white_update();
-//        mdelay(3000);
-//
-//        printf("image3 update start \n");
-//        UC8177_image_update(image_path3);
-//        mdelay(3000);
-
-   }while(1);
+//   }while(1);
 
 }
 

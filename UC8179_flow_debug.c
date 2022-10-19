@@ -155,8 +155,8 @@ void UC8179_basic_flow()
                 {
                     case SHOW_BLACK:
 
-                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+//                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+//                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
                         UC8171_image_BLACK2();
 
                         UC8179_POWER_ON();
@@ -179,8 +179,8 @@ void UC8179_basic_flow()
                         UC8179_BUSY_N_CHECK();
                         break;
                     case SHOW_IMAGE:
-                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+//                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
+//                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
                         UC8179_image_update_S0357_flash();
                         break;
                     default:

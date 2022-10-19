@@ -20,8 +20,8 @@
 // Touch parameters
 
 #define MAX_NB_TOUCH 10
-#define RESOLUTION_TOUCH_X 670   // for Ledger
-#define RESOLUTION_TOUCH_Y 496   // for Ledger
+#define RESOLUTION_TOUCH_X 670   // for UC8177
+#define RESOLUTION_TOUCH_Y 496   // for UC8177
 
 
 

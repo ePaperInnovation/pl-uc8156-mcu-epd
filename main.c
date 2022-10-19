@@ -123,8 +123,8 @@ int main(void)
 
 	///////////////////UC 8177C Test////
 
-//	UC8177_basic_flow();
-	//UC8177_VCOM_Test();
+  // UC8177_basic_flow();
+ //  UC8177_VCOM_Test();
 
 //////////////////////////////////////////
 }

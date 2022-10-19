@@ -375,20 +375,6 @@ void UC8177_FLG(u8 * data)  // get flag status
     UC8177_spi_read_command_2params1(0x71, data);
 }
 
-//u8* UC8177_PIPE_COL_FLG(void)  // pipe collision status
-//{
-//    u8 *pipe_flag_state = spi_read_command_2params1(0x72);
-//     return pipe_flag_state;
-//}
-//
-//
-//
-//u8* UC8177_PIPE_BUSY_FLG(void)  // pipe busy status
-//{
-//    u8 *pipe_busy_flag_state = spi_read_command_2params1(0x73);
-//     return pipe_busy_flag_state;
-//}
-
 
 void UC8177_AMV(u8 param1)  // Auto measure Vcom
 {
@@ -694,6 +680,86 @@ bool UC8177_read_LUTD_static(char *wf_path)  // LUT for Frame Data (LUTD)
 
     return(true);
 }
+
+
+
+
+
+
+
+bool UC8177_read_LUTC_static(char *wf_path)  // LUT for Frame Data (LUTD)
+{
+    FIL file;
+
+    uint16_t count;
+    uint16_t size;
+    uint16_t data_index = 0;
+
+    if (f_open(&file, wf_path, FA_READ))
+        return false;
+
+    gpio_set_value_lo(SPI_CS);
+
+    //command  LUTC
+    const u8 command = 0x20;
+    spi_write_read_byte(command);
+
+    //frame number 64 bytes
+
+    spi_write_read_byte(0x40);
+
+    do
+    {
+        if (f_read(&file, data_buffer_static, BUFFER_LENGTH, &count) != FR_OK)
+            return false;
+
+        size = count;
+
+//        while (size--)
+//        {
+//            spi_write_read_byte(*data_buffer);
+//            data_buffer++;
+//        }
+        while (size--)
+              {
+                  spi_write_read_byte(data_buffer_static[data_index]);
+                  data_index++;
+              }
+
+        data_index = 0;
+    } while (count);
+
+  //  free(data_buffer);
+
+    if( f_close(&file) != FR_OK)
+    {    return false;
+    }
+    mdelay(5);
+    gpio_set_value_hi(SPI_CS);
+
+
+    return(true);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 bool UC8177_image_read_from_sd_4bpp_partial_update(char *image_path, u16 source_length, u16 gate_length)  // read image from SD-Card

@@ -20,7 +20,7 @@
 
 void UC8177_Eink_ini(void)    // first all settings according to datasheet with default
 {
-    UC8177_PSR(0x61, 0x00);   //  0x61: LUT from Register; 0x41: LUT from external flash
+    UC8177_PSR(0x65, 0x00);   //  0x61: LUT from Register; 0x41: LUT from external flash
     UC8177_PWR(0x03, 0x04, 0x00, 0x00);
     UC8177_PFS(0x03);
 
@@ -28,17 +28,20 @@ void UC8177_Eink_ini(void)    // first all settings according to datasheet with 
 
   //  UC8177_DRF(0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
     UC8177_PS(0x42);   // Power saving
-    UC8177_MISCS1(0x15);  // 0x15: auto LUTT enable; 0x05 auto LUTT disable
-    UC8177_PLL(0x0E);
+    UC8177_MISCS1(0x35);  // 0x15: auto LUTT enable; 0x05 auto LUTT disable
+    UC8177_PLL(0x08);
     UC8177_CDI(0x01, 0x22);
-    UC8177_TCON(0x3F, 0x09, 0x2D);
-    UC8177_TRES(0x02, 0x58, 0x01, 0xE0);
-    UC8177_DAM(0x01);
+    UC8177_TCON(0x3F, 0x2D, 0x2D);
+    UC8177_TRES(0x02, 0xA0, 0x01, 0xF0);
+    UC8177_DAM(0x00);
   //  UC8177_EDS(0x00);
   //  UC8177_XONS(0x00, 0x00, 0x00, 0x63, 0x00, 0x1E);
-    UC8177_GDOS(0x02, 0xFF);
-    UC8177_VDCS(0x18);        // Vcom
-    UC8177_TSE(0x00, 0x1A);
+    UC8177_GDOS(0x05, 0xFF);
+    UC8177_VDCS(0x00);        // Vcom
+    UC8177_TSE(0x40, 0x1A);
+    UC8177_AWM1(0x88);
+
+
 }
 
 
@@ -47,7 +50,7 @@ void UC8177_Eink_ini(void)    // first all settings according to datasheet with 
 void UC8177_white_update(void)  // update all white
 {
 
-    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);       // data window setting
+    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0xA0, 0x01, 0xF0);       // data window setting    672 (0x02A0) x 496 (0x01F0)
 
 
 
@@ -57,7 +60,7 @@ void UC8177_white_update(void)  // update all white
     spi_write_read_byte(command);
     u8 cur_bpp = 0x00;  // 00b: 1bpp
     spi_write_read_byte(cur_bpp);
-    const unsigned long sum =  36480;
+    const unsigned long sum =   41664;
       unsigned long i;
       for (i = sum; i > 0; i-- )
       {
@@ -75,7 +78,7 @@ void UC8177_white_update(void)  // update all white
     //////////////////////////DTM1////////////////////
                                // check from busy pin
 
-    UC8177_DRF(0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);
+    UC8177_DRF(0x0C, 0x00, 0x00, 0x00, 0x00, 0x02, 0xA0, 0x01, 0xF0);
     UC8177_wait_for_BUSY_inactive();
  //   mdelay(5);
 //    flag_check(0);
@@ -87,7 +90,8 @@ void UC8177_white_update(void)  // update all white
 
 void UC8177_black_update(void)  // update all black
 {
-    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);       // data window setting    608 x 480
+    UC8177_PON();    // power on
+    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0xA0, 0x01, 0xF0);       // data window setting    672 (0x02A0) x 496 (0x01F0)
 
 
 
@@ -97,7 +101,7 @@ void UC8177_black_update(void)  // update all black
     spi_write_read_byte(command);
     u8 cur_bpp = 0x00;  // 00b: 1bpp
     spi_write_read_byte(cur_bpp);
-    const unsigned long sum =  36480;
+    const unsigned long sum =  41664;
       unsigned long i;
       for (i = sum; i > 0; i-- )
       {
@@ -105,7 +109,7 @@ void UC8177_black_update(void)  // update all black
       }
 
     gpio_set_value_hi(SPI_CS);// write image pixel
-    UC8177_PON();    // power on
+
     mdelay(50);
 
     UC8177_wait_for_BUSY_inactive();
@@ -114,7 +118,7 @@ void UC8177_black_update(void)  // update all black
     //////////////////////////DTM1////////////////////
                                // check from busy pin
 
-    UC8177_DRF(0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);
+    UC8177_DRF(0x0C, 0x00, 0x00, 0x00, 0x00, 0x02, 0xA0, 0x01, 0xF0);
     UC8177_wait_for_BUSY_inactive();
     UC8177_POF();
 
@@ -174,7 +178,7 @@ void UC8177_test_update(void)  // update all black
 void UC8177_image_update(char *image_path)  // update all black
 {
     UC8177_PON();    // power on
-    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0x58, 0x01, 0xE0);       // data window setting    608 x 480
+    UC8177_DTMW(0x00, 0x00, 0x00, 0x00, 0x02, 0xA0, 0x01, 0xF0);       // data window setting    608 x 480
 
 
     gpio_set_value_lo(SPI_CS);
@@ -299,4 +303,154 @@ void buffer_check(void)
 
 
 
+    void UC8177_black_partial_update(u16 p_x, u16 p_y, u16 area_w, u16 area_h)  // update area black
+    {
+        u8 p_x1 = p_x >> 8;
+        u8 p_x2 = p_x & 0xff;
 
+        u8 p_y1 = p_y >> 8;
+        u8 p_y2 = p_y & 0xff;
+
+        u8 w1 = area_w >> 8;
+        u8 w2 = area_w & 0xff;
+
+        u8 h1 = area_h >> 8;
+        u8 h2 = area_h & 0xff;
+        UC8177_DTMW(p_x1, p_x2, p_y1, p_y2, w1, w2, h1, h2);       // data window setting    p_x -> start point x achse;  p_y -> start point y achse;
+        printf("p_x1 = %x\n", p_x1);
+        printf("p_x2 = %x\n", p_x2);
+        printf("p_y1 = %x\n", p_y1);
+        printf("p_y2 = %x\n", p_y2);
+        printf("w1 = %x\n", w1);
+        printf("w2 = %x\n", w2);
+        printf("h1 = %x\n", h1);
+        printf("h2 = %x\n", h2);
+        //////////////////////////DTM1////////////////////
+        unsigned long sum =  area_w * area_h / 8 ;
+        printf("sum = %d\n", sum);
+           //////////////////////////DTM1////////////////////
+
+
+        gpio_set_value_lo(SPI_CS);
+
+        spi_write_read_byte(0x10);
+       // cur_bpp = 0x00;  // 00b: 1bpp
+        spi_write_read_byte(0x00);
+
+
+          unsigned long i;
+          for (i = sum; i > 0; i-- )
+          {
+              spi_write_read_byte(0x00);
+          }
+
+        gpio_set_value_hi(SPI_CS);// write image pixel
+        UC8177_PON();    // power on
+        mdelay(50);
+
+        UC8177_wait_for_BUSY_inactive();
+    //    mdelay(5);
+    //    flag_check(0);
+        //////////////////////////DTM1////////////////////
+                                   // check from busy pin
+
+        UC8177_DRF(0x0C, 0x00, 0x00, 0x00, 0x00, 0x02, 0xA0, 0x01, 0xF0);
+        UC8177_wait_for_BUSY_inactive();
+        UC8177_POF();
+
+
+
+    }
+
+
+    void UC8177_white_partial_update(u16 p_x, u16 p_y, u16 area_w, u16 area_h)  // update area white
+     {
+         u8 p_x1 = p_x >> 8;
+         u8 p_x2 = p_x & 0xff;
+
+         u8 p_y1 = p_y >> 8;
+         u8 p_y2 = p_y & 0xff;
+
+         u8 w1 = area_w >> 8;
+         u8 w2 = area_w & 0xff;
+
+         u8 h1 = area_h >> 8;
+         u8 h2 = area_h & 0xff;
+         printf("p_x1 = %x\n", p_x1);
+         printf("p_x2 = %x\n", p_x2);
+         printf("p_y1 = %x\n", p_y1);
+         printf("p_y2 = %x\n", p_y2);
+         printf("w1 = %x\n", w1);
+         printf("w2 = %x\n", w2);
+         printf("h1 = %x\n", h1);
+         printf("h2 = %x\n", h2);
+         UC8177_DTMW(p_x1, p_x2, p_y1, p_y2, w1, w2, h1, h2);       // data window setting    p_x -> start point x achse;  p_y -> start point y achse;
+
+         //////////////////////////DTM1////////////////////
+         unsigned long sum =  area_w * area_h / 8;
+
+
+
+         printf("sum = %d\n", sum);
+
+
+
+
+
+            //////////////////////////DTM1////////////////////
+ //           gpio_set_value_lo(SPI_CS);
+ //           u8 command = 0x13;
+ //           spi_write_read_byte(command);
+ //           u8 cur_bpp = 0x00;  // 00b: 1bpp
+ //           spi_write_read_byte(cur_bpp);
+ //             unsigned long j;
+ //             for (j = sum; j > 0;j-- )
+ //             {
+ //                 spi_write_read_byte(0xFF);
+ //             }
+ //           gpio_set_value_hi(SPI_CS);// write image pixel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         gpio_set_value_lo(SPI_CS);
+
+         spi_write_read_byte(0x10);
+        // cur_bpp = 0x00;  // 00b: 1bpp
+         spi_write_read_byte(0x00);
+
+
+           unsigned long i;
+           for (i = sum; i > 0; i-- )
+           {
+               spi_write_read_byte(0xFF);
+           }
+
+         gpio_set_value_hi(SPI_CS);// write image pixel
+         UC8177_PON();    // power on
+         mdelay(50);
+
+         UC8177_wait_for_BUSY_inactive();
+     //    mdelay(5);
+     //    flag_check(0);
+         //////////////////////////DTM1////////////////////
+                                    // check from busy pin
+
+         UC8177_DRF(0x0C, 0x00, 0x00, 0x00, 0x00, 0x02, 0xA0, 0x01, 0xF0);
+         UC8177_wait_for_BUSY_inactive();
+         UC8177_POF();
+
+
+
+     }

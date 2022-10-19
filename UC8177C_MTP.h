@@ -19,6 +19,8 @@
 
 void UC8177_Eink_ini(void);
 void UC8177_black_update(void);
+void UC8177_black_partial_update(u16 p_x, u16 p_y, u16 area_w, u16 area_h);
+void UC8177_white_partial_update(u16 p_x, u16 p_y, u16 area_w, u16 area_h);
 void UC8177_white_update(void);
 void UC8177_test_update(void);
 void UC8177_image_update(char *image_path);
