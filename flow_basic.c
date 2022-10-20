@@ -1255,9 +1255,6 @@ void waveform_lectum_flash_function(void)
 }
 
 
-
-
-
 void waveform_type1_flash_function(void)
 {
         UC8156_send_waveform(waveformType1);
