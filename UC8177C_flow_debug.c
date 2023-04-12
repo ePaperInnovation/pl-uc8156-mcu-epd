@@ -50,9 +50,11 @@ void UC8177_basic_flow(void)
    // set_display_type(S021_T1_1);
     strcpy(PATH, "S039_T1.1");
 
-    char path_LUTD[64];
-    char path_LUTC[64];
-   // char image_path1[64];
+    char path1_LUTD[64];
+    char path1_LUTC[64];
+    char path2_LUTD[64];
+    char path2_LUTC[64];
+    char image_path1[64];
     char image_path2[64];
     char image_path3[64];
 
@@ -80,7 +82,9 @@ void UC8177_basic_flow(void)
         flag_check(0);
         UC8177_Eink_ini();
 
-       UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
+        UC8177_PWR(0x03, 0x04, 0x12, 0x00);
+
+        UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
                 const bool read_WF_from_external_flash = false;
                 const bool write_WF = false;
 
@@ -98,7 +102,7 @@ void UC8177_basic_flow(void)
                 }
                 else
                 {
-                    sprintf(path_LUTD, "/%s/%s", PATH, "display/W7_VSD014_V0_GC16_LUTD_ACVOM.uc8177_lut"); // W7_VSD014_V0_DU_LUTD_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTD_DCVOM.uc8177_lut
+                    sprintf(path1_LUTD, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_GC16.uc8177_lutd"); // W7_VSD014_V0_DU_LUTD_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTD_DCVOM.uc8177_lut
 
 
                     //        sprintf(path_new, "/%s/%s", PATH, "display/Eink_S028_Waveform.bin"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
@@ -106,9 +110,9 @@ void UC8177_basic_flow(void)
                     ////        bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
                     //
                     //
-                    sprintf(path_LUTC, "/%s/%s", PATH, "display/W7_VSD014_V0_GC16_LUTC_ACVOM.uc8177_lut");  // W7_VSD014_V0_DU_LUTC_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTC_DCVOM.uc8177_lut
-                    bool Waveform_read_finish_LUTD  = UC8177_read_LUTD_static(path_LUTD);
-                    bool Waveform_read_finish_LUTC = UC8177_read_LUTC_static(path_LUTC);
+                    sprintf(path1_LUTC, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_GC16.uc8177_lutc");  // W7_VSD014_V0_DU_LUTC_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTC_DCVOM.uc8177_lut
+                    bool Waveform_read_finish_LUTD  = UC8177_read_LUTD_static(path1_LUTD);
+                    bool Waveform_read_finish_LUTC = UC8177_read_LUTC_static(path1_LUTC);
                     if(!Waveform_read_finish_LUTD)
                     {
                         printf("read WF LUTD error \n");
@@ -128,7 +132,7 @@ void UC8177_basic_flow(void)
 
 
 
-            UC8177_spi_write_command_2params(0x29, 0x0C, 0x0F);
+            UC8177_spi_write_command_2params(0x29, 0x0C, 0x0F);  // change to P-Type
         //bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
 
 //
@@ -151,7 +155,7 @@ void UC8177_basic_flow(void)
                printf("black update start \n");
                 UC8177_black_update();
                 printf("white update start \n");
-//                UC8177_white_update();
+               UC8177_white_update();
 //                printf("image3 update start \n");
 //
 //
@@ -166,18 +170,95 @@ void UC8177_basic_flow(void)
 ////                mdelay(3000);
 ////
 ////
+
+
+
+                              sprintf(path2_LUTD, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_G16W.uc8177_lutd"); // W7_VSD014_V0_DU_LUTD_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTD_DCVOM.uc8177_lut
+                              sprintf(path2_LUTC, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_G16W.uc8177_lutc");  // W7_VSD014_V0_DU_LUTC_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTC_DCVOM.uc8177_lut
+                              bool Waveform2_read_finish_LUTD  = UC8177_read_LUTD_static(path2_LUTD);
+                              bool Waveform2_read_finish_LUTC = UC8177_read_LUTC_static(path2_LUTC);
+                              if(!Waveform2_read_finish_LUTD)
+                              {
+                                  printf("read WF2 LUTD error \n");
+                              }
+                              if(!Waveform2_read_finish_LUTC)
+                              {
+                                  printf("read WF2 LUTC error \n");
+                              }
+
+
+
+
+
+//                              sprintf(image_path1, "/%s/%s", PATH, "img/GL15_3.pgm");
+//                              printf("%s\n", image_path1);
+//                              printf("image1 update start \n");
+//                               UC8177_image_update2(image_path1, 1);
+//                               mdelay(3000);
+
+
+                              UC8177_black_partial_update(200, 200, 200, 200 );
+
+                      //        UC8177_black_partial_edge_update_test();
+                    //          UC8177_white_partial_all_update();
+
+
+
+
+
+//             // UC8177_black_partial_pipeline_update(0, 0, 104, 104 );
+//               UC8177_black_partial_update(0, 0, 104, 104 );
+//
+//
 //                UC8177_black_partial_update(0, 0, 104, 104 );
 //                UC8177_black_partial_update(104, 104, 104, 104 );
 //                UC8177_black_partial_update(208, 208, 104, 104 );
 //                UC8177_black_partial_update(316, 316, 104, 104 );
-//                mdelay(3000);
-//                UC8177_white_update();
-//                UC8177_black_update();
+//              mdelay(3000);
+//          //    UC8177_white_update();
+//////                UC8177_black_update();
 //                UC8177_white_partial_update(0, 0, 104, 104 );
 //                UC8177_white_partial_update(104, 104, 104, 104 );
 //                UC8177_white_partial_update(208, 208, 104, 104 );
 //                UC8177_white_partial_update(316, 316, 104, 104 );
-//                UC8177_black_update();
+////               mdelay(3000);
+
+
+
+
+
+
+//
+//
+//
+//
+//
+//
+//
+//
+//               sprintf(image_path1, "/%s/%s", PATH, "img/UI_FLOW2_1_672_496.pgm");
+//               printf("%s\n", image_path1);
+//               printf("image1 update start \n");
+//                UC8177_image_update2(image_path1, 1);
+//                mdelay(3000);
+//
+//
+//
+//
+//
+//                sprintf(image_path2, "/%s/%s", PATH, "img/UI_FLOW2_4_672_496.pgm");
+//                printf("%s\n", image_path2);
+//                printf("image2 update start \n");
+//                UC8177_image_update2(image_path2, 1);
+//                mdelay(3000);
+//
+//
+//
+//                printf("%s\n", image_path1);
+//                printf("image1 partial update start \n");
+//                UC8177_image_update2(image_path1, 1);
+//                mdelay(3000);
+
 
 //   do{
 //

@@ -339,6 +339,10 @@ void tricolor_yellow(u8 waveform_place)
     slideshow_tricolor_run(FULL_UPDATE, 40, full_path, true); // false for original, true for inverse
 }
 
+
+
+
+
 void tricolor_red(int mode, u8 waveform_place)
 {
     static const int vcom_int_red = 3800;
