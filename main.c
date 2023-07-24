@@ -76,8 +76,8 @@ int main(void)
 
 
 ///////// main function for UC8156+
-   // print_WfVersion_read_from_MTP();
-//  eval_kit_flow();   // slideshow the image
+  //  print_WfVersion_read_from_MTP();
+//  eval_kit_flow();   // slideshow the imagea
 //	image_eval_flow_SD(0x01);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
    //  image_eval_flow_flash(color_yellow);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 
@@ -123,9 +123,9 @@ int main(void)
 
 	///////////////////UC 8177C Test////
 
-   UC8177_basic_flow();
+ //  UC8177_basic_flow();
  //  UC8177_VCOM_Test();
-
+  UC8177_GP_test_flow();
 //////////////////////////////////////////
 }
 

@@ -656,6 +656,162 @@ return 0;
 
 
 
+void UC8177_GP_test_flow(void)
+{
+
+    char PATH[64]; //global variable
+   // set_display_type(S021_T1_1);
+    strcpy(PATH, "S039_T1.1");
+
+    char path1_LUTD[64];
+    char path1_LUTC[64];
+
+    char image_path1[64];
+    char image_path2[64];
+    char image_path3[64];
+
+        UC8177_wait_for_BUSY_inactive(); // wait for power-up completed
+
+        // optional: additional hardware reset after 5ms delay
+        mdelay(5);
+        UC8177_hardware_reset(); // UC8179 hardware reset
+        UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
+
+        // optional -> verifies successful power-up
+        UC8177_check_RevID();
+
+
+
+
+
+
+
+
+        UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
+
+
+        mdelay(5);
+        flag_check(0);
+        UC8177_Eink_ini();
+
+        UC8177_PWR(0x03, 0x04, 0x1c, 0x00);
+        UC8177_spi_write_command_2params(0x29, 0x0C, 0x0F);  // change to P-Type
+        UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
+                const bool read_WF_from_external_flash = false;
+                const bool write_WF = false;
+
+
+
+                if(read_WF_from_external_flash)
+                {
+                    if(external_flash_setting(write_WF) != 0)
+                        printf("write WF to flash error \n");
+                    else
+                    {
+                        printf("write WF to flash successfully \n");
+                    }
+
+                }
+                else
+                {
+                    sprintf(path1_LUTD, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_GC16.uc8177_lutd"); // W7_VSD014_V0_DU_LUTD_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTD_DCVOM.uc8177_lut
+
+
+                    //        sprintf(path_new, "/%s/%s", PATH, "display/Eink_S028_Waveform.bin"); // short: Eink_S028.uc8177_lut; double:  Eink_S028_double.uc8177_lut; 16GL: Eink_S028_16GL.uc8177_lut
+                    //
+                    ////        bool Waveform_read_finish = UC8177_Send_WaveformFile_to_LUTD_static(path);
+                    //
+                    //
+                    sprintf(path1_LUTC, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_GC16.uc8177_lutc");  // W7_VSD014_V0_DU_LUTC_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTC_DCVOM.uc8177_lut
+                    bool Waveform_read_finish_LUTD  = UC8177_read_LUTD_static(path1_LUTD);
+                    bool Waveform_read_finish_LUTC = UC8177_read_LUTC_static(path1_LUTC);
+                    if(!Waveform_read_finish_LUTD)
+                    {
+                        printf("read WF LUTD error \n");
+                    }
+                    if(!Waveform_read_finish_LUTC)
+                    {
+                        printf("read WF LUTC error \n");
+                    }
+
+                }
+
+
+            mdelay(1000);
+
+
+            sprintf(image_path1, "/%s/%s", PATH, "img/1by1Checker_672x496.pgm");
+
+            sprintf(image_path2, "/%s/%s", PATH, "img/UI_FLOW2_1_672_496.pgm");
+            sprintf(image_path3, "/%s/%s", PATH, "img/UI_FLOW2_4_672_496.pgm");
+
+            do
+                    {
+
+
+               printf("black update start \n");
+                UC8177_black_update();
+                mdelay(2000);                          // wait for 10 seconds
+                printf("white update start \n");
+               UC8177_white_update();
+
+               mdelay(2000);
+
+
+
+               printf("%s\n", image_path1);
+               printf("image1 update start \n");
+
+     UC8177_image_update2(image_path1, 1);
+     mdelay(2000);
+
+
+
+
+     printf("%s\n", image_path2);
+     printf("image1 update start \n");
+     UC8177_image_update2(image_path2, 1);
+     mdelay(2000);
+
+
+
+     printf("%s\n", image_path3);
+     printf("image1 update start \n");
+     UC8177_image_update2(image_path3, 1);
+     mdelay(2000);
+
+
+     UC8177_white_update();
+
+     mdelay(2000);
+
+
+     UC8177_image_update2(image_path1, 1);
+     mdelay(2000);
+
+
+     printf("%s\n", image_path2);
+     printf("image1 update start \n");
+     UC8177_image_update2(image_path2, 0);
+     mdelay(2000);
+
+
+     printf("%s\n", image_path3);
+     printf("image1 update start \n");
+     UC8177_image_update2(image_path3, 1);
+     mdelay(2000);
+
+
+
+
+                    }while(1);
+
+
+
+
+
+
+}
 
 
 
