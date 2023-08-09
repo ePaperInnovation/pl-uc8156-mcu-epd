@@ -1653,7 +1653,89 @@ void MTP_test(void)
 
 
 
+void image_Lectum_SD(void)
+{
 
+  //  display_type = read_display_type_from_MTP(); // find the type of the display
+    display_type = S021_T1_1;
+
+    set_display_type(display_type);             // display tp by tricolor is 2.1
+    mdelay(100);
+
+//    unsigned long timertest1 = millis();
+//    printf("timertest1 = %d\n", timertest1);
+
+
+
+
+
+
+
+    UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
+
+    // optional: additional hardware reset after 5ms delay
+    mdelay(5);
+    UC8156_hardware_reset(); // UC8156 hardware reset
+    UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
+
+    // optional -> verifies successful power-up
+    UC8156_check_RevID();
+
+    UC8156_init_registers(); // over-writes some register values with display-specific values
+
+    // optional -> check for possible problems
+    UC8156_check_status_register(0x00);
+
+
+//    timerbInit();
+//
+//    mdelay(5000);
+//
+//    unsigned long timertest2 =  timerbStop();
+   // printf("time capture = %d ms\n", timertest2);
+
+
+
+
+
+    u8 current_vcom_u8 = print_current_VCOM();   // get the Vcom from display
+    current_vcom = current_vcom_u8 * 30;        // set the Vcom, unit: mV
+
+    register_vcom_set();
+
+    path_find();
+if( sd_exist)
+{
+    UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP; // waveform read from sd-card, 2 waveforms for tricolor
+
+
+
+          char PATH[64]; //global variable
+          // set_display_type(S021_T1_1);
+           strcpy(PATH, "S021_T1.1");
+           char image_path1[64];
+           char image_path2[64];
+
+
+           sprintf(image_path1, "/%s/%s", PATH, "img/HorizontalGreyScale.pgm");
+           sprintf(image_path2, "/%s/%s", PATH, "img/GL15.pgm");
+
+           clear_display();
+           mdelay(100);
+
+
+           mdelay(2000);
+           show_image_from_SDcard_all_set(image_path1, 0x00, 0x40, 0x08, FULL_UPDATE, false);    //char *image, int mode,  u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_bool
+
+           mdelay(2000);
+        //   show_image_from_SDcard_all_set(image_path2, 0x00, 0x00, 0x00, PARTIAL_UPDATE, false);
+
+}
+else
+{
+    image_ini_test();
+}
+}
 
 
 

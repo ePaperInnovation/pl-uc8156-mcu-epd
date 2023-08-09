@@ -58,5 +58,6 @@ void tricolor_yellow_flash(u8 waveform_place);
 void tricolor_red_flash(int mode, u8 waveform_place);
 void tricolor_red_Techlab(int mode, u8 waveform_place);
 void MTP_test(void);
+void image_Lectum_SD(void);
 
 #endif /* FLOW_BASIS_H_ */

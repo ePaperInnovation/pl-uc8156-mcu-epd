@@ -143,8 +143,6 @@ void eval_kit_flow(void)
 
 
 	slideshow_run(FULL_UPDATE, 2000);
-
-
 }
 
 

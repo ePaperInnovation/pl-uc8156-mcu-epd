@@ -32,4 +32,5 @@ int external_flash_setting(bool write_WF);
 int WF_read_from_external_flash(uint32_t register_address_start);
 int UC8177_VCOM_Test();
 void UC8177_GP_test_flow(void);
+void UC8177_slideshow_flow(u16 delay_ms);
 #endif /* UC8177C_FLOW_DEBUG_H_ */
