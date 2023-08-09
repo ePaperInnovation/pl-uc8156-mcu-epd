@@ -887,83 +887,6 @@ void UC8177_slideshow_flow(u16 delay_ms)
                 }
 
 
-            mdelay(1000);
-
-//
-//            do
-//                    {
-//
-//
-//               printf("black update start \n");
-//                UC8177_black_update();
-//                mdelay(2000);                          // wait for 10 seconds
-//                printf("white update start \n");
-//               UC8177_white_update();
-//
-//               mdelay(2000);
-//
-//
-//
-//               printf("%s\n", image_path1);
-//               printf("image1 update start \n");
-//
-//     UC8177_image_update2(image_path1, 1);
-//     mdelay(2000);
-//
-//
-//
-//
-//     printf("%s\n", image_path2);
-//     printf("image1 update start \n");
-//     UC8177_image_update2(image_path2, 1);
-//     mdelay(2000);
-//
-//
-//
-//     printf("%s\n", image_path3);
-//     printf("image1 update start \n");
-//     UC8177_image_update2(image_path3, 1);
-//     mdelay(2000);
-//
-//
-//     UC8177_white_update();
-//
-//     mdelay(2000);
-//
-//
-//     UC8177_image_update2(image_path1, 1);
-//     mdelay(2000);
-//
-//
-//     printf("%s\n", image_path2);
-//     printf("image1 update start \n");
-//     UC8177_image_update2(image_path2, 0);
-//     mdelay(2000);
-//
-//
-//     printf("%s\n", image_path3);
-//     printf("image1 update start \n");
-//     UC8177_image_update2(image_path3, 1);
-//     mdelay(2000);
-//
-//                    }while(1);
-
-
-
-
-
-
-
-            printf("black update start \n");
-                          UC8177_black_update();
-                          mdelay(100);                          // wait for 10 seconds
-                          printf("white update start \n");
-                         UC8177_white_update();
-
-                         mdelay(100);
-
-
-
             DIR dir;
                 FILINFO fno;
                 char path[64];
@@ -977,6 +900,7 @@ void UC8177_slideshow_flow(u16 delay_ms)
                     abort_now("Fatal error in: slideshow.c -> slideshow_run -> f_opendir", ABORT_SD_CARD);
 
                 do {
+
                     if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)
                         break;
 
@@ -990,13 +914,7 @@ void UC8177_slideshow_flow(u16 delay_ms)
 
                     sprintf(full_path, "%s/%s", path, fno.fname);
 
-
-
-
-                    UC8177_image_update2(full_path, 0);
-                    mdelay(delay_ms);
-
-
+                    printf("black update start \n");
                     UC8177_black_update();
                     mdelay(100);                          // wait for 10 seconds
                     printf("white update start \n");
@@ -1004,6 +922,8 @@ void UC8177_slideshow_flow(u16 delay_ms)
                     mdelay(100);
 
 
+                    UC8177_image_update2(full_path, 0);
+                    mdelay(delay_ms);
 
                 } while (result >= 0);
 
