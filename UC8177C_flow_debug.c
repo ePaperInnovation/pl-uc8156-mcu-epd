@@ -694,7 +694,7 @@ void UC8177_GP_test_flow(void)
         flag_check(0);
         UC8177_Eink_ini();
 
-        UC8177_PWR(0x03, 0x04, 0x1c, 0x00);
+        UC8177_PWR(0x03, 0x04, 0x0c, 0x00);
         UC8177_spi_write_command_2params(0x29, 0x0C, 0x0F);  // change to P-Type
         UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
                 const bool read_WF_from_external_flash = false;
@@ -844,7 +844,7 @@ void UC8177_slideshow_flow(u16 delay_ms)
         flag_check(0);
         UC8177_Eink_ini();
 
-        UC8177_PWR(0x03, 0x04, 0x1c, 0x00);
+        UC8177_PWR(0x03, 0x04, 0x10, 0x00);
         UC8177_spi_write_command_2params(0x29, 0x0C, 0x0F);  // change to P-Type
         UC8177_wait_for_BUSY_inactive(); // wait for RESET completed
                 const bool read_WF_from_external_flash = false;

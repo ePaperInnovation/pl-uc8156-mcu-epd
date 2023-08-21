@@ -201,6 +201,38 @@ void write_waveform_to_MTP(u8 *waveform_data, int waveform_data_length, int mtp_
 	spi_write_command_1param(0x0f, reg0fh_backup);
 }
 
+
+
+
+void read_Vcom_MTP(void)
+{
+
+    char display_type_string[2];
+        const u16 start_address = 0x4b9;
+        uint16_t i;
+
+        u8 backup_reg40h = spi_read_command_1param(0x40);
+
+        // switch to "type2" MTP area
+       // spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x00);
+
+        for (i=0; i<2; i++)
+            display_type_string[i] = read_MTP_address(start_address + i);
+
+        printf("VCOM: %x\n", display_type_string);
+
+        // restore Reg[40h] value
+        spi_write_command_1param(0x40, backup_reg40h);
+
+}
+
+
+
+
+
+
+
+
 u8 read_MTP_address(const u16 address)
 {
 	spi_write_command_2params(0x41, address&0xFF, (address>>8)&0x07); // set MTP address
@@ -341,7 +373,7 @@ void print_Display_Type_read_from_MTP()
 	u8 backup_reg40h = spi_read_command_1param(0x40);
 
 	// switch to "type2" MTP area
-	spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+	 spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
 
 	for (i=0; i<16; i++)
 		display_type_string[i] = read_MTP_address(start_address + i);

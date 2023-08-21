@@ -1616,7 +1616,7 @@ void MTP_test(void)
 
 
 
-    u16 address_MTP =0;
+  //  u16 address_MTP =0;
 //    while(address_MTP < 10)
 //    {
 //
@@ -1636,17 +1636,19 @@ void MTP_test(void)
    //// write_complete_waveform_library_to_MTP_from_file(path_MTP);
 
 
-    address_MTP =0x04BA;
-    while(address_MTP < 0x0500)
-    {
-
-        read_MTP_address_and_print(address_MTP);
-        address_MTP++;
-        mdelay(200);
-    }
-
-
-
+//    address_MTP =0x04BA;
+//    while(address_MTP < 0x0500)
+//    {
+//
+//        read_MTP_address_and_print(address_MTP);
+//        address_MTP++;
+//        mdelay(200);
+//    }
+    print_MagicWord_read_from_MTP();
+    print_Display_Type_read_from_MTP();
+    print_WfVersion_read_from_MTP();
+    print_SerialNo_read_from_MTP();
+    read_Vcom_MTP();
 }
 
 
