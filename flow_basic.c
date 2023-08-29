@@ -1602,7 +1602,7 @@ void tricolor_red_Techlab(int mode, u8 waveform_place)
 void MTP_test(void)
 {
 
-    display_type = S031_T1_1;
+    display_type = S011_T1_1;
     set_display_type(display_type);             // display tp by tricolor is 2.1
     mdelay(100);
 
@@ -1615,40 +1615,13 @@ void MTP_test(void)
     UC8156_wait_for_BUSY_inactive(); // wait for RESET completed
 
 
-
-  //  u16 address_MTP =0;
-//    while(address_MTP < 10)
-//    {
+    program_WF_Version_into_MTP("S011_T1.1_VSD014_V1"); //write the waveform version to MTP Type2
 //
-//        read_MTP_address_and_print(address_MTP);
-//        address_MTP++;
-//        mdelay(1000);
-//    }
+    print_WfVersion_read_from_MTP();                    // check the waveform version in MTP
+
+     //write_Vcom_to_MTP(4000);
 
 
-
-//    char path_MTP[64];
-//   // sprintf(path_MTP, "/%s/%s", PATH, "display/S031_T1.1_VJW012_V0_X.uc8156");
-//    sprintf(path_MTP, "/%s/%s", PATH, "display/waveform.bin");
-//    printf("path_MTP = %s \n", path_MTP);
-//
-//    write_single_waveform_table_to_MTP(path_MTP);
-   //// write_complete_waveform_library_to_MTP_from_file(path_MTP);
-
-
-//    address_MTP =0x04BA;
-//    while(address_MTP < 0x0500)
-//    {
-//
-//        read_MTP_address_and_print(address_MTP);
-//        address_MTP++;
-//        mdelay(200);
-//    }
-    print_MagicWord_read_from_MTP();
-    print_Display_Type_read_from_MTP();
-    print_WfVersion_read_from_MTP();
-    print_SerialNo_read_from_MTP();
-    read_Vcom_MTP();
 }
 
 

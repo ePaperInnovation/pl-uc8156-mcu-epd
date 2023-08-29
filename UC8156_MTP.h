@@ -42,7 +42,8 @@ void print_SerialNo_read_from_MTP();
 void print_WfVersion_read_from_MTP();
 void print_Display_Type_read_from_MTP();
 void print_MagicWord_read_from_MTP();
-
+void program_WF_Version_into_MTP(const char *wf_version);
+void program_byte_type2(const u16 start_address, u8 data);
 
 
 enum DISPLAY_TYPE read_display_type_from_MTP();

@@ -223,7 +223,6 @@ void read_Vcom_MTP(void)
 
         // restore Reg[40h] value
         spi_write_command_1param(0x40, backup_reg40h);
-
 }
 
 
@@ -285,26 +284,27 @@ void one_Byte_MTP_program(u16 address, u8 data)
 	u8 return_value;
 
 	static u8 v1[2];
-	spi_read_command_2params1(0x02, v1);
-	spi_write_command_2params(0x02, v1[0], 0x33);
+	spi_read_command_2params1(0x02, v1);            // backup the Driver Voltage Setting R02H
+	spi_write_command_2params(0x02, v1[0], 0x33);   // set the Source Voltage value to 0x33
 
-#ifdef DEBUG_PRINTOUTS_ON
-	return_value = read_MTP_address(address);
+//#ifdef DEBUG_PRINTOUTS_ON
+	return_value = read_MTP_address(address);                       //read current address value
 	printf("value before program = 0x%x\n", return_value);
-#endif
+//#endif
 
-	UC8156_HVs_on();
+	UC8156_HVs_on();                                        // power on with Register R03H
 
 	//switch internal VPP on (VSH)
-	return_value = spi_read_command_1param(0x03);
-	spi_write_command_1param(0x03, return_value|0x08);
+
+	return_value = spi_read_command_1param(0x03);           // save current R03H value
+	spi_write_command_1param(0x03, return_value|0x08);      // set VPP_SEL = 1
 	mdelay(100);
 
 	//setup and start MTP program
-	spi_write_command_2params(0x44, 0x30, 0xf1); //MTP option setting --> Vs=2.4V (new default)
-	spi_write_command_2params(0x41, address&0xFF, (address>>8)&0xFF);
-	spi_write_command_1param(0x42, data);
-	UC8156_wait_for_BUSY_inactive();
+	spi_write_command_2params(0x44, 0x30, 0xf1);                                 //MTP option setting --> Vs=2.4V (new default)
+	spi_write_command_2params(0x41, address&0xFF, (address>>8)&0xFF);             // set the MTP address
+	spi_write_command_1param(0x42, data);                                        // write the byte
+	UC8156_wait_for_BUSY_inactive();                                              // wait busy pin
 
 	//switch internal VPP off
 	return_value = spi_read_command_1param(0x03);
@@ -315,11 +315,11 @@ void one_Byte_MTP_program(u16 address, u8 data)
 
 	spi_write_command_2params(0x02, v1[0], v1[1]);
 
-#ifdef DEBUG_PRINTOUTS_ON
+//#ifdef DEBUG_PRINTOUTS_ON
 	return_value = read_MTP_address(address);
 	printf("value to be programed = 0x%x\n", data);
 	printf("value after program = 0x%x\n", return_value);
-#endif
+//#endif
 }
 
 void print_SerialNo_read_from_MTP()
@@ -484,3 +484,49 @@ void program_display_type_into_MTP(const char *display_type)
 	// restore Reg[40h] value
 	spi_write_command_1param(0x40, backup_reg40h);
 }
+
+
+
+
+void program_WF_Version_into_MTP(const char *wf_version)
+{
+    const u16 start_address = 0x4D0;    // waveform version OFFSET
+    uint16_t i;
+
+    for (i=0; i<32; i++)
+    {
+      program_byte_type2(start_address + i, (u8)wf_version[i]);   // one byte program loop
+      mdelay(3000);                                               // Ultrachip is slow, should wait until the process finished interna, at least 3 second is safe
+    }
+}
+
+
+
+
+
+void program_byte_type2(const u16 start_address, u8 data)
+{
+
+    u8 backup_reg40h = spi_read_command_1param(0x40);
+
+    // switch to "type2" MTP area
+    spi_write_command_1param(0x40, spi_read_command_1param(0x40) | 0x02);
+    mdelay(100);
+     one_Byte_MTP_program(start_address, data);
+     mdelay(100);
+    // restore Reg[40h] value
+    spi_write_command_1param(0x40, backup_reg40h);
+    mdelay(100);
+}
+
+
+
+
+
+
+
+
+
+
+
+
