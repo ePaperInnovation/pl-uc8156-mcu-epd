@@ -48,18 +48,18 @@ extern bool display_KWR;
 
 
 //char full_path[MAX_PATH_LEN];
-enum UC8179_KWR_TEST {SHOW_BLACK=0x00, SHOW_WHITE=0x01, SHOW_RED = 0x02, SHOW_IMAGE = 0x03};
+enum UC8179_KWR_TEST {SHOW_BLACK=0x00, SHOW_WHITE=0x01, SHOW_RED = 0x02, SHOW_IMAGE= 0x03};
 
 void UC8179_basic_flow()
 {
-    display_KWR = true;
+    display_KWR = false;
     set_display_type(S036_T1_1);
+
     int show_BW = SHOW_BLACK;
-   // int show_BW = SHOW_IMAGE;
-//    if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
-//    {
-//        display_KWR = false;
-//    }
+    if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
+    {
+        display_KWR = false;
+    }
 
     UC8179_ini();
     mdelay(500);
@@ -157,6 +157,7 @@ void UC8179_basic_flow()
 
 //                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
 //                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+                        UC8179_image_BLACK();
                         UC8171_image_BLACK2();
 
                         UC8179_POWER_ON();
@@ -168,7 +169,7 @@ void UC8179_basic_flow()
 
                         break;
                     case SHOW_WHITE:
-
+                        UC8179_image_WHITE();
                         UC8179_image_WHITE2();
 
                         UC8179_POWER_ON();
@@ -707,8 +708,8 @@ void UC8179_basic_flow_from_SD(void)
 {
     display_KWR = false;
     set_display_type(S036_T1_1);
-    int show_BW = SHOW_BLACK;
-    //int show_BW = SHOW_IMAGE;
+    //int show_BW = SHOW_BLACK;
+    int show_BW = SHOW_IMAGE;
     if(show_BW == SHOW_IMAGE || show_BW == SHOW_BLACK)
     {
         display_KWR = false;
@@ -721,23 +722,8 @@ void UC8179_basic_flow_from_SD(void)
 
     printf("RevID = %x\n", revID);
 
-//    u8 temp_read = UC8179_TEMPERATUR_READ_INTER();
-//    printf("temp read = %x\n", temp_read);
+
     mdelay(500);
-    //UC8179_KWR_OTP_Register_TR_SETTING_Value_Read(TR4);
-
-
-
-
-
-//    UC8179_KWR_OTP_Register_TR_LUTC_Read(TR4);
-//    UC8179_KWR_OTP_Register_TR_LUTR_Read(TR4);
-//    UC8179_KWR_OTP_Register_TR_LUTW_Read(TR4);
-//    UC8179_KWR_OTP_Register_TR_LUTK_Read(TR4);
-
-
-
-
 
 
 
@@ -745,20 +731,14 @@ void UC8179_basic_flow_from_SD(void)
 
     printf("%s\n", PTL_flag ? "true" : "false");
 
-//    UC8179_PARTIAL_WINDOW(0, 320, 0 , 320, 1);
-//    UC8179_PARTIAL_IN();
 
 
 
-
-//    UC8179_TRES_PARAMETER(0x02, 0x98, 0x01, 0xE0 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-//
-//    UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
+    UC8179_Black_Update();
+    UC8179_White_Update();
 
 
-    UC8179_path_find();
-    char full_path[MAX_PATH_LEN];
-    printf("full_path = %s\n", full_path);
+
 
 
 
@@ -813,36 +793,24 @@ void UC8179_basic_flow_from_SD(void)
                 {
                     case SHOW_BLACK:
 
-//                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-//                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
-//                        UC8179_image_BLACK2();
-
-                        UC8179_POWER_ON();
-                        UC8179_BUSY_N_CHECK();
-                        UC8179_DISPLAY_REFRESH();
-                        UC8179_BUSY_N_CHECK();
-                        UC8179_POWER_OFF();
-                        UC8179_BUSY_N_CHECK();
+                        UC8179_Black_Update();
 
                         break;
                     case SHOW_WHITE:
 
-                        UC8179_image_WHITE2();
+                        UC8179_White_Update();
 
-                        UC8179_POWER_ON();
-                        UC8179_BUSY_N_CHECK();
-                        UC8179_DISPLAY_REFRESH();
-                        UC8179_BUSY_N_CHECK();
-                        UC8179_POWER_OFF();
-                        UC8179_BUSY_N_CHECK();
                         break;
                     case SHOW_IMAGE:
-                        //////////////////// for DKE Displays
-                        UC8179_TRES_PARAMETER(0x02, 0x80, 0x01, 0x90 );      // TRES  DKE: 0x02, 0x88, 0x01, 0xE0
-                        UC8179_GSST_PARAMETER(0x00, 0x10, 0x00, 0x00 );      // GSST  DKE: 0x00, 0x10, 0x00, 0x00
-//////////////////////////////////////////////////////////////////////
-                        UC8179_image_update_S0357_SD();
 
+                    {
+                        char full_path[MAX_PATH_LEN];
+                        sprintf(full_path, "%s/%s", PATH, "img/TestPic_scr.pgm");
+                        printf("full_path = %s\n", full_path);
+
+
+                        UC8179_image_update_S0357_SD(full_path);
+                    }
                         break;
                     default:
                         UC8179_image_WHITE2();
@@ -863,15 +831,8 @@ void UC8179_basic_flow_from_SD(void)
 
 
 
-void UC8179_image_update_S0357_SD(void)
+void UC8179_image_update_S0357_SD(char *full_path)
 {
-
-
-
-
-
-    char full_path[MAX_PATH_LEN];
-
     timerbInit();
     sdcard_load_image(full_path, image_data);
     UC8179_byte_array_WRITE2(image_data, 8000);
@@ -896,7 +857,7 @@ void UC8179_image_update_S0357_SD(void)
      UC8179_BUSY_N_CHECK();
      UC8179_DISPLAY_REFRESH();
      UC8179_BUSY_N_CHECK();
-     UC8179_PTOUT_PARAMETER();
+//     UC8179_PTOUT_PARAMETER();
      UC8179_POWER_OFF();
      UC8179_BUSY_N_CHECK();
 
@@ -942,13 +903,73 @@ void UC8179_VCOM_Test(void)
              printf("vcom_Value1 = %d\n", vcom_Value);
              printf("VCOM automeasurement finish\n");
        mdelay(500);
+}
+
+void UC8179_Black_Update(void)
+{
+
+    UC8179_image_BLACK2();
+    UC8179_POWER_ON();
+    UC8179_BUSY_N_CHECK();
+    UC8179_DISPLAY_REFRESH();
+    UC8179_BUSY_N_CHECK();
+    UC8179_POWER_OFF();
+    UC8179_BUSY_N_CHECK();
+}
 
 
 
 
 
 
+
+void UC8179_White_Update(void)
+{
+
+    UC8179_image_WHITE2();
+    UC8179_POWER_ON();
+    UC8179_BUSY_N_CHECK();
+    UC8179_DISPLAY_REFRESH();
+    UC8179_BUSY_N_CHECK();
+    UC8179_POWER_OFF();
+    UC8179_BUSY_N_CHECK();
+}
+
+
+void UC8179_slideshow_from_SD(void)
+{
+    set_display_type(S036_T1_1);
+    UC8179_ini();
+    mdelay(500);
+
+    u8 revID = UC8179_READ_REVID();
+
+    printf("RevID = %x\n", revID);
+
+
+    mdelay(500);
+
+
+    UC8179_Black_Update();
+    UC8179_White_Update();
+
+
+
+    char full_path[MAX_PATH_LEN];
+    sprintf(full_path, "%s/%s", PATH, "img/Girl_dithered.pgm");  // another eg. img/TestPic_scr.pgm
+    printf("full_path = %s\n", full_path);
+    UC8179_image_update_S0357_SD(full_path);
 
 }
+
+
+
+
+
+
+
+
+
+
 
 

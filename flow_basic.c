@@ -1690,20 +1690,26 @@ if( sd_exist)
            strcpy(PATH, "S021_T1.1");
            char image_path1[64];
            char image_path2[64];
+           char image_path3[64];
 
-
-           sprintf(image_path1, "/%s/%s", PATH, "img/HorizontalGreyScale.pgm");
-           sprintf(image_path2, "/%s/%s", PATH, "img/GL15.pgm");
-
+           sprintf(image_path1, "/%s/%s", PATH, "img/SD_image1.pgm");
+           sprintf(image_path2, "/%s/%s", PATH, "img/SD_image2.pgm");
+           sprintf(image_path3, "/%s/%s", PATH, "img/SD_image3.pgm");
            clear_display();
            mdelay(100);
 
 
            mdelay(2000);
-           show_image_from_SDcard_all_set(image_path1, 0x00, 0x40, 0x08, FULL_UPDATE, false);    //char *image, int mode,  u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_bool
+           show_image_from_SDcard_all_set(image_path1, 0x00, 0x40, 0x00, PARTIAL_UPDATE, false);    //char *image, int mode,  u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_bool
 
            mdelay(2000);
-        //   show_image_from_SDcard_all_set(image_path2, 0x00, 0x00, 0x00, PARTIAL_UPDATE, false);
+           show_image_from_SDcard_all_set(image_path2, 0x00, 0x40, 0x00, PARTIAL_UPDATE, false);    //char *image, int mode,  u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_bool
+
+
+
+           mdelay(2000);
+           show_image_from_SDcard_all_set(image_path3, 0x00, 0x40, 0x00, PARTIAL_UPDATE, false);    //char *image, int mode,  u8 transparency_key_value, u8 transparency_display_enable, u8 display_mode_select, bool inv_bool
+
 
 }
 else

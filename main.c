@@ -73,44 +73,45 @@ int main(void)
 	mdelay(100);
 
 
-	MTP_test();
+//	MTP_test();
 
 
 
 ///////// main function for UC8156+
-  //  print_WfVersion_read_from_MTP();
-//  eval_kit_flow();   // slideshow the imagea
+ // print_WfVersion_read_from_MTP();
+ // eval_kit_flow();   // slideshow the imagea
 	//image_eval_flow_SD(0x00);     // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02, HTS = 0x04 ;
    //  image_eval_flow_flash(color_yellow);  // color_lectum =0x00, color_yellow= 0x01, color_red= 0x02;
 
-	//image_Lectum_SD(); // UC8156 Display Engine Control Register test
+//	image_Lectum_SD(); // UC8156 Display Engine Control Register test
 
 
 	///////// main function for UC8179
 
 
 ////////////////////////////////////////////
-//	int diplay_mode_choose = 4;
-//	switch(diplay_mode_choose)
-//	{
-//	case 0:
-//	    UC8179_basic_flow();
-//	    break;
-//	case 1:
-//	    UC8179_basic_flow_from_SD();
-//	    break;
-//    case 2:
-//        UC8179_BW_TEST();
-//        break;
-//    case 3:
-//        UC8171_basic_flow();
-//        break;
-//    case 4:
-//        UC8179_VCOM_Test();
-//        break;
-//    case 5:
-//      break;
-//	}
+	int diplay_mode_choose = 5;
+	switch(diplay_mode_choose)
+	{
+	case 0:
+	    UC8179_basic_flow();
+	    break;
+	case 1:
+	    UC8179_basic_flow_from_SD();
+	    break;
+    case 2:
+        UC8179_BW_TEST();
+        break;
+    case 3:
+        UC8171_basic_flow();
+        break;
+    case 4:
+        UC8179_VCOM_Test();
+        break;
+    case 5:
+        UC8179_slideshow_from_SD();
+      break;
+	}
 
 ////////////////////////////////////////
 
@@ -125,10 +126,10 @@ int main(void)
 
 	///////////////////UC 8177C Test////
 
- //  UC8177_basic_flow();
+ // UC8177_basic_flow();
  //  UC8177_VCOM_Test();
 //  UC8177_GP_test_flow();
-//  UC8177_slideshow_flow(5000);
+ // UC8177_slideshow_flow(5000);
 //////////////////////////////////////////
 }
 

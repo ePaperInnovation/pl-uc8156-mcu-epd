@@ -246,12 +246,9 @@ void UC8179_KWR_OTP_Register_TR_SETTING_Value_Read(u8 TRN)
       }
 
    }
-
-
-
-
-
 }
+
+
 
 void UC8179_KWR_OTP_Register_TR_LUTC_Read(u8 TRN)
 {
@@ -600,7 +597,7 @@ void UC8179_MANUAL_INI(void)   // from DKE OTP
   }
   else              // KW Mode
   {
-          UC8179_PSR_PARAMETER( 0x3F );      // PSR: 0x07 | 0x20 (LUT from Register) | 0x10 (0x10: KW Mode, 0x00: KWR Mode )    )
+          UC8179_PSR_PARAMETER( 0x37 );      // PSR: 0x07 | 0x20 (LUT from Register) | 0x10 (0x10: KW Mode, 0x00: KWR Mode )    )
           UC8179_BTST_PARAMETER(0x27, 0x27, 0x28, 0x17);      // BTST  DKE: 0x27, 0x27, 0x28, 0x17
 
           UC8179_PWR_PARAMETER( 0x07, 0x17, 0x3F, 0x3F, 0x0E);      // PWR DKE: 0x07, 0x17, 0x3F, 0x3F, 0x0E

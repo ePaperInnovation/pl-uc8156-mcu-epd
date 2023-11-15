@@ -89,7 +89,7 @@ void write_complete_waveform_library_to_MTP(u8 *waveform_data)
 	u8 value;
 	uint16_t addr;
 
-	// write type1
+	// write type1, MARS = 0
 	write_waveform_to_MTP(waveform_data, WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE1);
 
 	//read/verify type1
@@ -101,7 +101,7 @@ void write_complete_waveform_library_to_MTP(u8 *waveform_data)
 			printf("Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr], value);
 	}
 
-	// write type2
+	// write type2, MARS = 1
 	write_waveform_to_MTP(waveform_data+MTP_TYPE2_OFFSET, WF_1TYPEonly_LENGTH, 0x0b, WF_TYPE2);
 
 	//read/verify type2
@@ -114,7 +114,7 @@ void write_complete_waveform_library_to_MTP(u8 *waveform_data)
 			printf("Data miss-match on addr 0x%x - target=0x%x - read=0x%x\n", addr, waveform_data[addr+MTP_TYPE2_OFFSET], value);
 	}
 
-	//read/verify type1 -> double-check
+	//read/verify type1 -> double-check no need?
 	spi_write_command_1param(0x40, 0x00); //set MARS=0
 	for (addr=0; addr<WF_1TYPEonly_LENGTH; addr++)
 	{
@@ -127,11 +127,11 @@ void write_complete_waveform_library_to_MTP(u8 *waveform_data)
 
 void write_complete_waveform_library_to_MTP_from_file(char *filename)
 {
-	u8 waveform_data[2560];
+	u8 waveform_data[2560];   // the whole file length with 0x0A00 bytes
 
 	// load complete waveform library (2 types, size=0xA00) from SD-card
 	sdcard_load_waveform(filename, waveform_data, 2560);
-	write_complete_waveform_library_to_MTP(waveform_data);
+	write_complete_waveform_library_to_MTP(waveform_data);        // write the file to MTP
 }
 
 void write_Vcom_to_MTP(u16 Vcom_mv_value)
@@ -279,7 +279,7 @@ void read_MTP_addresses_and_print(u16 start_address, int count, int type)
 	}
 }
 
-void one_Byte_MTP_program(u16 address, u8 data)
+void one_Byte_MTP_program(u16 address, u8 data)         // the basic one byte program function
 {
 	u8 return_value;
 

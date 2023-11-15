@@ -49,6 +49,11 @@ void UC8179_BW_TEST(void);
 void UC8171_image_update_S041_flash_partial();
 void UC8179_image_update_S0357_flash(void);
 void UC8179_basic_flow_from_SD(void);
-void UC8179_image_update_S0357_SD(void);
+void UC8179_image_update_S0357_SD(char *full_path);
 void UC8179_VCOM_Test(void);
+void UC8179_Black_Update(void);
+void UC8179_White_Update(void);
+void UC8179_slideshow_from_SD(void);
+
+
 #endif /* UC8179_FLOW_DEBUG_H_ */

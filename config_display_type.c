@@ -333,7 +333,7 @@ void set_display_type(int display_type)
 			strcpy(PATH, "D011_T1.1");
 			single_display = 0;
 			read_image_data_from_file = read_image_data_from_file_D011_T1;
-
+            break;
 
         case S017_T1_1:
             GATE_LINES = 116;    // still not set
@@ -343,7 +343,7 @@ void set_display_type(int display_type)
             strcpy(PATH, "S017_T1.1");
             single_display = 0;
             read_image_data_from_file = read_image_data_from_file_default;
-
+            break;
 
 
         case S036_T1_1:

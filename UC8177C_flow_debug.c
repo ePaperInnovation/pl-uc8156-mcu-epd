@@ -197,7 +197,7 @@ void UC8177_basic_flow(void)
 //                               mdelay(3000);
 
 
-                              UC8177_black_partial_update(200, 200, 200, 200 );
+                  //            UC8177_black_partial_update(200, 200, 200, 200 );
 
                       //        UC8177_black_partial_edge_update_test();
                     //          UC8177_white_partial_all_update();
