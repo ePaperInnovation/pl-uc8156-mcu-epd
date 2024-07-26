@@ -66,28 +66,9 @@ enum waveform_place{WF_SD =0x00, WF_FLASH= 0x01 };
 void image_eval_flow_SD(int display_color)
 {
     u8 waveform_from_file[WAVEFORM_LENGTH];
-    //display_type = read_display_type_from_MTP(); // find the type of the display
-//    if (display_type == UNKNOWN)
-//        {
-//            // 2nd try to read display-type from SD-Card
-//            display_type = sdcard_read_display_type("display-type.txt");
-//            if (display_type == UNKNOWN)
-//                // finally: set display-type to default (1.38'')
-//                display_type = S014_T1_1;
-//
-//        }
     display_type = S011_T2_1;          // S011_T2.1 for PI NMOS
-
     set_display_type(display_type);             // display tp by tricolor is 2.1
     mdelay(100);
-
-//    unsigned long timertest1 = millis();
-//    printf("timertest1 = %d\n", timertest1);
-
-
-
-
-
 
 
     UC8156_wait_for_BUSY_inactive(); // wait for power-up completed
@@ -104,27 +85,14 @@ void image_eval_flow_SD(int display_color)
 
     // optional -> check for possible problems
     UC8156_check_status_register(0x00);
-    sprintf(path2, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type2");
-    sprintf(path1, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type1");
+
+
+//    sprintf(path2, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type2");
+//    sprintf(path1, "/%s/%s", PATH, "display/S021_T1.1_SPP0B9_V0.uc8156_type1");
     sprintf(path_GL, "/%s/%s", PATH, "display/waveform.bin");
 
-//    timerbInit();
-//
-//    mdelay(5000);
-//
-//    unsigned long timertest2 =  timerbStop();
-   // printf("time capture = %d ms\n", timertest2);
 
-
-
-
-
-    u8 current_vcom_u8 = print_current_VCOM();   // get the Vcom from display
-    current_vcom = current_vcom_u8 * 30;        // set the Vcom, unit: mV
-
-    drive_voltage_setting(0x25, 0xff);
-    tcom_timing_setting(0x67, 0x55);
-    UC8156_set_Vcom(current_vcom);
+    spi_write_command_2params(0x1B, 0x32, 0x04);    // set vcom = -1.5V
 
     path_find();
 
@@ -136,7 +104,6 @@ if( sd_exist)
     switch(display_color)
     {
     case 0:
-       // UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_MTP;
         UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_LUT;
         if (sdcard_load_waveform(path_GL, waveform_from_file, WAVEFORM_LENGTH))
         {
@@ -148,7 +115,7 @@ if( sd_exist)
         clear_display();
         mdelay(100);
 
-        slideshow_run(FULL_UPDATE, 2000);
+        slideshow_run(FULL_UPDATE, 4000);
 
     break;
 

@@ -450,8 +450,8 @@ enum DISPLAY_TYPE convert_string_to_DISPLAY_TYPE(const char *display_type_string
 
 	if (strcmp(display_type_string, "S011_T1.1") == 0)
 		{return S011_T1_1;}
-	if (strcmp(display_type_string, "S011_T1.2") == 0)
-		{return S011_T1_2;}
+	if (strcmp(display_type_string, "S011_T2.1") == 0)
+		{return S011_T2_1;}
 	if (strcmp(display_type_string, "S014_T1.1") == 0)
 		{return S014_T1_1;}
 	if (strcmp(display_type_string, "S014_T1.2") == 0)
