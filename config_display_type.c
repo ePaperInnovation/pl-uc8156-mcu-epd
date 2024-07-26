@@ -62,11 +62,11 @@ regSetting_t reg_settings_S011_T1_1[] =
 		{0x44, 1, {0x60}}
 };
 
-regSetting_t reg_settings_S011_T1_2[] =
+regSetting_t reg_settings_S011_T2_1[] =
 {
-		{0x01, 1, {0x12}},
-		{0x02, 2, {0x70, 0xaa}},			// set Vgate to +17V/-25V
-		{0x06, 2, {0xff, 0x55}},			// set timing to LAT=105, S2G+G2S=5
+		{0x01, 1, {0x02}},
+		{0x02, 2, {0x50, 0xFF}},			// set Vgate to +17V/-25V
+		{0x06, 2, {0x67, 0x55}},			// set timing to LAT=105, S2G+G2S=5
 		{0x07, 1, {0x0a}},
 		{0x0c, 4, {0x00, 0x45, 0x00, 0x93}}, // physical 240x160 panel resolution setting
 		{0x0d, 4, {0x00, 0x45, 0x00, 0x93}}, // {0, 70-1, 0, 148-1}
@@ -74,8 +74,7 @@ regSetting_t reg_settings_S011_T1_2[] =
 		{0x0f, 1, {0x02}},
 		{0x18, 4, {0x00, 0x00, 0x24, 0x07}},
 		{0x1d, 1, {0x04}},
-		{0x1f, 3, {0x00, 0x00, 0x00}},
-		{0x44, 1, {0x60}}
+		{0x1f, 3, {0x00, 0x00, 0x00}}
 };
 
 regSetting_t reg_settings_S014_T1_1[] =
@@ -250,31 +249,18 @@ void set_display_type(int display_type)
 			GATE_LINES = 70;
 			SOURCE_LINES = 148;
 			REG_SETTINGS = reg_settings_S011_T1_1;
-
-
-
-
-
 			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S011_T1_1)/sizeof(regSetting_t);
-//			uint16_t i;
-//			for (i = 0; i < NUMBER_OF_REGISTER_OVERWRITES; i++)
-//			{
-//			    REG_SETTINGS[i] = reg_settings_S011_T1_1[i];
-//			}
-
-
-
 
 			strcpy(PATH, "S011_T1.1");
 			read_image_data_from_file = read_image_data_from_file_S011_T1;
 
 			break;
-		case S011_T1_2:
+		case S011_T2_1:
 			GATE_LINES = 70;
 			SOURCE_LINES = 148;
-			REG_SETTINGS = reg_settings_S011_T1_2;
-			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S011_T1_2)/sizeof(regSetting_t);
-			strcpy(PATH, "S011_T1.2");
+			REG_SETTINGS = reg_settings_S011_T2_1;
+			NUMBER_OF_REGISTER_OVERWRITES = sizeof(reg_settings_S011_T2_1)/sizeof(regSetting_t);
+			strcpy(PATH, "S011_T2.1");
 			read_image_data_from_file = read_image_data_from_file_default;
 
 			break;

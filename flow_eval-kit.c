@@ -88,7 +88,12 @@ void eval_kit_flow(void)
 //			UC8156_send_waveform(waveform_from_file);
 //			UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
 //		}
-	    waveform_lectum_flash_function();
+	//    waveform_lectum_flash_function();
+
+	    clear_display();
+
+
+	    slideshow_run(FULL_UPDATE, 2000);
 
 	}else{
 		UC8156_wait_for_BUSY_inactive(); // wait for power-up completed

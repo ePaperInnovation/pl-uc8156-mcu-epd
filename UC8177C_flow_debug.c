@@ -173,18 +173,18 @@ void UC8177_basic_flow(void)
 
 
 
-                              sprintf(path2_LUTD, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_G16W.uc8177_lutd"); // W7_VSD014_V0_DU_LUTD_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTD_DCVOM.uc8177_lut
-                              sprintf(path2_LUTC, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_G16W.uc8177_lutc");  // W7_VSD014_V0_DU_LUTC_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTC_DCVOM.uc8177_lut
-                              bool Waveform2_read_finish_LUTD  = UC8177_read_LUTD_static(path2_LUTD);
-                              bool Waveform2_read_finish_LUTC = UC8177_read_LUTC_static(path2_LUTC);
-                              if(!Waveform2_read_finish_LUTD)
-                              {
-                                  printf("read WF2 LUTD error \n");
-                              }
-                              if(!Waveform2_read_finish_LUTC)
-                              {
-                                  printf("read WF2 LUTC error \n");
-                              }
+//                              sprintf(path2_LUTD, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_G16W.uc8177_lutd"); // W7_VSD014_V0_DU_LUTD_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTD_DCVOM.uc8177_lut
+//                              sprintf(path2_LUTC, "/%s/%s", PATH, "display/S039_T1.1_W7_VSD014_V4_T23_G16W.uc8177_lutc");  // W7_VSD014_V0_DU_LUTC_ACVOM.uc8177_lut; W7_VSD014_V0_GC16_LUTC_DCVOM.uc8177_lut
+//                              bool Waveform2_read_finish_LUTD  = UC8177_read_LUTD_static(path2_LUTD);
+//                              bool Waveform2_read_finish_LUTC = UC8177_read_LUTC_static(path2_LUTC);
+//                              if(!Waveform2_read_finish_LUTD)
+//                              {
+//                                  printf("read WF2 LUTD error \n");
+//                              }
+//                              if(!Waveform2_read_finish_LUTC)
+//                              {
+//                                  printf("read WF2 LUTC error \n");
+//                              }
 
 
 
@@ -210,11 +210,11 @@ void UC8177_basic_flow(void)
 //               UC8177_black_partial_update(0, 0, 104, 104 );
 //
 //
-//                UC8177_black_partial_update(0, 0, 104, 104 );
-//                UC8177_black_partial_update(104, 104, 104, 104 );
-//                UC8177_black_partial_update(208, 208, 104, 104 );
-//                UC8177_black_partial_update(316, 316, 104, 104 );
-//              mdelay(3000);
+                UC8177_black_partial_update(0, 0, 104, 104 );
+                UC8177_black_partial_update(104, 104, 104, 104 );
+                UC8177_black_partial_update(208, 208, 104, 104 );
+                UC8177_black_partial_update(316, 316, 104, 104 );
+              mdelay(3000);
 //          //    UC8177_white_update();
 //////                UC8177_black_update();
 //                UC8177_white_partial_update(0, 0, 104, 104 );

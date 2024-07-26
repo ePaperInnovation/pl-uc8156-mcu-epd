@@ -66,7 +66,7 @@ enum waveform_place{WF_SD =0x00, WF_FLASH= 0x01 };
 void image_eval_flow_SD(int display_color)
 {
     u8 waveform_from_file[WAVEFORM_LENGTH];
-    display_type = read_display_type_from_MTP(); // find the type of the display
+    //display_type = read_display_type_from_MTP(); // find the type of the display
 //    if (display_type == UNKNOWN)
 //        {
 //            // 2nd try to read display-type from SD-Card
@@ -76,7 +76,7 @@ void image_eval_flow_SD(int display_color)
 //                display_type = S014_T1_1;
 //
 //        }
-    display_type = S021_T1_1;
+    display_type = S011_T2_1;          // S011_T2.1 for PI NMOS
 
     set_display_type(display_type);             // display tp by tricolor is 2.1
     mdelay(100);
@@ -122,9 +122,13 @@ void image_eval_flow_SD(int display_color)
     u8 current_vcom_u8 = print_current_VCOM();   // get the Vcom from display
     current_vcom = current_vcom_u8 * 30;        // set the Vcom, unit: mV
 
-    register_vcom_set();
+    drive_voltage_setting(0x25, 0xff);
+    tcom_timing_setting(0x67, 0x55);
+    UC8156_set_Vcom(current_vcom);
 
     path_find();
+
+
 if( sd_exist)
 {
     UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_LUT; // waveform read from sd-card, 2 waveforms for tricolor
