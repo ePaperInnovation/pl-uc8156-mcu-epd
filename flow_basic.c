@@ -94,58 +94,52 @@ void image_eval_flow_SD(int display_color)
 
     spi_write_command_2params(0x1B, 0x32, 0x04);    // set vcom = -1.5V
 
-    path_find();
+   // path_find();
 
 
 if( sd_exist)
 {
     UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_LUT; // waveform read from sd-card, 2 waveforms for tricolor
 
-    switch(display_color)
-    {
-    case 0:
-        UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM = WAVEFORM_FROM_LUT;
-        if (sdcard_load_waveform(path_GL, waveform_from_file, WAVEFORM_LENGTH))
-        {
-            UC8156_send_waveform(waveform_from_file);
-            UC8156_send_waveform_slave(waveform_from_file);
+    if (sdcard_load_waveform(path_GL, waveform_from_file, WAVEFORM_LENGTH))
+           {
+               UC8156_send_waveform(waveform_from_file);
+               //UC8156_send_waveform_slave(waveform_from_file);
 
-        }
+           }
 
-        clear_display();
-        mdelay(100);
 
-        slideshow_run(FULL_UPDATE, 4000);
+    clear_display();
+    mdelay(100);
 
-    break;
+    path_find();
+         char image_path1[64];
+         char image_path2[64];
+         char image_path3[64];
 
-    case 1:
-        tricolor_yellow(WF_FLASH);                      // for tricolor yellow
-        break;
-    case 2:
-        tricolor_red(FULL_UPDATE, WF_FLASH);         // for tricolor red
-        break;
-    case 3:
-        tricolor_binary();
-        break;
-    case 4:
+         sprintf(image_path1, "/%s/%s", PATH, "img/a_PL_148x70pxl_display.pgm");
 
-        if (sdcard_load_waveform(path_GL, waveform_from_file, WAVEFORM_LENGTH))
-        {
-            UC8156_send_waveform(waveform_from_file);
-            UPDATE_COMMAND_WAVEFORMSOURCESELECT_PARAM =  WAVEFORM_FROM_LUT;
-        }
-        HTS_test();
-       // AO_Test();
-        break;
-    case 5:
-        tricolor_display_with_4GL_waveform();
-        break;
-    case 6:
-        tricolor_red_Techlab(FULL_UPDATE, WF_FLASH);         // for tricolor red
-        break;
+         printf("image_path1 = %s\n", image_path1);
 
-    }
+         sprintf(image_path2, "/%s/%s", PATH, "img/Align.pgm");
+         printf("image_path2 = %s\n", image_path2);
+         sprintf(image_path3, "/%s/%s", PATH, "img/TestPic.pgm");
+         printf("image_path3 = %s\n", image_path3);
+
+
+
+         mdelay(1000);
+         show_image_from_SDcard(image_path1, FULL_UPDATE);    //
+
+         mdelay(5000);
+         clear_display();
+         show_image_from_SDcard(image_path2, FULL_UPDATE);     //
+
+
+
+         mdelay(5000);
+         clear_display();
+         show_image_from_SDcard(image_path3, FULL_UPDATE);
 
 
 
